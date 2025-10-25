@@ -1,0 +1,185 @@
+{
+    "summaryCard": {
+        "tagline": "The Windwall Wanderer",
+        "personality": "You're a mechanical duelist who lives for the 1v1. Lane dominance is your art form, but coordinating with teammates? That's optional.",
+        "stats": {
+            "totalGames": 287,
+            "winrate": 54.3,
+            "totalHours": 214,
+            "favoriteRole": "Mid",
+            "peakRank": "Diamond 2"
+        }
+    },
+    "topMoments": [
+        {
+            "type": "achievement",
+            "title": "The Nexus Gambler",
+            "description": "You won 12 games with your nexus exposed. Heart attacks sold separately.",
+            "stat": "12 games",
+            "percentile": 94,
+            "icon": "nexus",
+            "visual": {
+                "type": "counter",
+                "value": 12,
+                "context": "comeback_wins"
+            }
+        },
+        {
+            "type": "skill",
+            "title": "Early Game Demon",
+            "description": "You built a 1,500+ gold lead before 15 minutes in 67% of your wins",
+            "stat": "1,847 avg gold lead",
+            "percentile": 89,
+            "icon": "gold",
+            "visual": {
+                "type": "timeline_graph",
+                "data": [ /* gold over time */]
+            }
+        },
+        {
+            "id": "moment_3",
+            "type": "champion_mastery",
+            "title": "The Yasuo Whisperer",
+            "description": "45 games, 8.2 CS/min, and a habit of going 10/10/5",
+            "stat": "62% winrate",
+            "percentile": 78,
+            "icon": "yasuo",
+            "championId": 157
+        },
+        {
+            "id": "moment_4",
+            "type": "clutch",
+            "title": "Baron Thief",
+            "description": "You stole 7 barons this year. The enemy junglers still have PTSD.",
+            "stat": "7 steals",
+            "percentile": 96,
+            "icon": "baron"
+        },
+        {
+            "id": "moment_5",
+            "type": "playstyle",
+            "title": "Vision? Never Heard of Her",
+            "description": "15 avg vision score. You play League like it's a fighting game.",
+            "stat": "Bottom 12%",
+            "percentile": 12,
+            "icon": "ward",
+        }
+    ],
+    "championStats": {
+        "favorite": {
+            "championId": 157,
+            "name": "Yasuo",
+            "games": 45,
+            "winrate": 62.2,
+            "kda": 2.8,
+            "title": "Your Signature Pick",
+            "insights": [
+                "You're 15-3 when getting first blood",
+                "8.2 CS/min - top 15% of Yasuo players",
+                "You face-check bushes 40% more than average"
+            ],
+            "bestMatchup": {
+                "championId": 103,
+                "name": "Ahri",
+                "winrate": 80,
+                "games": 10
+            },
+            "worstMatchup": {
+                "championId": 122,
+                "name": "Darius",
+                "winrate": 25,
+                "games": 8
+            }
+        },
+        "top3": [
+            {
+                "championId": 157,
+                "name": "Yasuo",
+                "games": 45,
+                "winrate": 62.2
+            },
+            {
+                "championId": 777,
+                "name": "Yone",
+                "games": 32,
+                "winrate": 56.3
+            },
+            {
+                "championId": 238,
+                "name": "Zed",
+                "games": 28,
+                "winrate": 50.0
+            }
+        ],
+        "hiddenGem": {
+            "championId": 103,
+            "name": "Ahri",
+            "games": 8,
+            "winrate": 87.5,
+            "title": "Your Pocket Pick",
+            "description": "Small sample size, but you're undefeated in ranked with her"
+        }
+    },
+    "playstyleProfile": {
+        "archetype": "The Mechanical Duelist",
+        "traits": [
+            {
+                "name": "Lane Kingdom",
+                "score": 92,
+                "description": "You win lane 73% of the time"
+            },
+            {
+                "name": "Teamfight Chaos",
+                "score": 45,
+                "description": "Your teamfight positioning is... creative"
+            },
+            {
+                "name": "Objective Focus",
+                "score": 38,
+                "description": "Dragons are just suggestions"
+            },
+            {
+                "name": "Risk Tolerance",
+                "score": 88,
+                "description": "Calculated aggression (the calculation might be wrong)"
+            }
+        ],
+        "signature": "You treat League like a fighting game - 1v1s are where you shine, but coordinating with 4 strangers? That's the real challenge."
+    },
+    "timelineHighlights": {
+        "bestMonth": {
+            "month": "July",
+            "winrate": 64.2,
+            "games": 42
+        },
+        "longestWinStreak": 9,
+        "longestLossStreak": 6,
+        "clutchestComeback": {
+            "matchId": "NA1_4829...",
+            "goldDeficit": -8400,
+            "result": "victory",
+            "description": "Down 8.4k gold at 25min, still won"
+        }
+    },
+    "funFacts": [
+        "You played 23 games between 2-4 AM. Sleep is for the weak.",
+        "You've walked past 847 wards without clearing them",
+        "If your deaths were a champion, it would be level 18 by minute 15",
+        "You bought control wards in only 34% of games. Vision is overrated anyway."
+    ],
+    "metadata": {
+        "generatedAt": "2024-12-20T10:30:00Z",
+        "matchesAnalyzed": 287,
+        "dateRange": {
+            "start": "2024-01-01",
+            "end": "2024-12-20"
+        },
+        "aiGenerated": [
+            "summaryCard.tagline",
+            "summaryCard.personality",
+            "topMoments",
+            "playstyleProfile.signature",
+            "funFacts"
+        ]
+    }
+}
