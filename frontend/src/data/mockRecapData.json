@@ -1,0 +1,188 @@
+{
+  "basicStats": {
+    "wins": 234,
+    "losses": 198,
+    "totalGames": 432,
+    "lpGained": 856,
+    "lpLost": 723,
+    "peakRank": "Diamond II",
+    "currentRank": "Diamond IV",
+    "favoriteRole": "Mid Lane"
+  },
+  "personality": {
+    "aiDescription": "You're the calculated risk-taker who thrives in chaos. When the game hangs in the balance, you find your true power.",
+    "traits": {
+      "aggression": 78,
+      "teamwork": 85,
+      "mechanics": 72,
+      "strategy": 88,
+      "consistency": 65
+    }
+  },
+  "topChampions": [
+    {
+      "name": "Yasuo",
+      "games": 67,
+      "winrate": 58.2,
+      "kda": 3.4,
+      "sprite": "yasuo.jpg"
+    },
+    {
+      "name": "Zed",
+      "games": 54,
+      "winrate": 61.1,
+      "kda": 3.8,
+      "sprite": "zed.jpg"
+    },
+    {
+      "name": "Akali",
+      "games": 48,
+      "winrate": 56.3,
+      "kda": 3.2,
+      "sprite": "akali.jpg"
+    }
+  ],
+  "hiddenGem": {
+    "champion": "Twisted Fate",
+    "yourWinrate": 72.7,
+    "pubWinrate": 51.2,
+    "differential": 21.5,
+    "games": 22
+  },
+  "timeline": [
+    {
+      "month": "January",
+      "title": "The Humble Beginning",
+      "description": "Started in Gold II, grinding through placements with determination.",
+      "highlight": "First pentakill of the season on Yasuo",
+      "rankChange": "Gold II → Gold I"
+    },
+    {
+      "month": "March",
+      "title": "The Breaking Point",
+      "description": "Hit a massive loss streak. Dropped two divisions in one week.",
+      "highlight": "8-game loss streak",
+      "rankChange": "Gold I → Silver III"
+    },
+    {
+      "month": "May",
+      "title": "Champion Mastery",
+      "description": "Discovered Zed and everything clicked. Mechanics sharpened significantly.",
+      "highlight": "16W-4L streak on Zed",
+      "rankChange": "Silver III → Platinum IV"
+    },
+    {
+      "month": "July",
+      "title": "The Diamond Push",
+      "description": "Consistent performance and mental resilience led to the diamond breakthrough.",
+      "highlight": "First time Diamond",
+      "rankChange": "Platinum I → Diamond IV"
+    },
+    {
+      "month": "September",
+      "title": "Peak Performance",
+      "description": "Reached the highest rank of your career with a 12-game win streak.",
+      "highlight": "Peaked at Diamond II",
+      "rankChange": "Diamond IV → Diamond II"
+    },
+    {
+      "month": "December",
+      "title": "Season Finale",
+      "description": "Ended the season strong, maintaining Diamond despite tough competition.",
+      "highlight": "Finished Diamond IV",
+      "rankChange": "Diamond II → Diamond IV"
+    }
+  ],
+  "achievements": [
+    {
+      "id": "comeback_king",
+      "title": "Comeback King",
+      "description": "Won 23 games where your team was down 10k+ gold",
+      "icon": "trophy",
+      "rarity": "legendary"
+    },
+    {
+      "id": "assassin_master",
+      "title": "Assassin Virtuoso",
+      "description": "Averaged 8.2 kills per game on assassin champions",
+      "icon": "sword",
+      "rarity": "epic"
+    },
+    {
+      "id": "solo_carry",
+      "title": "1v9 Warrior",
+      "description": "Dealt 40%+ of team's damage in 47 games",
+      "icon": "flame",
+      "rarity": "legendary"
+    },
+    {
+      "id": "vision_master",
+      "title": "Vision Oracle",
+      "description": "Placed 892 control wards this season",
+      "icon": "eye",
+      "rarity": "rare"
+    },
+    {
+      "id": "pentakill",
+      "title": "Pentakill Collector",
+      "description": "Achieved 4 pentakills this season",
+      "icon": "star",
+      "rarity": "epic"
+    },
+    {
+      "id": "clutch",
+      "title": "Clutch Master",
+      "description": "Won 18 games with sub-100 HP nexus",
+      "icon": "heart",
+      "rarity": "legendary"
+    }
+  ],
+  "embarrassingFacts": [
+    {
+      "title": "Flash Fail Master",
+      "description": "Flashed into walls 47 times this season",
+      "severity": "high"
+    },
+    {
+      "title": "The Tilt Lord",
+      "description": "Your winrate after a loss is only 38% (compared to 64% after a win)",
+      "severity": "medium"
+    },
+    {
+      "title": "Rage Quit Tendencies",
+      "description": "Left 3 games early after dying 5+ times",
+      "severity": "high"
+    },
+    {
+      "title": "Ward Allergic",
+      "description": "In 12 games, you placed 0 wards the entire match",
+      "severity": "medium"
+    }
+  ],
+  "teammates": [
+    {
+      "name": "ShadowKnight42",
+      "games": 34,
+      "winrate": 67.6,
+      "favoriteRole": "Support",
+      "synergy": "You two create early game pressure that opponents can't handle. When ShadowKnight roams mid, your kill participation jumps to 82%.",
+      "bestCombo": "Your Yasuo + Their Thresh"
+    },
+    {
+      "name": "xXDragonSlayerXx",
+      "games": 28,
+      "winrate": 64.3,
+      "favoriteRole": "Jungle",
+      "synergy": "The perfect ganking duo. DragonSlayer's early game presence enables your aggressive laning style, resulting in a 73% first blood rate.",
+      "bestCombo": "Your Zed + Their Lee Sin"
+    },
+    {
+      "name": "MidOrFeed",
+      "games": 23,
+      "winrate": 47.8,
+      "favoriteRole": "ADC",
+      "synergy": "Communication issues lead to missed opportunities. Your playstyles clash - you peak mid-game while they need late game scaling.",
+      "bestCombo": "Your Akali + Their Jinx"
+    }
+  ]
+}
