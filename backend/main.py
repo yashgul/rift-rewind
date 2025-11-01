@@ -4,7 +4,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
 from clients.riotAPIClient import RiotAPIClient
-from helpers.parsers import parse_match_for_player
+from clients.awsBedrock import generate_player_wrapped_json
+from helpers.match_parser import parse_match_for_player
+from helpers.match_aggregator import MatchStatsAggregator
 
 load_dotenv(verbose=True)
 
@@ -33,14 +35,19 @@ def hello():
     print("Fakers PUUID:", faker_puuid)
 
     recent_match_ids = riot_api_client.get_match_ids_by_puuid(puuid=faker_puuid)
-    print("Recent Match IDs:", recent_match_ids)
 
-    match_data = riot_api_client.get_match_metadata_by_match_id(match_id=recent_match_ids[0])
+    match_stats_aggregator = MatchStatsAggregator()
 
-    relevant_match_data = parse_match_for_player(match_data=match_data, target_puuid=faker_puuid)
-    print("Relevant Match Data:", relevant_match_data)
+    for match_id in recent_match_ids:
+        match_data = riot_api_client.get_match_metadata_by_match_id(match_id=match_id)
+        flattened_match_data = parse_match_for_player(
+            match_data=match_data, target_puuid=faker_puuid
+        )
+        match_stats_aggregator.add_match(flattened_match_data)
 
-    return {"message": relevant_match_data}
+    result = generate_player_wrapped_json(match_stats_aggregator.get_summary())
+    return {"message": result}
+    return match_stats_aggregator.get_summary()
 
 
 if __name__ == "__main__":

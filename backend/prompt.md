@@ -77,7 +77,7 @@ INSTRUCTIONS:
 3. For percentiles: Use "Top X%" for impressive stats. Only include if the stat is genuinely notable.
 4. Tone: Positive and celebratory like Spotify Wrapped. Acknowledge quirks warmly, not harshly.
 5. Make the "big" number eye-catching (round if needed, add K for thousands)
-6. hiddenGem should be null if no champion has <10 games AND >70% WR
+6. hiddenGem should be null if no champion has <20 games AND >70% WR
 7. For traits, score based on the data: high CS/min = high "Farming", baron steals = high "Objective Control", etc.
 8. funFacts should be surprising or amusing observations from the data
 
