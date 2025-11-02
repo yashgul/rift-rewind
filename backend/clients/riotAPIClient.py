@@ -1,6 +1,7 @@
 import requests
 import os
 import logging
+import time
 from typing import Optional, Dict, List, Any
 from datetime import datetime
 
@@ -53,15 +54,18 @@ class RiotAPIClient:
         return base_url
 
     def _request(
-        self, region: str, endpoint_path: str, params: Optional[Dict] = None
+        self, region: str, endpoint_path: str, params: Optional[Dict] = None,
+        max_retries: int = 3, initial_retry_delay: int = 2
     ) -> Optional[Any]:
         """
-        Internal method to make a GET request to the Riot API.
+        Internal method to make a GET request to the Riot API with retry mechanism.
 
         Args:
             region (str): The regional routing value.
             endpoint_path (str): The API endpoint path (e.g., '/lol/match/v5/matches/...')
             params (dict, optional): A dictionary of query parameters.
+            max_retries (int): Maximum number of retry attempts
+            initial_retry_delay (int): Initial delay between retries in seconds
 
         Returns:
             dict or list: The JSON response from the API, or None if an error occurred.
@@ -74,10 +78,23 @@ class RiotAPIClient:
         if params:
             self.logger.debug(f"Query parameters: {params}")
 
-        try:
-            start_time = datetime.now()
-            response = requests.get(url, headers=self.headers, params=params)
-            elapsed_time = (datetime.now() - start_time).total_seconds()
+        retry_count = 0
+        retry_delay = initial_retry_delay
+
+        while retry_count <= max_retries:
+            try:
+                start_time = datetime.now()
+                response = requests.get(url, headers=self.headers, params=params)
+                elapsed_time = (datetime.now() - start_time).total_seconds()
+
+                # If we hit rate limit
+                if response.status_code == 429:
+                    retry_after = int(response.headers.get('Retry-After', retry_delay))
+                    self.logger.warning(f"Rate limit hit. Waiting {retry_after} seconds...")
+                    time.sleep(retry_after)
+                    retry_count += 1
+                    retry_delay = retry_delay * 2  # Exponential backoff
+                    continue
 
             # Log response status
             self.logger.info(f"Response status: {response.status_code} | Time: {elapsed_time:.2f}s")

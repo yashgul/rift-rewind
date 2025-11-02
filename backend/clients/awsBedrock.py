@@ -326,9 +326,71 @@ CRITICAL RULES:
 ]
 
 
-# --- 3. Bedrock API Call Setup using Converse API ---
+# --- 3. DynamoDB Operations ---
+import decimal
+import json
+
+def convert_floats_to_decimals(obj):
+    """
+    Recursively converts all float values in a dictionary/list to Decimal
+    """
+    if isinstance(obj, dict):
+        return {key: convert_floats_to_decimals(value) for key, value in obj.items()}
+    elif isinstance(obj, list):
+        return [convert_floats_to_decimals(element) for element in obj]
+    elif isinstance(obj, float):
+        return decimal.Decimal(str(obj))
+    return obj
+class DecimalEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, decimal.Decimal):
+            return float(obj)
+        return super(DecimalEncoder, self).default(obj)
+
+def get_wrapped_from_dynamodb(unique_id: str):
+    """
+    Check if player's wrapped data exists in DynamoDB
+    """
+    try:
+        dynamodb = boto3.resource('dynamodb', region_name='eu-north-1')
+        table = dynamodb.Table('rift-rewind-jay')
+        
+        response = table.get_item(
+            Key={
+                'unique_id': unique_id
+            }
+        )
+        
+        item = response.get('Item')
+        if item:
+            # Convert the item to JSON and back to handle Decimal conversion
+            return json.loads(json.dumps(item, cls=DecimalEncoder))
+        return None
+    except Exception as e:
+        print(f"Error retrieving from DynamoDB: {e}")
+        return None
+
+def store_wrapped_in_dynamodb(json_for_db: dict):
+    """
+    Store player's wrapped data in DynamoDB
+    """
+    try:
+        dynamodb = boto3.resource('dynamodb', region_name='eu-north-1')
+        table = dynamodb.Table('rift-rewind-jay')
+        
+        # Convert all float values to Decimal
+        converted_data = convert_floats_to_decimals(json_for_db)
+        
+        table.put_item(Item=converted_data)
+        print(f"Successfully stored data for {json_for_db['unique_id']}")
+        return True
+    except Exception as e:
+        print(f"Error storing in DynamoDB: {e}")
+        return False
+
+# --- 4. Bedrock API Call Setup using Converse API ---
 def generate_player_wrapped_json(
-    player_data, system_prompt=SYSTEM_PROMPT, tool_config=PLAYER_WRAPPED_SCHEMA
+    player_data, name: str, tag: str, region: str, system_prompt=SYSTEM_PROMPT, tool_config=PLAYER_WRAPPED_SCHEMA
 ):
     """
     Invokes the Bedrock Claude model using Converse API with tool-use to enforce
@@ -336,8 +398,14 @@ def generate_player_wrapped_json(
 
     Args:
         player_data: The raw player data to analyze
+        name: Player's game name
+        tag: Player's tag (e.g., NA1, KR1)
+        region: Player's region (e.g., americas, asia)
         system_prompt: The system-level instructions for the model
         tool_config: The tool configuration with schema
+
+    Returns:
+        dict: A dictionary containing unique_id and wrapped_data
     """
     try:
         # Initialize Bedrock client with US region
@@ -394,10 +462,19 @@ Player Data:
                         wrapped_data = tool["input"]
 
                         print("\n--- Bedrock Output (Tool Call Result) ---")
-                        print(json.dumps(wrapped_data, indent=2))
+                        #print(json.dumps(wrapped_data, indent=2))
                         print("------------------------------------------")
 
-                        return wrapped_data
+                        # Create unique identifier by concatenating name, tag, and region
+                        unique_id = f"{name.lower()}_{tag.lower()}_{region.lower()}"
+                        
+                        # Create the final structure for DB storage
+                        json_for_db = {
+                            "unique_id": unique_id,
+                            "wrapped_data": wrapped_data
+                        }
+                        print(json.dumps(json_for_db, indent=2))
+                        return json_for_db
 
         elif stop_reason == "end_turn":
             # Model responded without using tool
