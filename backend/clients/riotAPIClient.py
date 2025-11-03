@@ -96,62 +96,62 @@ class RiotAPIClient:
                     retry_delay = retry_delay * 2  # Exponential backoff
                     continue
 
-            # Log response status
-            self.logger.info(f"Response status: {response.status_code} | Time: {elapsed_time:.2f}s")
+                # Log response status
+                self.logger.info(f"Response status: {response.status_code} | Time: {elapsed_time:.2f}s")
 
-            # Log rate limit headers if present
-            if "X-App-Rate-Limit" in response.headers:
-                self.logger.debug(f"Rate limit: {response.headers.get('X-App-Rate-Limit')}")
-            if "X-App-Rate-Limit-Count" in response.headers:
-                self.logger.debug(
-                    f"Rate limit count: {response.headers.get('X-App-Rate-Limit-Count')}"
-                )
+                # Log rate limit headers if present
+                if "X-App-Rate-Limit" in response.headers:
+                    self.logger.debug(f"Rate limit: {response.headers.get('X-App-Rate-Limit')}")
+                if "X-App-Rate-Limit-Count" in response.headers:
+                    self.logger.debug(
+                        f"Rate limit count: {response.headers.get('X-App-Rate-Limit-Count')}"
+                    )
 
-            # Raise an exception for bad status codes (4xx or 5xx)
-            response.raise_for_status()
+                # Raise an exception for bad status codes (4xx or 5xx)
+                response.raise_for_status()
 
-            # Return the JSON response if successful
-            json_response = response.json()
-            self.logger.info(f"✓ Request successful for {endpoint_path}")
+                # Return the JSON response if successful
+                json_response = response.json()
+                self.logger.info(f"✓ Request successful for {endpoint_path}")
 
-            # Log response size info
-            if isinstance(json_response, list):
-                self.logger.debug(f"Response contains {len(json_response)} items")
-            elif isinstance(json_response, dict):
-                self.logger.debug(f"Response contains {len(json_response)} keys")
+                # Log response size info
+                if isinstance(json_response, list):
+                    self.logger.debug(f"Response contains {len(json_response)} items")
+                elif isinstance(json_response, dict):
+                    self.logger.debug(f"Response contains {len(json_response)} keys")
 
-            return json_response
+                return json_response
 
-        except requests.exceptions.HTTPError as http_err:
-            status_code = response.status_code
+            except requests.exceptions.HTTPError as http_err:
+                status_code = response.status_code
 
-            # Provide detailed error messages based on status code
-            if status_code == 400:
-                self.logger.error(f"✗ Bad Request (400): {response.text}")
-            elif status_code == 401:
-                self.logger.error(f"✗ Unauthorized (401): Invalid API key")
-            elif status_code == 403:
-                self.logger.error(f"✗ Forbidden (403): API key may not have access")
-            elif status_code == 404:
-                self.logger.error(f"✗ Not Found (404): Resource not found - {endpoint_path}")
-            elif status_code == 429:
-                self.logger.error(f"✗ Rate Limit Exceeded (429): Too many requests")
-                retry_after = response.headers.get("Retry-After")
-                if retry_after:
-                    self.logger.error(f"Retry after: {retry_after} seconds")
-            elif status_code >= 500:
-                self.logger.error(
-                    f"✗ Server Error ({status_code}): Riot API is experiencing issues"
-                )
-            else:
-                self.logger.error(f"✗ HTTP error occurred: {http_err} - {response.text}")
+                # Provide detailed error messages based on status code
+                if status_code == 400:
+                    self.logger.error(f"✗ Bad Request (400): {response.text}")
+                elif status_code == 401:
+                    self.logger.error(f"✗ Unauthorized (401): Invalid API key")
+                elif status_code == 403:
+                    self.logger.error(f"✗ Forbidden (403): API key may not have access")
+                elif status_code == 404:
+                    self.logger.error(f"✗ Not Found (404): Resource not found - {endpoint_path}")
+                elif status_code == 429:
+                    self.logger.error(f"✗ Rate Limit Exceeded (429): Too many requests")
+                    retry_after = response.headers.get("Retry-After")
+                    if retry_after:
+                        self.logger.error(f"Retry after: {retry_after} seconds")
+                elif status_code >= 500:
+                    self.logger.error(
+                        f"✗ Server Error ({status_code}): Riot API is experiencing issues"
+                    )
+                else:
+                    self.logger.error(f"✗ HTTP error occurred: {http_err} - {response.text}")
 
-        except requests.exceptions.ConnectionError as conn_err:
-            self.logger.error(f"✗ Connection error: {conn_err}")
-        except requests.exceptions.Timeout as timeout_err:
-            self.logger.error(f"✗ Request timeout: {timeout_err}")
-        except requests.exceptions.RequestException as req_err:
-            self.logger.error(f"✗ An error occurred: {req_err}")
+            except requests.exceptions.ConnectionError as conn_err:
+                self.logger.error(f"✗ Connection error: {conn_err}")
+            except requests.exceptions.Timeout as timeout_err:
+                self.logger.error(f"✗ Request timeout: {timeout_err}")
+            except requests.exceptions.RequestException as req_err:
+                self.logger.error(f"✗ An error occurred: {req_err}")
 
         return None
 

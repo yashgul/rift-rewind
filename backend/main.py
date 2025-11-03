@@ -15,7 +15,6 @@ from helpers.match_parser import parse_match_for_player
 from helpers.match_aggregator import MatchStatsAggregator
 
 load_dotenv(verbose=True)
-#os.environ['AWS_BEARER_TOKEN_BEDROCK'] = 'ABSKQmVkcm9ja0FQSUtleS03ODZ1LWF0LTMzNTA1NzQ5MzIyODp0QU9ya3UxN0NUZmVZd0diVTdFdzNibDc4OHNXNGV3ZkFWc0IrNENvOVpRL2dTVitEdDFqWncvczJRTT0='
 
 app = FastAPI()
 
