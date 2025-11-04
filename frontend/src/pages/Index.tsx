@@ -3,10 +3,18 @@ import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Volume2, VolumeX } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const Index = () => {
   const [username, setUsername] = useState("");
   const [isMuted, setIsMuted] = useState(false);
+  const [region, setRegion] = useState<string>("");
   const audioRef = useRef<HTMLAudioElement>(null);
   const navigate = useNavigate();
 
@@ -31,19 +39,20 @@ const Index = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (username.trim()) {
-      navigate(`/loading?username=${encodeURIComponent(username)}`);
+      navigate(`/loading?username=${encodeURIComponent(username)}&region=${encodeURIComponent(region)}`);
     }
   };
 
   return (
-    <div className="relative min-h-screen overflow-hidden">
+    <div className="relative min-h-screen overflow-hidden group">
       {/* Video Background */}
       <video
         autoPlay
         loop
         muted
         playsInline
-        className="absolute inset-0 w-full h-full object-cover"
+        preload="auto"
+        className="absolute inset-0 w-full h-full object-cover filter brightness-115 contrast-120 saturate-110"
       >
         <source src="https://ask-them-out.s3.ap-south-1.amazonaws.com/tmpt2lr5oe6.mp4" type="video/mp4" />
       </video>
@@ -53,21 +62,12 @@ const Index = () => {
         <source src="/league-audio.mp3" type="audio/mpeg" />
       </audio>
 
-      {/* Overlay - lighter to show video better */}
-      <div className="absolute inset-0 bg-lol-dark/30 backdrop-blur-[2px]" />
+      {/* Overlay - slightly darker with subtle blur */}
+      <div className="absolute inset-0 bg-lol-dark/15 backdrop-blur-[0.5px]" />
+
+      {/* Decorative rings removed */}
       
-      {/* Animated Hex Grid Background */}
-      <div className="absolute inset-0 z-[1] overflow-hidden pointer-events-none">
-        <div className="absolute top-10 left-10 w-32 h-32 border-2 border-lol-gold/20 rotate-45 animate-float" style={{ animationDelay: '0s' }} />
-        <div className="absolute top-40 right-20 w-24 h-24 border-2 border-lol-blue/30 rotate-12 animate-float" style={{ animationDelay: '1s' }} />
-        <div className="absolute bottom-20 left-1/4 w-40 h-40 border-2 border-lol-gold/15 -rotate-12 animate-float" style={{ animationDelay: '2s' }} />
-        <div className="absolute bottom-40 right-1/3 w-28 h-28 border-2 border-lol-blue/20 rotate-45 animate-float" style={{ animationDelay: '1.5s' }} />
-        
-        {/* Floating particles */}
-        <div className="absolute top-1/4 left-1/3 w-2 h-2 bg-lol-gold/40 rounded-full animate-pulse-gold" style={{ animationDelay: '0.5s' }} />
-        <div className="absolute top-1/3 right-1/4 w-3 h-3 bg-lol-blue/30 rounded-full animate-pulse-gold" style={{ animationDelay: '1.2s' }} />
-        <div className="absolute bottom-1/3 left-1/2 w-2 h-2 bg-lol-gold/50 rounded-full animate-pulse-gold" style={{ animationDelay: '2.5s' }} />
-      </div>
+      {/* Removed floating background squares/particles */}
       
       {/* Mute Button */}
       <button
@@ -84,16 +84,24 @@ const Index = () => {
 
       {/* Content */}
       <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4">
-        <div className="text-center space-y-8 max-w-2xl">
+        <div className="text-center space-y-8 max-w-2xl scale-[1.17]">
           {/* Title */}
           <div className="space-y-4 animate-fade-in relative">
             {/* Glowing orbs behind title */}
             <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-64 h-64 bg-lol-gold/10 rounded-full blur-3xl animate-pulse-gold" />
             <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-96 h-96 bg-lol-blue/5 rounded-full blur-3xl animate-pulse-gold" style={{ animationDelay: '1s' }} />
-            
-            <h1 className="text-8xl md:text-9xl font-bebas tracking-[0.2em] bg-gradient-gold bg-clip-text text-transparent drop-shadow-glow hover:scale-105 transition-transform duration-300 relative animate-shimmer bg-[length:200%_100%]">
-              RIFT REWIND
-            </h1>
+            <img
+              src="/rift_logo1.png"
+              alt="League of Legends"
+              className="
+                w-100 h-100 
+                scale-[0.9]
+                drop-shadow-[0_0_15px_rgba(255,215,0,0.3)] 
+                transition-all duration-300 ease-in-out
+                hover:scale-110 
+                hover:drop-shadow-[0_0_25px_rgba(255,215,0,0.5)]
+              "
+            />
             <p className="text-xl md:text-2xl text-foreground/90 font-rajdhani font-medium animate-fade-in" style={{ animationDelay: '0.3s' }}>
               Discover your League of Legends journey this year
             </p>
@@ -101,15 +109,39 @@ const Index = () => {
 
           {/* Input Form */}
           <form onSubmit={handleSubmit} className="space-y-4 animate-scale-in">
-            <div className="relative max-w-md mx-auto group">
-              <div className="absolute inset-0 bg-gradient-gold opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-300 rounded-lg" />
-              <Input
-                type="text"
-                placeholder="Enter your summoner name"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="h-14 text-lg bg-card/80 backdrop-blur-sm border-lol-gold/30 focus:border-lol-gold text-foreground placeholder:text-muted-foreground font-rajdhani font-medium relative hover:border-lol-gold/60 transition-all duration-300"
-              />
+            <div className="w-full flex flex-col md:flex-row items-stretch md:items-center justify-center gap-3">
+              <div className="relative max-w-md w-full group">
+                <div className="absolute inset-0 bg-gradient-gold opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-300 rounded-lg" />
+                <Input
+                  type="text"
+                  placeholder="Enter your summoner name"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="h-14 text-xl leading-tight bg-card/80 backdrop-blur-sm border-lol-gold/30 focus:border-lol-gold text-foreground placeholder:text-muted-foreground font-rajdhani font-medium relative hover:border-lol-gold/60 transition-all duration-300 px-3"
+                />
+              </div>
+              <div className="relative max-w-[100px] w-full group">
+                <div className="absolute inset-0 bg-gradient-gold opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-300 rounded-lg" />
+                <Select value={region} onValueChange={setRegion}>
+                  <SelectTrigger className="h-14 text-xl leading-tight bg-card/80 backdrop-blur-sm border-lol-gold/30 focus:border-lol-gold text-foreground font-rajdhani font-medium relative hover:border-lol-gold/60 transition-all duration-300 px-3">
+                    <SelectValue placeholder="Region" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="NA1">NA</SelectItem>
+                    <SelectItem value="EUW1">EUW</SelectItem>
+                    <SelectItem value="EUN1">EUNE</SelectItem>
+                    <SelectItem value="BR1">BR</SelectItem>
+                    <SelectItem value="KR">KR</SelectItem>
+                    <SelectItem value="PBE1">PB</SelectItem>
+                    <SelectItem value="LA1">LAN</SelectItem>
+                    <SelectItem value="LA2">LAS</SelectItem>
+                    <SelectItem value="OC1">OCE</SelectItem>
+                    <SelectItem value="TR1">TR</SelectItem>
+                    <SelectItem value="RU">RU</SelectItem>
+                    <SelectItem value="JP1">JP</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
             <Button
               type="submit"
