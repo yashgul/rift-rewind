@@ -1,24 +1,55 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 const Loading = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const username = searchParams.get("username");
+  const name = searchParams.get("name");
+  const tag = searchParams.get("tag");
+  const region = searchParams.get("region");
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!username) {
+    if (!name || !tag || !region) {
       navigate("/");
       return;
     }
 
-    // Simulate loading time
-    const timer = setTimeout(() => {
-      navigate(`/recap?username=${username}`);
-    }, 3000);
+    const fetchRecapData = async () => {
+      try {
+        // Get backend URL from environment variable
+        const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:9000';
+        
+        // Construct the API URL with proper parameters
+        const apiUrl = `${backendUrl}/api/matchData?tag=${encodeURIComponent(tag)}&name=${encodeURIComponent(name)}&region=${encodeURIComponent(region)}`;
+        
+        console.log("Fetching from:", apiUrl);
+        
+        const response = await fetch(apiUrl);
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`API Error ${response.status}: ${errorText}`);
+        }
+        
+        const data = await response.json();
+        console.log("API Response:", data);
+        
+        // Store the data in localStorage
+        localStorage.setItem('recapData', JSON.stringify(data.message.wrapped_data));
+        localStorage.setItem('riotId', `${name}#${tag}`);
+        
+        // Navigate to recap page
+        navigate(`/recap?name=${encodeURIComponent(name)}&tag=${encodeURIComponent(tag)}`);
+      } catch (err) {
+        console.error("Error fetching recap data:", err);
+        const errorMessage = err instanceof Error ? err.message : "Failed to load recap data";
+        setError(errorMessage);
+        // Show error to user - NO FALLBACK
+      }
+    };
 
-    return () => clearTimeout(timer);
-  }, [username, navigate]);
+    fetchRecapData();
+  }, [name, tag, region, navigate]);
 
   return (
     <div className="min-h-screen bg-gradient-hero flex items-center justify-center relative overflow-hidden">
@@ -57,18 +88,34 @@ const Loading = () => {
         {/* Loading text */}
         <div className="space-y-4">
           <h2 className="text-3xl font-bold bg-gradient-gold bg-clip-text text-transparent">
-            Analyzing Your Season
+            {error ? "Error Loading Data" : "Analyzing Your Season"}
           </h2>
           <div className="space-y-2">
-            <p className="text-muted-foreground animate-pulse" style={{ animationDelay: '0s' }}>
-              Processing {username}'s match history...
-            </p>
-            <p className="text-muted-foreground animate-pulse" style={{ animationDelay: '0.5s' }}>
-              Calculating playstyle metrics...
-            </p>
-            <p className="text-muted-foreground animate-pulse" style={{ animationDelay: '1s' }}>
-              Generating your persona...
-            </p>
+            {error ? (
+              <div className="space-y-3">
+                <p className="text-red-400 font-rajdhani text-lg">
+                  {error}
+                </p>
+                <button
+                  onClick={() => navigate("/")}
+                  className="px-6 py-2 bg-card border border-border hover:border-primary transition-colors rounded-lg text-foreground font-semibold"
+                >
+                  Go Back
+                </button>
+              </div>
+            ) : (
+              <>
+                <p className="text-muted-foreground animate-pulse" style={{ animationDelay: '0s' }}>
+                  Processing {name}#{tag} match history...
+                </p>
+                <p className="text-muted-foreground animate-pulse" style={{ animationDelay: '0.5s' }}>
+                  Calculating playstyle metrics...
+                </p>
+                <p className="text-muted-foreground animate-pulse" style={{ animationDelay: '1s' }}>
+                  Generating your persona...
+                </p>
+              </>
+            )}
           </div>
         </div>
 

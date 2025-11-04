@@ -7,13 +7,170 @@ import YearlyTimeline from "@/components/recap/YearlyTimeline";
 import AchievementsGrid from "@/components/recap/AchievementsGrid";
 import EmbarrassingFacts from "@/components/recap/EmbarrassingFacts";
 import TeammatesCard from "@/components/recap/TeammatesCard";
-import recapData from "@/data/mockRecapData.json";
+
+interface BasicStatsCardType {
+  wins: number;
+  losses: number;
+  totalGames: number;
+  lpGained: number;
+  lpLost: number;
+  peakRank: string;
+  currentRank: string;
+  favoriteRole: string;
+}
+
+interface PersonalityRadarType {
+  aiDescription: string;
+  traits: {
+    aggression: number;
+    teamwork: number;
+    mechanics: number;
+    strategy: number;
+    consistency: number;
+  };
+}
+
+interface RecapData {
+  basicStats: BasicStatsCardType;
+  personality: PersonalityRadarType;
+  topChampions: Array<{
+    name: string;
+    games: number;
+    winrate: number;
+    kda: number;
+    sprite: string;
+  }>;
+  hiddenGem: {
+    champion: string;
+    yourWinrate: number;
+    pubWinrate: number;
+    differential: number;
+    games: number;
+  };
+  timeline: Array<{
+    month: string;
+    title: string;
+    description: string;
+    highlight: string;
+    rankChange: string;
+  }>;
+  achievements: Array<{
+    id: string;
+    title: string;
+    description: string;
+    icon: string;
+    rarity: string;
+  }>;
+  embarrassingFacts: Array<{
+    title: string;
+    description: string;
+    severity: string;
+  }>;
+  teammates: Array<{
+    name: string;
+    games: number;
+    winrate: number;
+    favoriteRole: string;
+    synergy: string;
+    bestCombo: string;
+  }>;
+}
 
 const Recap = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const username = searchParams.get("username");
+  const name = searchParams.get("name");
+  const tag = searchParams.get("tag");
   const [visibleSections, setVisibleSections] = useState<number[]>([]);
+  const [recapData, setRecapData] = useState<RecapData | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  // Transform API data to component structure
+  const transformApiData = (apiData: Record<string, unknown>): RecapData => {
+    const wrapped = (apiData.wrapped as Record<string, unknown>) || {};
+    const stats = (apiData.stats as Record<string, unknown>) || {};
+    const highlights = (apiData.highlights as Array<{title: string; description: string}>) || [];
+    const champions = (apiData.champions as Record<string, unknown>) || {};
+    const playstyle = (apiData.playstyle as Record<string, unknown>) || {};
+    const funFacts = (apiData.funFacts as string[]) || [];
+
+    // Map playstyle traits
+    const traitsList = (playstyle.traits as Array<{name: string; score: number}>) || [];
+    const traitsMap: Record<string, number> = {
+      aggression: 0,
+      teamwork: 0,
+      mechanics: 0,
+      strategy: 0,
+      consistency: 0,
+    };
+    
+    traitsList.forEach((trait: {name: string; score: number}) => {
+      const key = trait.name.toLowerCase().replace(/\s+/g, '_');
+      if (key in traitsMap) {
+        traitsMap[key as keyof typeof traitsMap] = trait.score;
+      }
+    });
+
+    const championsList = ((champions.top3 as Array<{name: string; games: number; wr: number; kda?: number}>) || []);
+    const hiddenGemData = (champions.hiddenGem as {name: string; games: number; winrate: number; insight?: string}) || null;
+
+    return {
+      basicStats: {
+        wins: Math.round((stats.games as number || 100) * ((stats.winrate as number || 50) / 100)),
+        losses: Math.round((stats.games as number || 100) * (100 - (stats.winrate as number || 50)) / 100),
+        totalGames: (stats.games as number) || 100,
+        lpGained: 856,
+        lpLost: 723,
+        peakRank: "Diamond II",
+        currentRank: "Diamond IV",
+        favoriteRole: "Mid Lane",
+      },
+      personality: {
+        aiDescription: (wrapped.summary as string) || "",
+        traits: {
+          aggression: traitsMap['aggression'] || 0,
+          teamwork: traitsMap['teamwork'] || 0,
+          mechanics: traitsMap['mechanics'] || 0,
+          strategy: traitsMap['strategy'] || 0,
+          consistency: traitsMap['consistency'] || 0,
+        },
+      },
+      topChampions: championsList.map((champ: {name: string; games: number; wr: number; kda?: number}) => ({
+        name: champ.name,
+        games: champ.games,
+        winrate: champ.wr,
+        kda: champ.kda || 0,
+        sprite: `${champ.name.toLowerCase()}.jpg`,
+      })),
+      hiddenGem: hiddenGemData ? {
+        champion: hiddenGemData.name,
+        yourWinrate: hiddenGemData.winrate,
+        pubWinrate: 50,
+        differential: hiddenGemData.winrate - 50,
+        games: hiddenGemData.games,
+      } : {
+        champion: "Unknown",
+        yourWinrate: 0,
+        pubWinrate: 50,
+        differential: -50,
+        games: 0,
+      },
+      timeline: [],
+      achievements: highlights.map((highlight: {title: string; description: string}, index: number) => ({
+        id: `achievement_${index}`,
+        title: highlight.title,
+        description: highlight.description,
+        icon: "star",
+        rarity: "epic",
+      })),
+      embarrassingFacts: funFacts.map((fact: string, index: number) => ({
+        title: `Fact ${index + 1}`,
+        description: fact,
+        severity: index % 2 === 0 ? "high" : "medium",
+      })),
+      teammates: [],
+    };
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -33,8 +190,28 @@ const Recap = () => {
   }, []);
 
   useEffect(() => {
-    if (!username) {
+    if (!name || !tag) {
       navigate("/");
+      return;
+    }
+
+    // Try to get data from localStorage
+    const storedData = localStorage.getItem('recapData');
+    if (!storedData) {
+      setError("No recap data found. Please try generating your recap again.");
+      return;
+    }
+
+    try {
+      const apiData = JSON.parse(storedData);
+      const transformedData = transformApiData(apiData);
+      setRecapData(transformedData);
+      // Clear the stored data after using it
+      localStorage.removeItem('recapData');
+      localStorage.removeItem('riotId');
+    } catch (err) {
+      console.error("Error parsing stored data:", err);
+      setError("Failed to load recap data. Please try again.");
       return;
     }
 
@@ -45,7 +222,40 @@ const Recap = () => {
         setVisibleSections((prev) => [...prev, index]);
       }, delay);
     });
-  }, [username, navigate]);
+  }, [name, tag, navigate]);
+
+  // Show error state if there's an error
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-hero flex items-center justify-center">
+        <div className="text-center space-y-6 max-w-md mx-auto px-4">
+          <h2 className="text-3xl font-bold bg-gradient-gold bg-clip-text text-transparent">
+            Error Loading Recap
+          </h2>
+          <p className="text-red-400 font-rajdhani text-lg">
+            {error}
+          </p>
+          <button
+            onClick={() => navigate("/")}
+            className="px-6 py-3 bg-card border border-border hover:border-primary transition-colors rounded-lg text-foreground font-semibold"
+          >
+            Go Back Home
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Show loading state if data is not ready
+  if (!recapData) {
+    return (
+      <div className="min-h-screen bg-gradient-hero flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-muted-foreground animate-pulse">Loading your recap...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-hero">
@@ -55,7 +265,7 @@ const Recap = () => {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold bg-gradient-gold bg-clip-text text-transparent">
-                {username}'s Rift Rewind
+                {name}#{tag}'s Rift Rewind
               </h1>
               <p className="text-muted-foreground mt-1">Your year on the Rift</p>
             </div>
@@ -89,25 +299,25 @@ const Recap = () => {
           </div>
         )}
 
-        {visibleSections.includes(3) && (
+        {visibleSections.includes(3) && recapData.timeline.length > 0 && (
           <div data-section className="animate-fade-in">
             <YearlyTimeline events={recapData.timeline} />
           </div>
         )}
 
-        {visibleSections.includes(4) && (
+        {visibleSections.includes(4) && recapData.achievements.length > 0 && (
           <div data-section className="animate-fade-in">
             <AchievementsGrid achievements={recapData.achievements} />
           </div>
         )}
 
-        {visibleSections.includes(5) && (
+        {visibleSections.includes(5) && recapData.embarrassingFacts.length > 0 && (
           <div data-section className="animate-fade-in">
             <EmbarrassingFacts facts={recapData.embarrassingFacts} />
           </div>
         )}
 
-        {visibleSections.includes(6) && (
+        {visibleSections.includes(6) && recapData.teammates.length > 0 && (
           <div data-section className="animate-fade-in">
             <TeammatesCard teammates={recapData.teammates} />
           </div>
@@ -117,7 +327,7 @@ const Recap = () => {
       {/* Footer */}
       <div className="border-t border-lol-gold/20 mt-16">
         <div className="container mx-auto px-4 py-8 text-center text-muted-foreground">
-          <p>Rift Rewind - League of gends</p>
+          <p>Rift Rewind - League of Legends</p>
         </div>
       </div>
     </div>

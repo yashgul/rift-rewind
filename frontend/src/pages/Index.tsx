@@ -12,9 +12,10 @@ import {
 } from "@/components/ui/select";
 
 const Index = () => {
-  const [username, setUsername] = useState("");
+  const [riotId, setRiotId] = useState(""); // Format: "name#tag"
   const [isMuted, setIsMuted] = useState(false);
   const [region, setRegion] = useState<string>("");
+  const [error, setError] = useState("");
   const audioRef = useRef<HTMLAudioElement>(null);
   const navigate = useNavigate();
 
@@ -38,9 +39,34 @@ const Index = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (username.trim()) {
-      navigate(`/loading?username=${encodeURIComponent(username)}&region=${encodeURIComponent(region)}`);
+    setError("");
+
+    // Validate region is selected
+    if (!region) {
+      setError("Please select a region");
+      return;
     }
+
+    // Parse Riot ID (name#tag format)
+    if (!riotId.trim()) {
+      setError("Please enter your Riot ID");
+      return;
+    }
+
+    const parts = riotId.trim().split('#');
+    if (parts.length !== 2) {
+      setError("Please enter your Riot ID in the format: name#tag (e.g., Hide on bush#KR1)");
+      return;
+    }
+
+    const [name, tag] = parts;
+    if (!name || !tag) {
+      setError("Both name and tag are required (e.g., Hide on bush#KR1)");
+      return;
+    }
+
+    // Navigate with all required parameters
+    navigate(`/loading?name=${encodeURIComponent(name)}&tag=${encodeURIComponent(tag)}&region=${encodeURIComponent(region)}`);
   };
 
   return (
@@ -110,17 +136,8 @@ const Index = () => {
           {/* Input Form */}
           <form onSubmit={handleSubmit} className="space-y-4 animate-scale-in">
             <div className="w-full flex flex-col md:flex-row items-stretch md:items-center justify-center gap-3">
-              <div className="relative max-w-md w-full group">
-                <div className="absolute inset-0 bg-gradient-gold opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-300 rounded-lg" />
-                <Input
-                  type="text"
-                  placeholder="Enter your summoner name"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  className="h-14 text-xl leading-tight bg-card/80 backdrop-blur-sm border-lol-gold/30 focus:border-lol-gold text-foreground placeholder:text-muted-foreground font-rajdhani font-medium relative hover:border-lol-gold/60 transition-all duration-300 px-3"
-                />
-              </div>
-              <div className="relative max-w-[100px] w-full group">
+              {/* Region Selector - Now First */}
+              <div className="relative max-w-[120px] w-full group">
                 <div className="absolute inset-0 bg-gradient-gold opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-300 rounded-lg" />
                 <Select value={region} onValueChange={setRegion}>
                   <SelectTrigger className="h-14 text-xl leading-tight bg-card/80 backdrop-blur-sm border-lol-gold/30 focus:border-lol-gold text-foreground font-rajdhani font-medium relative hover:border-lol-gold/60 transition-all duration-300 px-3">
@@ -132,22 +149,43 @@ const Index = () => {
                     <SelectItem value="EUN1">EUNE</SelectItem>
                     <SelectItem value="BR1">BR</SelectItem>
                     <SelectItem value="KR">KR</SelectItem>
-                    <SelectItem value="PBE1">PB</SelectItem>
+                    <SelectItem value="PBE1">PBE</SelectItem>
                     <SelectItem value="LA1">LAN</SelectItem>
                     <SelectItem value="LA2">LAS</SelectItem>
                     <SelectItem value="OC1">OCE</SelectItem>
                     <SelectItem value="TR1">TR</SelectItem>
                     <SelectItem value="RU">RU</SelectItem>
                     <SelectItem value="JP1">JP</SelectItem>
+                    <SelectItem value="asia">Asia</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
+              
+              {/* Riot ID Input - Now Second */}
+              <div className="relative max-w-md w-full group">
+                <div className="absolute inset-0 bg-gradient-gold opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-300 rounded-lg" />
+                <Input
+                  type="text"
+                  placeholder="name#tag (e.g., Hide on bush#KR1)"
+                  value={riotId}
+                  onChange={(e) => setRiotId(e.target.value)}
+                  className="h-14 text-xl leading-tight bg-card/80 backdrop-blur-sm border-lol-gold/30 focus:border-lol-gold text-foreground placeholder:text-muted-foreground font-rajdhani font-medium relative hover:border-lol-gold/60 transition-all duration-300 px-3"
+                />
+              </div>
             </div>
+
+            {/* Error Message */}
+            {error && (
+              <p className="text-red-500 text-sm font-rajdhani animate-fade-in">
+                {error}
+              </p>
+            )}
+
             <Button
               type="submit"
               size="lg"
               className="bg-gradient-gold hover:shadow-glow hover:scale-105 transition-all duration-300 text-primary-foreground font-bebas tracking-wider px-8 h-14 text-xl group relative overflow-hidden"
-              disabled={!username.trim()}
+              disabled={!riotId.trim() || !region}
             >
               <span className="relative z-10">VIEW MY RECAP</span>
               <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform relative z-10" />
