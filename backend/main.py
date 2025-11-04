@@ -1,6 +1,5 @@
 from fastapi import FastAPI
 import os
-import time
 import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
@@ -55,29 +54,12 @@ def matchData(name: str, tag: str, region: str):
 
     match_stats_aggregator = MatchStatsAggregator()
 
-    # Process matches in smaller batches with delays
-    batch_size = 5  # Process 5 matches at a time
-    delay_between_batches = 10  # Wait 10 seconds between batches
-
-    for i in range(0, len(recent_match_ids), batch_size):
-        batch = recent_match_ids[i:i + batch_size]
-        
-        for match_id in batch:
-            try:
-                match_data = riot_api_client.get_match_metadata_by_match_id(match_id=match_id, region=region)
-                if match_data:
-                    flattened_match_data = parse_match_for_player(
-                        match_data=match_data, target_puuid=puuid
-                    )
-                    match_stats_aggregator.add_match(flattened_match_data)
-            except Exception as e:
-                print(f"Error processing match {match_id}: {str(e)}")
-                continue
-        
-        # Wait before processing the next batch (but not after the last batch)
-        if i + batch_size < len(recent_match_ids):
-            print(f"Waiting {delay_between_batches} seconds before next batch...")
-            time.sleep(delay_between_batches)
+    for match_id in recent_match_ids2:
+        match_data = riot_api_client.get_match_metadata_by_match_id(match_id=match_id, region=region)
+        flattened_match_data = parse_match_for_player(
+            match_data=match_data, target_puuid=puuid
+        )
+        match_stats_aggregator.add_match(flattened_match_data)
 
     result = generate_player_wrapped_json(
         player_data=match_stats_aggregator.get_summary(),

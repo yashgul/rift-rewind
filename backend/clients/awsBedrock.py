@@ -329,6 +329,8 @@ CRITICAL RULES:
 # --- 3. DynamoDB Operations ---
 import decimal
 import json
+import os
+import boto3
 
 def convert_floats_to_decimals(obj):
     """
@@ -352,7 +354,23 @@ def get_wrapped_from_dynamodb(unique_id: str):
     Check if player's wrapped data exists in DynamoDB
     """
     try:
-        dynamodb = boto3.resource('dynamodb', region_name='eu-north-1')
+        # Get AWS credentials from environment variables
+        aws_access_key_id = os.getenv('AWS_ACCESS_KEY_ID')
+        aws_secret_access_key = os.getenv('AWS_SECRET_ACCESS_KEY')
+        aws_region = os.getenv('AWS_REGION', 'eu-north-1')
+
+        if not all([aws_access_key_id, aws_secret_access_key]):
+            raise Exception("AWS credentials not found in environment variables")
+
+        # Create a new session with our credentials
+        session = boto3.Session(
+            aws_access_key_id=aws_access_key_id,
+            aws_secret_access_key=aws_secret_access_key,
+            region_name=aws_region
+        )
+
+        # Use the session to create the DynamoDB resource
+        dynamodb = session.resource('dynamodb')
         table = dynamodb.Table('rift-rewind-jay')
         
         response = table.get_item(
@@ -375,7 +393,23 @@ def store_wrapped_in_dynamodb(json_for_db: dict):
     Store player's wrapped data in DynamoDB
     """
     try:
-        dynamodb = boto3.resource('dynamodb', region_name='eu-north-1')
+        # Get AWS credentials from environment variables
+        aws_access_key_id = os.getenv('AWS_ACCESS_KEY_ID')
+        aws_secret_access_key = os.getenv('AWS_SECRET_ACCESS_KEY')
+        aws_region = os.getenv('AWS_REGION', 'eu-north-1')
+
+        if not all([aws_access_key_id, aws_secret_access_key]):
+            raise Exception("AWS credentials not found in environment variables")
+
+        # Create a new session with our credentials
+        session = boto3.Session(
+            aws_access_key_id=aws_access_key_id,
+            aws_secret_access_key=aws_secret_access_key,
+            region_name=aws_region
+        )
+
+        # Use the session to create the DynamoDB resource
+        dynamodb = session.resource('dynamodb')
         table = dynamodb.Table('rift-rewind-jay')
         
         # Convert all float values to Decimal
@@ -408,8 +442,23 @@ def generate_player_wrapped_json(
         dict: A dictionary containing unique_id and wrapped_data
     """
     try:
-        # Initialize Bedrock client with US region
-        bedrock_client = boto3.client(service_name="bedrock-runtime", region_name="eu-north-1")
+        # Get AWS credentials from environment variables
+        aws_access_key_id = os.getenv('AWS_ACCESS_KEY_ID')
+        aws_secret_access_key = os.getenv('AWS_SECRET_ACCESS_KEY')
+        aws_region = os.getenv('AWS_REGION', 'eu-north-1')
+
+        if not all([aws_access_key_id, aws_secret_access_key]):
+            raise Exception("AWS credentials not found in environment variables")
+
+        # Create a new session with our credentials
+        session = boto3.Session(
+            aws_access_key_id=aws_access_key_id,
+            aws_secret_access_key=aws_secret_access_key,
+            region_name=aws_region
+        )
+
+        # Use the session to create the Bedrock client
+        bedrock_client = session.client('bedrock-runtime')
 
         # to use while testing
         model_id = "eu.anthropic.claude-haiku-4-5-20251001-v1:0"
