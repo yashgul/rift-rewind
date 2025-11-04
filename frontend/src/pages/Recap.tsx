@@ -117,7 +117,7 @@ const Recap = () => {
       {/* Footer */}
       <div className="border-t border-lol-gold/20 mt-16">
         <div className="container mx-auto px-4 py-8 text-center text-muted-foreground">
-          <p>Rift Rewind - League of Legends</p>
+          <p>Rift Rewind - League of gends</p>
         </div>
       </div>
     </div>
