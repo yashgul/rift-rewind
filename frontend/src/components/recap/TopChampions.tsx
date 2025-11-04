@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Trophy, Star, TrendingUp } from "lucide-react";
+import { getChampionImage } from "@/lib/championImages";
 
 interface Champion {
   name: string;
@@ -45,9 +46,16 @@ const TopChampions = ({ champions, hiddenGem }: TopChampionsProps) => {
               )}
               
               <div className="flex items-center justify-center mb-4">
-                <div className="w-24 h-24 rounded-full bg-gradient-gold flex items-center justify-center text-4xl shadow-glow">
-                  {/* Placeholder for champion sprite */}
-                  🗡️
+                <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-lol-gold/50 shadow-glow group-hover:border-lol-gold transition-all duration-300">
+                  <img 
+                    src={getChampionImage(champ.name)} 
+                    alt={champ.name}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                    onError={(e) => {
+                      // Fallback to placeholder if image fails to load
+                      e.currentTarget.src = 'https://via.placeholder.com/96x96?text=' + encodeURIComponent(champ.name);
+                    }}
+                  />
                 </div>
               </div>
 
@@ -79,9 +87,21 @@ const TopChampions = ({ champions, hiddenGem }: TopChampionsProps) => {
               <h3 className="text-2xl font-bold text-foreground">Hidden Gem</h3>
             </div>
             <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <p className="text-3xl font-bold text-foreground mb-2">{hiddenGem.champion}</p>
-                <p className="text-muted-foreground">Your secret weapon with incredible success</p>
+              <div className="flex items-center gap-4">
+                <div className="w-20 h-20 rounded-full overflow-hidden border-4 border-lol-gold shadow-glow flex-shrink-0">
+                  <img 
+                    src={getChampionImage(hiddenGem.champion)} 
+                    alt={hiddenGem.champion}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.src = 'https://via.placeholder.com/80x80?text=' + encodeURIComponent(hiddenGem.champion);
+                    }}
+                  />
+                </div>
+                <div>
+                  <p className="text-3xl font-bold text-foreground mb-2">{hiddenGem.champion}</p>
+                  <p className="text-muted-foreground">Your secret weapon with incredible success</p>
+                </div>
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between bg-lol-dark-elevated rounded p-3">
