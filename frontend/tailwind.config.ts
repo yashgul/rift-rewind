@@ -135,14 +135,6 @@ export default {
             transform: "translateY(-10px)"
           }
         },
-        "float-slow": {
-          "0%, 100%": {
-            transform: "translateY(0px)"
-          },
-          "50%": {
-            transform: "translateY(-4px)"
-          }
-        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -152,7 +144,6 @@ export default {
         "shimmer": "shimmer 2s linear infinite",
         "pulse-gold": "pulse-gold 2s ease-in-out infinite",
         "float": "float 3s ease-in-out infinite",
-        "float-slow": "float-slow 8s ease-in-out infinite",
       },
     },
   },
