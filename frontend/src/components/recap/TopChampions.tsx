@@ -51,10 +51,6 @@ const TopChampions = ({ champions, hiddenGem }: TopChampionsProps) => {
                     src={getChampionImage(champ.name)} 
                     alt={champ.name}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                    onError={(e) => {
-                      // Fallback to placeholder if image fails to load
-                      e.currentTarget.src = 'https://via.placeholder.com/96x96?text=' + encodeURIComponent(champ.name);
-                    }}
                   />
                 </div>
               </div>

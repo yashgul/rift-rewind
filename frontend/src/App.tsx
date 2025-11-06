@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import Loading from "./pages/Loading";
 import Recap from "./pages/Recap";
 import NotFound from "./pages/NotFound";
+import Recap2 from "./pages/Recap2";
 
 const queryClient = new QueryClient();
 
@@ -20,6 +21,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/loading" element={<Loading />} />
           <Route path="/recap" element={<Recap />} />
+          <Route path="/recap2" element={<Recap2 />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
