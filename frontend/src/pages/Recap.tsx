@@ -94,8 +94,8 @@ const Recap = () => {
     const playstyle = (apiData.playstyle as Record<string, unknown>) || {};
     const funFacts = (apiData.funFacts as string[]) || [];
 
-    // Map playstyle traits
-    const traitsList = (playstyle.traits as Array<{name: string; score: number}>) || [];
+    // Map playstyle traits (handle both object and array formats)
+    const playstyleTraits = playstyle.traits;
     const traitsMap: Record<string, number> = {
       aggression: 0,
       teamwork: 0,
@@ -104,12 +104,26 @@ const Recap = () => {
       consistency: 0,
     };
     
-    traitsList.forEach((trait: {name: string; score: number}) => {
-      const key = trait.name.toLowerCase().replace(/\s+/g, '_');
-      if (key in traitsMap) {
-        traitsMap[key as keyof typeof traitsMap] = trait.score;
+    if (playstyleTraits) {
+      // If traits is an object (new format)
+      if (typeof playstyleTraits === 'object' && !Array.isArray(playstyleTraits)) {
+        const traits = playstyleTraits as Record<string, number>;
+        traitsMap.aggression = traits.aggression || 0;
+        traitsMap.teamwork = traits.teamwork || 0;
+        traitsMap.mechanics = traits.mechanics || 0;
+        traitsMap.strategy = traits.strategy || 0;
+        traitsMap.consistency = traits.consistency || 0;
+      } 
+      // If traits is an array (old format)
+      else if (Array.isArray(playstyleTraits)) {
+        playstyleTraits.forEach((trait: {name: string; score: number}) => {
+          const key = trait.name.toLowerCase().replace(/\s+/g, '_');
+          if (key in traitsMap) {
+            traitsMap[key as keyof typeof traitsMap] = trait.score;
+          }
+        });
       }
-    });
+    }
 
     const championsList = ((champions.top3 as Array<{name: string; games: number; wr: number; kda?: number}>) || []);
     const hiddenGemData = (champions.hiddenGem as {name: string; games: number; winrate: number; insight?: string}) || null;
@@ -198,20 +212,30 @@ const Recap = () => {
     // Try to get data from localStorage
     const storedData = localStorage.getItem('recapData');
     if (!storedData) {
+      console.error("No recap data in localStorage");
       setError("No recap data found. Please try generating your recap again.");
       return;
     }
 
     try {
+      console.log("Raw stored data:", storedData.substring(0, 200) + "...");
       const apiData = JSON.parse(storedData);
+      console.log("Parsed API data:", apiData);
+      
       const transformedData = transformApiData(apiData);
+      console.log("Transformed data:", transformedData);
+      
       setRecapData(transformedData);
       // Clear the stored data after using it
       localStorage.removeItem('recapData');
       localStorage.removeItem('riotId');
     } catch (err) {
-      console.error("Error parsing stored data:", err);
-      setError("Failed to load recap data. Please try again.");
+      console.error("Error parsing/transforming stored data:", err);
+      console.error("Error details:", err instanceof Error ? err.message : String(err));
+      if (err instanceof Error && err.stack) {
+        console.error("Stack trace:", err.stack);
+      }
+      setError(`Failed to load recap data: ${err instanceof Error ? err.message : 'Unknown error'}`);
       return;
     }
 
