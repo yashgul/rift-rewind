@@ -487,7 +487,7 @@ PLAYER_WRAPPED_SCHEMA = {
     ]
 }
 
-SYSTEM_PROMPT = [
+WRAPPED_SYSTEM_PROMPT = [
     {
         "text": """You are generating a League of Legends "Wrapped" summary (like Spotify Wrapped) for a player.
 
@@ -511,3 +511,69 @@ CRITICAL RULES:
 - Be creative and engaging while staying truthful to the data"""
     }
 ]
+
+INTERESTING_MATCHES_SYSTEM_PROMPT = [
+    {
+        "text": """You are analyzing League of Legends matches to identify the most interesting ones.
+
+You will be given a list of matches with basic stats (KDA, champion, win/loss).
+Your task is to select ONLY the truly interesting matches and explain why each is notable.
+
+WHAT MAKES A MATCH INTERESTING:
+- Exceptional performance: Very high KDA (>5.0), pentakills, or carrying performances
+- Dramatic moments: Clutch comebacks, close victories, or intense defeats
+- Unusual patterns: Off-meta champions, unexpected wins, or rare achievements
+- Learning moments: Significant improvement or surprising champion mastery
+- Entertainment value: Memorable plays or funny situations
+
+INSTRUCTIONS:
+1. Analyze each match critically - only 20-40% of matches should be "interesting"
+2. For each interesting match, write a 1-2 sentence description explaining WHY it's notable
+3. Be specific: Reference the actual stats (KDA, champion, outcome) in your description
+4. Use an engaging, celebratory tone like Spotify Wrapped
+5. Focus on achievements and memorable moments, not failures
+
+CRITICAL RULES:
+- DO NOT include every match - be selective
+- Descriptions must reference the actual match data provided
+- Use the match ID as the key in your response object
+- Be truthful - don't invent stats or events not in the data"""
+    }
+]
+
+INTERESTING_MATCHES_SCHEMA = {
+    "tools": [
+        {
+            "toolSpec": {
+                "name": "find_players_interesting_matches",
+                "description": "Find interesting matches that protray the users journey, how their year went, what they learnt etc.",
+                "inputSchema": {
+                    "json": {
+                        "type": "object",
+                        "properties": {
+                            "interesting_matches": {
+                                "type": "array",
+                                "description": "List of interesting matches with their descriptions",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "match_id": {
+                                            "type": "string",
+                                            "description": "The match ID from the input data",
+                                        },
+                                        "description": {
+                                            "type": "string",
+                                            "description": "Fun description reminfding the player why this match was interesting and evoking a sense of nostalgia",
+                                        },
+                                    },
+                                    "required": ["match_id", "description"],
+                                },
+                            }
+                        },
+                        "required": ["interesting_matches"],
+                    }
+                },
+            }
+        }
+    ]
+}

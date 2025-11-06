@@ -1,8 +1,13 @@
 import json
 import boto3
 from botocore.exceptions import ClientError
-from constants import PLAYER_WRAPPED_SCHEMA, SYSTEM_PROMPT
-
+from constants import (
+    PLAYER_WRAPPED_SCHEMA,
+    WRAPPED_SYSTEM_PROMPT,
+    INTERESTING_MATCHES_SYSTEM_PROMPT,
+    INTERESTING_MATCHES_SCHEMA,
+)
+import traceback
 
 # --- 3. DynamoDB Operations ---
 import decimal
@@ -102,13 +107,126 @@ def store_wrapped_in_dynamodb(json_for_db: dict):
         return False
 
 
-# --- 4. Bedrock API Call Setup using Converse API ---
+def find_and_generate_descriptions_of_interesting_matches(
+    timeline_data: list,
+    system_prompt=INTERESTING_MATCHES_SYSTEM_PROMPT,
+    tool_config=INTERESTING_MATCHES_SCHEMA,
+):
+    try:
+        # Get AWS credentials from environment variables
+        aws_access_key_id = os.getenv("AWS_ACCESS_KEY_ID")
+        aws_secret_access_key = os.getenv("AWS_SECRET_ACCESS_KEY")
+        aws_region = os.getenv("AWS_REGION", "eu-north-1")
+
+        if not all([aws_access_key_id, aws_secret_access_key]):
+            raise Exception("AWS credentials not found in environment variables")
+
+        # Create a new session with our credentials
+        session = boto3.Session(
+            aws_access_key_id=aws_access_key_id,
+            aws_secret_access_key=aws_secret_access_key,
+            region_name=aws_region,
+        )
+
+        # Use the session to create the Bedrock client
+        bedrock_client = session.client("bedrock-runtime")
+
+        # Use Haiku for cost-effective match analysis
+        model_id = "eu.anthropic.claude-haiku-4-5-20251001-v1:0"
+
+        # For better quality descriptions:
+        # model_id = "eu.anthropic.claude-sonnet-4-5-20250929-v1:0"
+
+        # Create the initial message from user with match data
+        messages = [
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "text": f"""Please analyze these League of Legends matches and identify the interesting ones using the find_players_interesting_matches tool.
+
+Match Data:
+{json.dumps(timeline_data, indent=2)}"""
+                    }
+                ],
+            }
+        ]
+
+        print(f"Invoking Bedrock Model: {model_id}...")
+        print(f"Region: {aws_region}")
+        print(f"Analyzing {len(timeline_data)} matches...")
+
+        # First call to the model
+        response = bedrock_client.converse(
+            modelId=model_id, messages=messages, system=system_prompt, toolConfig=tool_config
+        )
+
+        output_message = response["output"]["message"]
+        messages.append(output_message)
+        stop_reason = response["stopReason"]
+
+        print(f"Stop reason: {stop_reason}")
+
+        if stop_reason == "tool_use":
+            # Tool use requested - extract the tool result
+            tool_requests = response["output"]["message"]["content"]
+
+            for tool_request in tool_requests:
+                if "toolUse" in tool_request:
+                    tool = tool_request["toolUse"]
+                    print(f"Tool used: {tool['name']}")
+                    print(f"Tool use ID: {tool['toolUseId']}")
+
+                    if tool["name"] == "find_players_interesting_matches":
+                        interesting_list = tool["input"]["interesting_matches"]
+                        descriptions_map = {
+                            item["match_id"]: item["description"] for item in interesting_list
+                        }
+
+                        print(f"\n--- Found {len(descriptions_map)} interesting matches ---")
+
+                        # Merge descriptions with original timeline data (preserving order)
+                        interesting_matches = []
+                        for match in timeline_data:
+                            match_id = match["id"]
+                            if match_id in descriptions_map:
+                                interesting_matches.append(
+                                    {**match, "description": descriptions_map[match_id]}
+                                )
+
+                        print(f"Merged {len(interesting_matches)} matches with descriptions")
+                        print("------------------------------------------")
+
+                        return interesting_matches
+
+        elif stop_reason == "end_turn":
+            # Model responded without using tool
+            print("Model did not use the tool. Response:")
+            for content in output_message["content"]:
+                print(json.dumps(content, indent=2))
+            return []
+
+        else:
+            print(f"Unexpected stop reason: {stop_reason}")
+            print("Response:", json.dumps(response, indent=2))
+            return []
+
+    except ClientError as err:
+        message = err.response["Error"]["Message"]
+        print(f"A client error occurred: {message}")
+        return []
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        traceback.print_exc()
+        return []
+
+
 def generate_player_wrapped_json(
     player_data,
     name: str,
     tag: str,
     region: str,
-    system_prompt=SYSTEM_PROMPT,
+    system_prompt=WRAPPED_SYSTEM_PROMPT,
     tool_config=PLAYER_WRAPPED_SCHEMA,
 ):
     """
@@ -225,7 +343,6 @@ def generate_player_wrapped_json(
         return None
     except Exception as e:
         print(f"An error occurred: {e}")
-        import traceback
 
         traceback.print_exc()
         return None
