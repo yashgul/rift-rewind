@@ -1,0 +1,122 @@
+{
+    "message": {
+        "wrapped": {
+            "tagline": "Mid-Lane Mage Assassin Extraordinaire",
+            "summary": "You're a calculated mid-laner who thrives on dealing massive damage while maintaining excellent map awareness. Your ability to position and dodge threats makes you a formidable presence in teamfights.",
+            "archetype": "Aggressive Control Mage"
+        },
+        "stats": {
+            "games": 98,
+            "winrate": 55.1,
+            "hours": 223,
+            "peakTime": "Late evening gaming sessions",
+            "bestMonth": "Consistent performer throughout the year"
+        },
+        "highlights": [
+            {
+                "title": "The Untouchable Duelist",
+                "description": "You dodged an average of 38.19 skillshots per game",
+                "flavor": "With the reflexes of a martial artist, you turn enemy poke into wasted mana.",
+                "label": "Skillshots Dodged Per Game",
+                "percentile": "Top 10% of mid-laners"
+            },
+            {
+                "title": "Damage Dealer Extraordinaire",
+                "description": "You averaged 137,820.53 total damage dealt per game across all sources",
+                "flavor": "Your damage output is absolutely relentless—enemies fear the moment you hit two items.",
+                "label": "Average Total Damage Per Game",
+                "percentile": "Top 8% of players"
+            },
+            {
+                "title": "The Ability Spammer",
+                "description": "You cast an average of 316.58 abilities per game",
+                "flavor": "Your finger dexterity is legendary—you're practically playing a rhythm game out there.",
+                "label": "Abilities Cast Per Game"
+            },
+            {
+                "title": "Aurora's Perfect Ascent",
+                "description": "With Aurora, you achieved an 80% win rate across 5 games",
+                "flavor": "This champion is your hidden tech—whenever you pick her, victory follows.",
+                "label": "Winrate on Aurora",
+                "icon": "Aurora"
+            },
+            {
+                "title": "The Lucian Curse",
+                "description": "You managed a perfect 0-5 record with Lucian",
+                "flavor": "Turns out some matchups are just not in your favor—maybe it's time to leave Lucian on the bench permanently.",
+                "label": "Lucian Winrate",
+                "icon": "Lucian"
+            }
+        ],
+        "champions": {
+            "main": {
+                "name": "Azir",
+                "games": 7,
+                "winrate": 42.86,
+                "kda": 4.46,
+                "insight": "Your Emperor demands perfection, and your KDA shows it. Despite a 42.86% win rate, you deal massive damage on him."
+            },
+            "top3": [
+                {
+                    "name": "Yone",
+                    "games": 8,
+                    "wr": 62.5
+                },
+                {
+                    "name": "Ryze",
+                    "games": 5,
+                    "wr": 60.0
+                },
+                {
+                    "name": "Aurora",
+                    "games": 5,
+                    "wr": 80.0
+                }
+            ],
+            "hiddenGem": {
+                "name": "Aurora",
+                "games": 5,
+                "winrate": 80.0,
+                "insight": "Your newest tech pick with an absolutely dominant 80% win rate—she's a force multiplier in your arsenal."
+            }
+        },
+        "playstyle": {
+            "summary": "You're an aggressive, high-damage output mid-laner who excels at dodging danger while maintaining constant pressure through ability spam and map control.",
+            "traits": [
+                {
+                    "name": "Damage Output",
+                    "score": 92
+                },
+                {
+                    "name": "Skill Expression",
+                    "score": 88
+                },
+                {
+                    "name": "Map Awareness",
+                    "score": 75
+                },
+                {
+                    "name": "Teamfighting",
+                    "score": 82
+                }
+            ]
+        },
+        "memorable": {
+            "bestStreak": 12,
+            "clutchestComeback": "A 4-kill deficit turned into a team ace within 33 seconds—your rotations and positioning were flawless as you orchestrated a complete reversal",
+            "bestMonth": "Mid-Season Push - Consistent 58% win rate over 30+ games"
+        },
+        "funFacts": [
+            "You pinged 'Command' (map calls) 6.44 times per game—basically a mini IGL leading your team through the rift",
+            "Your longest life lasted 390 seconds (6.5 minutes)—you're either playing scared or found the safest lane in existence",
+            "You used 316.58 abilities per game; if each ability took 1 second, you're essentially button-mashing the entire duration",
+            "Despite playing 98 games, you've never been part of a pentakill—your kills are always team efforts, never solo highlights"
+        ],
+        "closing": {
+            "message": "2024 was YOUR year in the mid lane—55% win rate, top-tier damage, and mechanical prowess that speaks volumes. Keep perfecting your craft and let Aurora carry you into legendary status!",
+            "year": "2024"
+        }
+    }
+}
+// 
+1 m 0.42 s
