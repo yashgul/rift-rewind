@@ -1,5 +1,4 @@
 import type { Config } from "tailwindcss";
-import tailwindcssAnimate from "tailwindcss-animate";
 
 export default {
   darkMode: ["class"],
@@ -17,8 +16,6 @@ export default {
       fontFamily: {
         'rajdhani': ['Rajdhani', 'sans-serif'],
         'bebas': ['Bebas Neue', 'cursive'],
-        'playfair': ['Playfair Display', 'serif'],
-        'inter': ['Inter', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -28,7 +25,6 @@ export default {
         foreground: "hsl(var(--foreground))",
         primary: {
           DEFAULT: "hsl(var(--primary))",
-          hover: "hsl(var(--primary-hover))",
           foreground: "hsl(var(--primary-foreground))",
         },
         secondary: {
@@ -38,18 +34,6 @@ export default {
         destructive: {
           DEFAULT: "hsl(var(--destructive))",
           foreground: "hsl(var(--destructive-foreground))",
-        },
-        success: {
-          DEFAULT: "hsl(var(--success))",
-          foreground: "hsl(var(--success-foreground))",
-        },
-        warning: {
-          DEFAULT: "hsl(var(--warning))",
-          foreground: "hsl(var(--warning-foreground))",
-        },
-        info: {
-          DEFAULT: "hsl(var(--info))",
-          foreground: "hsl(var(--info-foreground))",
         },
         muted: {
           DEFAULT: "hsl(var(--muted))",
@@ -65,39 +49,25 @@ export default {
         },
         card: {
           DEFAULT: "hsl(var(--card))",
-          hover: "hsl(var(--card-hover))",
           foreground: "hsl(var(--card-foreground))",
         },
-        text: {
-          primary: "hsl(var(--text-primary))",
-          secondary: "hsl(var(--text-secondary))",
-          disabled: "hsl(var(--text-disabled))",
-        },
-        violet: {
-          DEFAULT: "#8C6AFF",
-          light: "#A98CFF",
-        },
-        amber: {
-          DEFAULT: "#F5A623",
-          light: "#FFBD4A",
+        lol: {
+          gold: "hsl(var(--lol-gold))",
+          blue: "hsl(var(--lol-blue))",
+          dark: "hsl(var(--lol-dark))",
+          darkElevated: "hsl(var(--lol-dark-elevated))",
         },
       },
       backgroundImage: {
         'gradient-hero': 'var(--gradient-hero)',
-        'gradient-primary': 'var(--gradient-primary)',
+        'gradient-gold': 'var(--gradient-gold)',
+        'gradient-blue': 'var(--gradient-blue)',
         'gradient-card': 'var(--gradient-card)',
-        'gradient-violet-glow': 'var(--gradient-violet-glow)',
-        'gradient-amber': 'var(--gradient-amber)',
-        // Legacy gradients (deprecated)
-        'gradient-gold': 'linear-gradient(135deg, #d4af37 0%, #f4d03f 50%, #d4af37 100%)',
-        'gradient-blue': 'linear-gradient(135deg, hsl(200 100% 47%) 0%, hsl(210 100% 60%) 100%)',
       },
       boxShadow: {
-        'violet': 'var(--shadow-violet)',
-        'violet-lg': 'var(--shadow-violet-lg)',
-        'amber': 'var(--shadow-amber)',
-        'card': 'var(--shadow-card)',
-        'elevated': 'var(--shadow-elevated)',
+        'gold': 'var(--shadow-gold)',
+        'blue': 'var(--shadow-blue)',
+        'glow': 'var(--shadow-glow)',
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -186,5 +156,5 @@ export default {
       },
     },
   },
-  plugins: [tailwindcssAnimate],
+  plugins: [require("tailwindcss-animate")],
 } satisfies Config;
