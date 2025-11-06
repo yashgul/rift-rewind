@@ -6,10 +6,6 @@ from typing import Optional, Dict, List, Any
 from datetime import datetime
 
 
-class RiotAPIError(Exception):
-    """Custom exception for Riot API errors."""
-
-
 class RiotAPIClient:
     """
     A simple Python wrapper class for the Riot Games API with comprehensive logging.
@@ -25,8 +21,6 @@ class RiotAPIClient:
             log_level: The logging level (default: logging.INFO)
         """
         self.default_region = default_region
-        self.consecutive_failures = 0
-        self.max_failures = 5
 
         # Setup logging
         self.logger = logging.getLogger(__name__)
@@ -75,16 +69,7 @@ class RiotAPIClient:
 
         Returns:
             dict or list: The JSON response from the API, or None if an error occurred.
-            
-        Raises:
-            RiotAPIError: If consecutive failures exceed the maximum threshold.
         """
-        # Check if we've exceeded the failure threshold
-        if self.consecutive_failures >= self.max_failures:
-            error_msg = f"Exceeded maximum consecutive failures ({self.max_failures}). Aborting API calls."
-            self.logger.error(error_msg)
-            raise RiotAPIError(error_msg)
-        
         base_url = self._get_base_url(region)
         url = f"{base_url}/{endpoint_path}"
 
@@ -128,9 +113,6 @@ class RiotAPIClient:
                 # Return the JSON response if successful
                 json_response = response.json()
                 self.logger.info(f"✓ Request successful for {endpoint_path}")
-                
-                # Reset consecutive failures on success
-                self.consecutive_failures = 0
 
                 # Log response size info
                 if isinstance(json_response, list):
@@ -142,13 +124,6 @@ class RiotAPIClient:
 
             except requests.exceptions.HTTPError as http_err:
                 status_code = response.status_code
-                
-                # Track consecutive failures for critical errors (not rate limits)
-                if status_code in [401, 403, 400]:
-                    self.consecutive_failures += 1
-                    self.logger.warning(
-                        f"Consecutive failures: {self.consecutive_failures}/{self.max_failures}"
-                    )
 
                 # Provide detailed error messages based on status code
                 if status_code == 400:
@@ -170,31 +145,13 @@ class RiotAPIClient:
                     )
                 else:
                     self.logger.error(f"✗ HTTP error occurred: {http_err} - {response.text}")
-                
-                # Break out of retry loop - no point retrying critical errors
-                break
 
             except requests.exceptions.ConnectionError as conn_err:
-                self.consecutive_failures += 1
                 self.logger.error(f"✗ Connection error: {conn_err}")
-                self.logger.warning(
-                    f"Consecutive failures: {self.consecutive_failures}/{self.max_failures}"
-                )
-                break
             except requests.exceptions.Timeout as timeout_err:
-                self.consecutive_failures += 1
                 self.logger.error(f"✗ Request timeout: {timeout_err}")
-                self.logger.warning(
-                    f"Consecutive failures: {self.consecutive_failures}/{self.max_failures}"
-                )
-                break
             except requests.exceptions.RequestException as req_err:
-                self.consecutive_failures += 1
                 self.logger.error(f"✗ An error occurred: {req_err}")
-                self.logger.warning(
-                    f"Consecutive failures: {self.consecutive_failures}/{self.max_failures}"
-                )
-                break
 
         return None
 

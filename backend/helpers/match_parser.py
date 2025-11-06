@@ -66,8 +66,6 @@ def _flatten_player_stats(game_info: dict, participant_data: dict) -> dict:
 
     # Update with participant data
     result.update(participant_data)
-    result["enemySurrendered"] = result["win"] and result["gameEndedInSurrender"]
-    result["surrendered"] = not result["win"] and result["gameEndedInSurrender"]
 
     # Remove unneeded components from participant data, especially nested data
     result.pop("perks", None)
