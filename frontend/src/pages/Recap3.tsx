@@ -172,10 +172,10 @@ export default function Recap3() {
   }, []);
 
   const overviewSlide: ReactNode = (
-    <div className="mx-auto flex h-full w-full max-w-[1200px] flex-col justify-between gap-10">
-      <div className="grid gap-10 lg:grid-cols-[1.1fr,0.9fr]">
-        <div className="space-y-6">
-          <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
+    <div className="mx-auto flex h-full w-full max-w-[1200px] flex-col justify-between gap-4 sm:gap-6 lg:gap-8">
+      <div className="grid gap-4 sm:gap-6 lg:grid-cols-[1.1fr,0.9fr] lg:gap-8">
+        <div className="space-y-4 sm:space-y-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
             <div
               className="h-24 w-24 rounded-sm border-2 border-[#c89b3c] bg-cover bg-center"
               style={{ backgroundImage: "url('/rift_logo.png')" }}
@@ -224,7 +224,7 @@ export default function Recap3() {
           </div>
         </div>
       </div>
-      <div className="flex flex-wrap items-center justify-between gap-6 border-t border-[#273241] pt-6">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-t border-[#273241] pt-4 sm:gap-6 sm:pt-6">
         <div>
           <p className="text-xs uppercase tracking-[0.3em] text-[#c89b3c]">Season Motto</p>
           <p className="mt-3 text-3xl font-bold text-white">Calculated Playmaker</p>
@@ -237,9 +237,9 @@ export default function Recap3() {
   );
 
   const championsSlide: ReactNode = (
-    <div className="mx-auto flex h-full w-full max-w-[1200px] flex-col gap-10">
-      <div className="grid flex-1 gap-10 lg:grid-cols-[1.2fr,0.8fr]">
-        <div className="space-y-6">
+    <div className="mx-auto flex h-full w-full max-w-[1200px] flex-col gap-4 sm:gap-6 lg:gap-8">
+      <div className="grid flex-1 gap-4 sm:gap-6 lg:grid-cols-[1.2fr,0.8fr] lg:gap-8">
+        <div className="space-y-4 sm:space-y-6">
           {topChampion && (
             <div className="rounded-sm border border-[#273241] bg-[#0b1426]/70 p-6 shadow-md shadow-black/10">
               <div className="flex items-center justify-between">
@@ -289,7 +289,7 @@ export default function Recap3() {
             </div>
           )}
         </div>
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           <div className="rounded-sm border border-[#273241] bg-[#0b1426]/70 p-6">
             <h3 className="text-lg font-semibold text-[#c89b3c]">Hidden Gem</h3>
             <p className="mt-3 text-2xl font-bold text-white">{hiddenGem.champion}</p>
@@ -346,8 +346,8 @@ export default function Recap3() {
   );
 
   const personalitySlide: ReactNode = (
-    <div className="mx-auto flex h-full w-full max-w-[1200px] flex-col gap-10">
-      <div className="grid flex-1 gap-10 lg:grid-cols-[1fr,1fr]">
+    <div className="mx-auto flex h-full w-full max-w-[1200px] flex-col gap-4 sm:gap-6 lg:gap-8">
+      <div className="grid flex-1 gap-4 sm:gap-6 lg:grid-cols-[1fr,1fr] lg:gap-8">
         <div className="rounded-sm border border-[#273241] bg-[#0b1426]/70 p-6">
           <p className="text-xs uppercase tracking-[0.3em] text-[#c89b3c]">AI Personality Read</p>
           <p className="mt-3 text-2xl font-bold text-white">Calculated Risk-Taker</p>
@@ -385,7 +385,7 @@ export default function Recap3() {
           </div>
         </div>
       </div>
-      <div className="grid gap-6 lg:grid-cols-[1.3fr,0.7fr]">
+      <div className="grid gap-4 sm:gap-6 lg:grid-cols-[1.3fr,0.7fr] lg:gap-8">
         <div className="rounded-sm border border-[#273241] bg-[#0b1426]/60 p-6">
           <p className="text-xs uppercase tracking-[0.3em] text-[#c89b3c]">Fun Facts</p>
           <ul className="mt-4 space-y-3 text-sm text-[#f0e6d2]">
@@ -416,8 +416,8 @@ export default function Recap3() {
   );
 
   const timelineSlide: ReactNode = (
-    <div className="mx-auto flex h-full w-full max-w-[1200px] flex-col gap-10">
-      <div className="grid flex-1 gap-10 xl:grid-cols-[1.2fr,0.8fr]">
+    <div className="mx-auto flex h-full w-full max-w-[1200px] flex-col gap-4 sm:gap-6 lg:gap-8">
+      <div className="grid flex-1 gap-4 sm:gap-6 xl:grid-cols-[1.2fr,0.8fr] xl:gap-8">
         <div className="rounded-sm border border-[#273241] bg-[#0b1426]/70 p-6">
           <p className="text-xs uppercase tracking-[0.3em] text-[#c89b3c]">Milestones</p>
           <div className="mt-6 space-y-6">
@@ -434,7 +434,7 @@ export default function Recap3() {
             ))}
           </div>
         </div>
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           <div className="rounded-sm border border-[#273241] bg-[#0b1426]/70 p-6">
             <p className="text-xs uppercase tracking-[0.3em] text-[#c89b3c]">Teammate Synergy</p>
             <div className="mt-4 space-y-4">
@@ -540,9 +540,9 @@ export default function Recap3() {
   }, [handleKeyDown]);
 
   return (
-    <div className="min-h-screen bg-[#050b16] text-[#f0e6d2]">
-      <div className="relative flex min-h-screen flex-col">
-        <header className="flex items-center justify-between border-b border-[#785a28] px-6 py-5 sm:px-10">
+    <div className="h-screen overflow-hidden bg-[#050b16] text-[#f0e6d2]">
+      <div className="relative flex h-screen flex-col">
+        <header className="flex shrink-0 items-center justify-between border-b border-[#785a28] px-6 py-5 sm:px-10">
           <div className="flex items-center gap-4 text-[#c89b3c]">
             <div className="h-8 w-8">
               <svg
@@ -591,7 +591,7 @@ export default function Recap3() {
             {slides.map((slide) => (
               <section
                 key={slide.id}
-                className={`relative flex min-h-full min-w-full flex-col px-6 py-10 text-[#f0e6d2] sm:px-10 lg:px-16 ${slide.background}`}
+                className={`relative flex h-full min-w-full flex-col overflow-y-auto px-4 py-4 text-[#f0e6d2] sm:px-6 sm:py-6 lg:px-10 lg:py-8 ${slide.background}`}
               >
                 <div
                   className="pointer-events-none absolute inset-0 opacity-20"
@@ -606,7 +606,7 @@ export default function Recap3() {
           </div>
         </main>
 
-        <div className="border-t border-[#273241] bg-[#050b16] px-6 py-4 sm:px-10">
+        <div className="shrink-0 border-t border-[#273241] bg-[#050b16] px-6 py-4 sm:px-10">
           <div className="mx-auto flex w-full max-w-[1200px] flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-2">
               {slides.map((slide, index) => (
@@ -643,13 +643,6 @@ export default function Recap3() {
             </div>
           </div>
         </div>
-
-        <footer className="border-t border-[#785a28] bg-[#050b16] py-8">
-          <div className="mx-auto flex max-w-[1200px] flex-col items-center gap-2 px-4 text-center text-xs text-[#a09b8c]">
-            <span className="tracking-[0.3em] uppercase text-[#c89b3c]">Rift Rewind</span>
-            <p>League of Legends · Season 2025 Recap</p>
-          </div>
-        </footer>
       </div>
     </div>
   );
