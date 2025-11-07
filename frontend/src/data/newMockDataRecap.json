@@ -1,0 +1,287 @@
+{
+    "message": {
+        "wrapped": {
+            "unique_id": "hide on bush_kr1_asia",
+            "wrapped_data": {
+                "wrapped": {
+                    "tagline": "The Calculated Mid-laner",
+                    "summary": "You're a disciplined player who thrives on consistency and smart decision-making in the mid lane. Your 59% win rate speaks volumes about your game knowledge and ability to control the tempo of matches.",
+                    "archetype": "Strategic Mid-Laner"
+                },
+                "stats": {
+                    "games": 91,
+                    "winrate": 59.34,
+                    "hours": 136,
+                    "peakTime": "11:00 AM ET",
+                    "bestMonth": "September"
+                },
+                "highlights": [
+                    {
+                        "title": "Master of the Mid Lane",
+                        "description": "You dominated the mid lane with 56 games, securing a 58.93% win rate while outputting consistent damage with smart positioning.",
+                        "flavor": "You didn't just play mid—you owned it. This is where your talents truly shine.",
+                        "label": "Mid Lane Dominance",
+                        "percentile": "Top 10% of mid laners"
+                    },
+                    {
+                        "title": "Aurora's Rising Star",
+                        "description": "Aurora was your hidden gem with an 80% win rate across 5 games, boasting an impressive 7.29 KDA that showcased your mastery of the champion.",
+                        "flavor": "When you pick Aurora, the enemy team should be scared. An 80% win rate isn't luck—it's mastery.",
+                        "label": "80% Win Rate Champion",
+                        "icon": "Aurora",
+                        "percentile": "Top 5% of Aurora players"
+                    },
+                    {
+                        "title": "Damage Dealer Supreme",
+                        "description": "You averaged 138,004 total damage per game with 29,812 to champions, maintaining a 4.47 KDA across all 91 games.",
+                        "flavor": "Your damage output was relentless and efficient. Every spell, every auto attack mattered.",
+                        "label": "Average Total Damage Per Game",
+                        "percentile": "Top 8% for consistency"
+                    },
+                    {
+                        "title": "Early Game Execution",
+                        "description": "You secured 5.73 takedowns in the first 10 minutes and landed 54.99 CS by the 10-minute mark, showing exceptional early game fundamentals.",
+                        "flavor": "You didn't just farm—you hunted. Your early game pressure set the tone for victory after victory.",
+                        "label": "Takedowns in First 10 Minutes",
+                        "percentile": "Top 12% of early game players"
+                    },
+                    {
+                        "title": "Pick Mastery",
+                        "description": "You executed 9.65 pick kills with allies per game, demonstrating expert vision control and rotational timing throughout the season.",
+                        "flavor": "You had a sixth sense for where the enemy would be. Coordinated picks were your specialty.",
+                        "label": "Pick Kills with Allies Per Game"
+                    }
+                ],
+                "champions": {
+                    "main": {
+                        "name": "Yone",
+                        "games": 7,
+                        "winrate": 71.43,
+                        "kda": 2.26,
+                        "insight": "Your Yone is absolutely lethal with a 71% win rate, showcasing your mastery of this high-skill duelist and your ability to navigate teamfights."
+                    },
+                    "top3": [
+                        {
+                            "name": "Yone",
+                            "games": 7,
+                            "wr": 71.43
+                        },
+                        {
+                            "name": "Aurora",
+                            "games": 5,
+                            "wr": 80.0
+                        },
+                        {
+                            "name": "Ryze",
+                            "games": 5,
+                            "wr": 60.0
+                        }
+                    ],
+                    "hiddenGem": null
+                },
+                "playstyle": {
+                    "summary": "You're a versatile mid-laner with exceptional mechanics and team coordination, balancing aggressive playmaking with consistent strategic decision-making.",
+                    "traits": {
+                        "aggression": 72,
+                        "teamwork": 78,
+                        "mechanics": 75,
+                        "strategy": 81,
+                        "consistency": 76
+                    }
+                },
+                "memorable": {
+                    "bestStreak": 12,
+                    "clutchestComeback": "Multiple games where you turned around deficit teamfights with well-placed crowd control (averaging 25.81 enemy champion immobilizations per game) and coordinated pick plays.",
+                    "bestMonth": "September"
+                },
+                "funFacts": [
+                    "You dodged an average of 41 skill shots per game—you didn't just avoid damage, you made enemies whiff their entire combos.",
+                    "Morning grind paid off: 11 AM ET was your peak play time with 22 games, suggesting you're a sharp early-riser who dominates when you're fresh.",
+                    "You went full support mode occasionally: 2 utility role games with a 67 vision score average and 68% kill participation shows you can flex when needed.",
+                    "Aurora stole your heart in Season 2025: Despite playing 6 champions, Aurora's 80% win rate made her your most reliable companion on the Rift."
+                ],
+                "closing": {
+                    "message": "You've established yourself as a reliable, intelligent mid-laner with the mechanics and game sense to compete at a high level. With your 59% win rate, strategic depth, and champion mastery, you're poised for an incredible 2025 season ahead!",
+                    "year": "2025"
+                }
+            }
+        },
+        "timeline": [
+            {
+                "id": "KR_7858151244",
+                "kda": 15,
+                "champ": "Lissandra",
+                "win": true,
+                "description": "An absolutely dominant Lissandra performance with a 15.0 KDA and a decisive victory—proof that you've mastered this champion's crowd control and burst potential."
+            },
+            {
+                "id": "KR_7856448015",
+                "kda": 21,
+                "champ": "Azir",
+                "win": true,
+                "description": "A legendary Azir carry with an impressive 21.0 KDA and a clean win, showcasing exceptional positioning and damage output that carried your team to victory."
+            },
+            {
+                "id": "KR_7855895357",
+                "kda": 10,
+                "champ": "Darius",
+                "win": true,
+                "description": "A commanding Darius display with 10.0 KDA and a dominant win—you turned teamfights into victories with calculated aggression and map presence."
+            },
+            {
+                "id": "KR_7854091325",
+                "kda": 6,
+                "champ": "Annie",
+                "win": true,
+                "description": "An explosive Annie game with 6.0 KDA and a resounding victory, proving that even unconventional picks can be devastating in the right hands."
+            },
+            {
+                "id": "KR_7851809754",
+                "kda": 16,
+                "champ": "Ryze",
+                "win": true,
+                "description": "A stellar Ryze performance with 16.0 KDA and a commanding win—your spell rotation and positioning were absolutely on point throughout this game."
+            },
+            {
+                "id": "KR_7851300813",
+                "kda": 18,
+                "champ": "LeeSin",
+                "win": true,
+                "description": "An insane Lee Sin game with 18.0 KDA and a dominant victory, featuring incredible engage plays and mechanical outplays that defined this match."
+            },
+            {
+                "id": "KR_7814349616",
+                "kda": 13,
+                "champ": "Annie",
+                "win": true,
+                "description": "A masterful Annie game with 13.0 KDA and a convincing win, showcasing consistent damage and team fight dominance with one of your signature champions."
+            },
+            {
+                "id": "KR_7813048255",
+                "kda": 12,
+                "champ": "Aurora",
+                "win": true,
+                "description": "A dominant Aurora game with 12.0 KDA and a clean victory—you showed why this champion is such a valuable pick with excellent damage and survivability."
+            },
+            {
+                "id": "KR_7809887199",
+                "kda": 14,
+                "champ": "Orianna",
+                "win": true,
+                "description": "A masterclass Orianna game with 14.0 KDA and a dominant win, proving your ability to control team fights and position flawlessly with the Clockwork Lady."
+            },
+            {
+                "id": "KR_7808755194",
+                "kda": 5.333333333333333,
+                "champ": "TwistedFate",
+                "win": true,
+                "description": "A strong Twisted Fate performance with 5.33 KDA and a clean victory, highlighting your map control and roaming prowess with this versatile pick."
+            },
+            {
+                "id": "KR_7808219654",
+                "kda": 5.25,
+                "champ": "Fizz",
+                "win": true,
+                "description": "A fierce Fizz carry with 5.25 KDA and a dominant win, featuring excellent all-in plays and mechanical execution that snowballed the game in your favor."
+            },
+            {
+                "id": "KR_7806815627",
+                "kda": 5.666666666666667,
+                "champ": "Tristana",
+                "win": true,
+                "description": "A powerful Tristana game with 5.67 KDA and a convincing victory, proving your ADC skills with exceptional positioning and teamfight impact."
+            },
+            {
+                "id": "KR_7802850057",
+                "kda": 10,
+                "champ": "Galio",
+                "win": true,
+                "description": "A stellar Galio performance with 10.0 KDA and a dominant win, showcasing how well you control engage patterns and protect your team."
+            },
+            {
+                "id": "KR_7802772160",
+                "kda": 7,
+                "champ": "Ryze",
+                "win": true,
+                "description": "A powerful Ryze game with 7.0 KDA and a decisive victory, featuring excellent map presence and spell-casting that influenced the entire game."
+            },
+            {
+                "id": "KR_7801651104",
+                "kda": 11,
+                "champ": "Ornn",
+                "win": true,
+                "description": "An outstanding Ornn game with 11.0 KDA and a convincing win—you dominated as a tank while providing exceptional utility and damage with forged items."
+            },
+            {
+                "id": "KR_7801528221",
+                "kda": 5.666666666666667,
+                "champ": "Morgana",
+                "win": true,
+                "description": "A dominant Morgana support with 5.67 KDA and a commanding victory, proving that support carries can turn entire games with the right setup and execution."
+            },
+            {
+                "id": "KR_7801352091",
+                "kda": 5.25,
+                "champ": "Xerath",
+                "win": true,
+                "description": "A precise Xerath game with 5.25 KDA and a clean win, showcasing your skillshot accuracy and long-range control that defined this match."
+            },
+            {
+                "id": "KR_7800410070",
+                "kda": 7,
+                "champ": "MonkeyKing",
+                "win": true,
+                "description": "A dominant Monkey King game with 7.0 KDA and a decisive victory, featuring excellent teamfight positioning and critical engagement moments."
+            },
+            {
+                "id": "KR_7800340103",
+                "kda": 6.2,
+                "champ": "Taliyah",
+                "win": true,
+                "description": "An excellent Taliyah performance with 6.2 KDA and a commanding win, showcasing your roam timing and rock control that scattered the enemy team."
+            },
+            {
+                "id": "KR_7799956621",
+                "kda": 18,
+                "champ": "TwistedFate",
+                "win": true,
+                "description": "An absolutely legendary Twisted Fate game with an incredible 18.0 KDA and a dominant victory—your card selection and gank timing were absolutely perfect."
+            },
+            {
+                "id": "KR_7798700269",
+                "kda": 17,
+                "champ": "Aurora",
+                "win": true,
+                "description": "A phenomenal Aurora carry with 17.0 KDA and a commanding win, proving you can hard carry games with this powerful mage and exceptional game sense."
+            },
+            {
+                "id": "KR_7790857706",
+                "kda": 10,
+                "champ": "Lux",
+                "win": true,
+                "description": "A remarkable Lux performance with 10.0 KDA and a decisive victory, featuring perfect spell combinations and teamfight dominance throughout."
+            },
+            {
+                "id": "KR_7790780213",
+                "kda": 11,
+                "champ": "Ambessa",
+                "win": true,
+                "description": "An exceptional Ambessa game with 11.0 KDA and a commanding win, showcasing your ability to dominate fights with aggressive positioning and rotations."
+            },
+            {
+                "id": "KR_7786227977",
+                "kda": 5.666666666666667,
+                "champ": "Azir",
+                "win": true,
+                "description": "A stellar Azir performance with 5.67 KDA and a clean victory, featuring excellent soldier placement and teamfight control that secured the win."
+            },
+            {
+                "id": "KR_7784668837",
+                "kda": 9,
+                "champ": "Ryze",
+                "win": true,
+                "description": "An impressive Ryze game with 9.0 KDA and a dominant victory, proving your mastery of this complex champion with smooth mechanics and map influence."
+            }
+        ]
+    }
+}
