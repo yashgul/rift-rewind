@@ -29,14 +29,34 @@ interface PersonalityRadarType {
 interface RecapData {
   basicStats: BasicStatsCardType;
   personality: PersonalityRadarType;
-  topChampions: Array<{
+  champions?: {
+    main?: {
+      name: string;
+      games: number;
+      winrate: number;
+      kda: number;
+      insight: string;
+    };
+    top3?: Array<{
+      name: string;
+      games: number;
+      wr: number;
+    }>;
+    hiddenGem?: {
+      name: string;
+      games: number;
+      winrate: number;
+      insight: string;
+    };
+  };
+  topChampions?: Array<{
     name: string;
     games: number;
     winrate: number;
     kda: number;
     sprite: string;
   }>;
-  hiddenGem: {
+  hiddenGem?: {
     champion: string;
     yourWinrate: number;
     pubWinrate: number;
@@ -121,12 +141,39 @@ export default function Recap3() {
     { label: "Favorite Role", value: favoriteRole },
   ];
 
-  const hiddenGem = recapData.hiddenGem;
+  // Handle new champions structure or fall back to old structure
+  const championsData = recapData.champions;
+  const topChampions = championsData?.top3 
+    ? championsData.top3.map(champ => ({ name: champ.name, games: champ.games, winrate: champ.wr, kda: 0 }))
+    : recapData.topChampions || [];
+  
+  const hiddenGem = championsData?.hiddenGem 
+    ? {
+        champion: championsData.hiddenGem.name,
+        yourWinrate: championsData.hiddenGem.winrate,
+        games: championsData.hiddenGem.games,
+        insight: championsData.hiddenGem.insight,
+      }
+    : recapData.hiddenGem 
+    ? {
+        champion: recapData.hiddenGem.champion,
+        yourWinrate: recapData.hiddenGem.yourWinrate,
+        games: recapData.hiddenGem.games,
+        insight: null,
+      }
+    : null;
+
+  const mainChampion = championsData?.main;
+
   const timelineMilestones = recapData.timeline.slice(0, 4);
   const teammateHighlights = recapData.teammates.slice(0, 3);
 
   const funFacts = [
-    `Hidden gem ${hiddenGem.champion} boasts a ${hiddenGem.differential.toFixed(1)}% win rate lead over the meta.`,
+    hiddenGem 
+      ? hiddenGem.insight 
+        ? hiddenGem.insight
+        : `Hidden gem ${hiddenGem.champion} boasts a ${hiddenGem.yourWinrate.toFixed(1)}% win rate.`
+      : null,
     `You gained ${lpGained} LP and dropped ${lpLost} LP throughout the climb.`,
     teammateHighlights[0]
       ? `Best duo: ${teammateHighlights[0].name} (${teammateHighlights[0].winrate.toFixed(1)}% win rate together).`
@@ -147,6 +194,27 @@ export default function Recap3() {
   const primaryTagline = recapData.personality.aiDescription;
   const closingMessage =
     "You navigated the climb with precision, turned setbacks into opportunities, and closed the season in style. Queue up — 2026 is waiting.";
+
+  // State declarations
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [heroImages, setHeroImages] = useState<Array<{ name: string; image: string }>>([]);
+
+  // Load hero images
+  useEffect(() => {
+    fetch("/hero_images.json")
+      .then(res => res.json())
+      .then(data => setHeroImages(data))
+      .catch(() => console.warn("Failed to load hero images"));
+  }, []);
+
+  // Helper function to get champion image
+  const getChampionImage = (championName: string): string | undefined => {
+    const champion = heroImages.find(
+      (hero) => 
+        hero.name.toLowerCase() === championName.toLowerCase().replace(/['\s]/g, '')
+    );
+    return champion?.image;
+  };
 
   const handleShare = useCallback(async () => {
     if (typeof window === "undefined") return;
@@ -218,91 +286,164 @@ export default function Recap3() {
   ];
 
   const championsSlide: ReactNode = (
-    <div className="mx-auto flex h-full w-full max-w-[1200px] flex-col justify-center gap-3 sm:gap-4">
-      {/* Vertical Banner Cards for Top 3 Champions */}
-      <div className="grid gap-3 sm:gap-4 lg:grid-cols-3">
-        {recapData.topChampions.slice(0, 3).map((champion, index) => {
-          const medal = medals[index];
-          return (
-            <div
-              key={champion.name}
-              className="group relative flex flex-col items-center overflow-hidden rounded-sm border-2 border-[#785a28] bg-gradient-to-b from-[#0b1426]/95 to-[#050b16]/95 p-4 shadow-2xl transition-all duration-300 hover:scale-[1.02] hover:border-[#c89b3c] hover:shadow-[#c89b3c]/20 sm:p-5"
-              onMouseEnter={() => setHoveredChampion(champion.name)}
-              onMouseLeave={() => setHoveredChampion(null)}
-            >
-              {/* Ornate top decoration */}
-              <div className="mb-3 h-1 w-full bg-gradient-to-r from-transparent via-[#c89b3c] to-transparent sm:mb-4" />
-              
-              {/* Medal Badge - Large and centered */}
-              <div className="mb-3 h-20 w-20 sm:mb-4 sm:h-24 sm:w-24">
-                <img 
-                  src={medal.image} 
-                  alt={medal.label} 
-                  className="h-full w-full object-contain drop-shadow-2xl transition-transform duration-300 group-hover:scale-110" 
-                />
-              </div>
-              
-              {/* Champion Name Plate */}
-              <div className="mb-4 w-full rounded-sm border border-[#785a28] bg-[#0a1428]/80 p-3 text-center">
-                <p className="text-xl font-bold text-white sm:text-2xl">{champion.name}</p>
-                <p className="mt-1 text-[10px] uppercase tracking-[0.25em] text-[#c89b3c] sm:text-xs">
-                  {index === 0 ? "Signature" : `Rank #${index + 1}`}
-                </p>
-              </div>
+    <div className="mx-auto flex h-full w-full max-w-[1400px] items-center gap-6 sm:gap-8">
+      {/* Main Content Area: Champions + Sidebar */}
+      <div className="grid h-full w-full gap-6 lg:grid-cols-[1fr,auto,380px] lg:gap-8">
+        {/* Three Champion Cards - Full Height */}
+        <div className="grid h-full gap-4 sm:gap-6 lg:grid-cols-3">
+          {topChampions.slice(0, 3).map((champion, index) => {
+            const championImage = getChampionImage(champion.name);
+            
+            return (
+              <div
+                key={champion.name}
+                className="group relative flex h-full flex-col overflow-hidden rounded-sm border border-[#c89b3c]/50 bg-[#0b1426]/95 transition-all duration-300 hover:border-[#c89b3c] hover:shadow-[#c89b3c]/10"
+              >
+                {/* Rank Badge - Top Left */}
+                <div className="absolute left-4 top-4 z-10">
+                  <div className="flex h-7 w-7 items-center justify-center rounded border border-[#c89b3c]/60 bg-[#0a1428]/80">
+                    <span className="text-xs font-medium text-[#c89b3c]">{index + 1}</span>
+                  </div>
+                </div>
 
-              {/* Stats Section */}
-              <div className="w-full flex-1 space-y-2 sm:space-y-3">
-                <div className="rounded-sm border-t-2 border-[#785a28] bg-[#0a1428]/60 p-2 text-center sm:p-3">
-                  <p className="text-[10px] uppercase tracking-[0.25em] text-[#a09b8c] sm:text-xs">Games</p>
-                  <p className="mt-1 text-2xl font-bold text-white sm:text-3xl">{champion.games}</p>
+                {/* Champion Image/Portrait - Takes most of the space */}
+                <div className="relative flex-1 overflow-hidden bg-[#050b16]">
+                  {championImage ? (
+                    <img
+                      src={championImage}
+                      alt={champion.name}
+                      className="h-full w-full object-cover object-center"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#1a2336] to-[#0a1428]">
+                      <span className="text-4xl font-bold text-[#c89b3c]">{champion.name.charAt(0)}</span>
+                    </div>
+                  )}
                 </div>
-                <div className="rounded-sm border-t-2 border-[#785a28] bg-[#0a1428]/60 p-2 text-center sm:p-3">
-                  <p className="text-[10px] uppercase tracking-[0.25em] text-[#a09b8c] sm:text-xs">Win Rate</p>
-                  <p className="mt-1 text-2xl font-bold text-[#c89b3c] sm:text-3xl">{champion.winrate.toFixed(1)}%</p>
-                </div>
-                <div className="rounded-sm border-t-2 border-[#785a28] bg-[#0a1428]/60 p-2 text-center sm:p-3">
-                  <p className="text-[10px] uppercase tracking-[0.25em] text-[#a09b8c] sm:text-xs">KDA</p>
-                  <p className="mt-1 text-2xl font-bold text-white sm:text-3xl">{champion.kda.toFixed(1)}</p>
+
+                {/* Champion Name and Stats - Bottom */}
+                <div className="border-t border-[#785a28]/30 bg-[#0a1428]/40 p-4">
+                  <p className="text-lg font-semibold text-white sm:text-xl">{champion.name}</p>
+                  <div className="mt-2 flex items-center gap-3 text-xs text-[#a09b8c] sm:text-sm">
+                    <span>{champion.winrate.toFixed(1)}%</span>
+                    <span>•</span>
+                    <span>{champion.games} games</span>
+                  </div>
                 </div>
               </div>
-
-              {/* Bottom decoration */}
-              <div className="mt-3 h-1 w-full bg-gradient-to-r from-transparent via-[#785a28] to-transparent sm:mt-4" />
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Hidden Gem & Role Identity Row */}
-      <div className="grid gap-3 sm:gap-4 lg:grid-cols-2">
-        <div className="rounded-sm border-2 border-[#785a28] bg-[#0b1426]/90 p-4">
-          <p className="text-xs uppercase tracking-[0.25em] text-[#c89b3c] sm:text-sm">Hidden Gem</p>
-          <p className="mt-2 text-2xl font-bold text-white sm:text-3xl">{hiddenGem.champion}</p>
-          <p className="mt-1 text-base text-[#c89b3c] sm:text-lg">+{hiddenGem.differential.toFixed(1)}% Above Meta</p>
-          <div className="mt-3 flex items-center gap-3 border-t border-[#273241] pt-3 sm:gap-4">
-            <div>
-              <p className="text-[10px] text-[#a09b8c] sm:text-xs">Your WR</p>
-              <p className="text-lg font-bold text-white sm:text-xl">{hiddenGem.yourWinrate.toFixed(1)}%</p>
-            </div>
-            <div>
-              <p className="text-[10px] text-[#a09b8c] sm:text-xs">Avg WR</p>
-              <p className="text-lg font-bold text-white sm:text-xl">{hiddenGem.pubWinrate.toFixed(1)}%</p>
-            </div>
-            <div>
-              <p className="text-[10px] text-[#a09b8c] sm:text-xs">Games</p>
-              <p className="text-lg font-bold text-white sm:text-xl">{hiddenGem.games}</p>
-            </div>
-          </div>
+            );
+          })}
         </div>
-        
-        <div className="rounded-sm border-2 border-[#785a28] bg-[#0b1426]/90 p-4">
-          <p className="text-xs uppercase tracking-[0.25em] text-[#c89b3c] sm:text-sm">Role Identity</p>
-          <p className="mt-2 text-2xl font-bold text-white sm:text-3xl">{favoriteRole}</p>
-          <p className="mt-1 text-base text-[#c89b3c] sm:text-lg">Primary Position</p>
-          <div className="mt-3 border-t border-[#273241] pt-3">
-            <p className="text-xs text-[#d1c6ac] sm:text-sm">
-              Your most played role throughout the season, where you made the biggest impact.
-            </p>
+
+        {/* Vertical Separator */}
+        <div className="hidden h-full w-px bg-[#c89b3c]/30 lg:block" />
+
+        {/* Right Sidebar - Full Height */}
+        <div className="flex h-full flex-col justify-center gap-4 sm:gap-6 lg:w-[380px]">
+          {/* MAIN CHAMPION Section (if available) */}
+          {mainChampion && (
+            <div className="rounded-sm border border-[#c89b3c]/50 bg-[#0b1426]/95 p-4 sm:p-5">
+              <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-[#c89b3c]/70 sm:text-xs">MAIN</p>
+              <div className="mt-3">
+                <div className="flex items-center gap-3">
+                  {/* Champion Portrait */}
+                  <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-sm bg-[#050b16] sm:h-16 sm:w-16">
+                    {getChampionImage(mainChampion.name) ? (
+                      <img
+                        src={getChampionImage(mainChampion.name)}
+                        alt={mainChampion.name}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#1a2336] to-[#0a1428]">
+                        <span className="text-base font-bold text-[#c89b3c]">{mainChampion.name.charAt(0)}</span>
+                      </div>
+                    )}
+                  </div>
+                  {/* Champion Info */}
+                  <div className="flex-1">
+                    <p className="text-lg font-semibold text-white sm:text-xl">{mainChampion.name}</p>
+                    <div className="mt-1 flex items-center gap-2 text-xs text-[#a09b8c] sm:text-sm">
+                      <span>{mainChampion.winrate.toFixed(1)}%</span>
+                      <span>•</span>
+                      <span>{mainChampion.games}</span>
+                      <span>•</span>
+                      <span>{mainChampion.kda.toFixed(1)}</span>
+                    </div>
+                  </div>
+                </div>
+                {mainChampion.insight && (
+                  <p className="mt-3 text-xs leading-relaxed text-[#d1c6ac]/80 sm:text-sm">
+                    {mainChampion.insight}
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* HIDDEN GEM Section */}
+          {hiddenGem && (
+            <div className="rounded-sm border border-[#c89b3c]/50 bg-[#0b1426]/95 p-4 sm:p-5">
+              <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-[#c89b3c]/70 sm:text-xs">HIDDEN GEM</p>
+              <div className="mt-3">
+                <div className="flex items-center gap-3">
+                  {/* Champion Portrait */}
+                  <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-sm bg-[#050b16] sm:h-16 sm:w-16">
+                    {getChampionImage(hiddenGem.champion) ? (
+                      <img
+                        src={getChampionImage(hiddenGem.champion)}
+                        alt={hiddenGem.champion}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#1a2336] to-[#0a1428]">
+                        <span className="text-base font-bold text-[#c89b3c]">{hiddenGem.champion.charAt(0)}</span>
+                      </div>
+                    )}
+                  </div>
+                  {/* Champion Info */}
+                  <div className="flex-1">
+                    <p className="text-lg font-semibold text-white sm:text-xl">{hiddenGem.champion}</p>
+                    <div className="mt-1 flex items-center gap-2 text-xs text-[#a09b8c] sm:text-sm">
+                      <span className="text-green-400">{hiddenGem.yourWinrate.toFixed(0)}%</span>
+                      <span>•</span>
+                      <span>{hiddenGem.games}</span>
+                    </div>
+                  </div>
+                </div>
+                {hiddenGem.insight && (
+                  <p className="mt-3 text-xs leading-relaxed text-[#d1c6ac]/80 sm:text-sm">
+                    {hiddenGem.insight}
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* ROLE IDENTITY Section */}
+          <div className="rounded-sm border border-[#c89b3c]/50 bg-[#0b1426]/95 p-4 sm:p-5">
+            <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-[#c89b3c]/70 sm:text-xs">ROLE</p>
+            <div className="mt-3 flex items-center gap-3">
+              {/* Shield Icon */}
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center sm:h-16 sm:w-16">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#c89b3c"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="h-full w-full opacity-60"
+                >
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                </svg>
+              </div>
+              {/* Role Info */}
+              <div className="flex-1">
+                <p className="text-lg font-semibold text-white sm:text-xl">{favoriteRole}</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -506,27 +647,8 @@ export default function Recap3() {
     },
   ];
 
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const [hoveredChampion, setHoveredChampion] = useState<string | null>(null);
-  const [heroImages, setHeroImages] = useState<Array<{ name: string; image: string }>>([]);
   const totalSlides = slides.length;
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
-
-  // Load hero images
-  useEffect(() => {
-    fetch("/hero_images.json")
-      .then(res => res.json())
-      .then(data => setHeroImages(data))
-      .catch(() => console.warn("Failed to load hero images"));
-  }, []);
-
-  const getChampionImage = (championName: string): string | undefined => {
-    const champion = heroImages.find(
-      (hero) => 
-        hero.name.toLowerCase() === championName.toLowerCase().replace(/['\s]/g, '')
-    );
-    return champion?.image;
-  };
 
   useEffect(() => {
     videoRefs.current.forEach((video, index) => {
@@ -633,25 +755,11 @@ export default function Recap3() {
             style={{ transform: `translateX(-${currentSlide * 100}%)` }}
           >
             {slides.map((slide, index) => {
-              const isChampionsSlide = slide.id === "champions";
-              const championImage = isChampionsSlide && hoveredChampion ? getChampionImage(hoveredChampion) : null;
-              
               return (
                 <section
                   key={slide.id}
                   className={`relative flex h-full min-w-full flex-col overflow-hidden px-4 py-3 text-[#f0e6d2] sm:px-6 sm:py-4 lg:px-10 lg:py-6 ${slide.background}`}
                 >
-                  {/* Champion hero image background (only for champions slide when hovering) */}
-                  {isChampionsSlide && championImage && (
-                    <div
-                      className="pointer-events-none absolute inset-0 bg-cover bg-center transition-opacity duration-500"
-                      style={{
-                        backgroundImage: `url(${championImage})`,
-                        opacity: 0.25,
-                      }}
-                    />
-                  )}
-                  
                   {/* Default video background */}
                   {slide.video && (
                     <video
@@ -661,9 +769,7 @@ export default function Recap3() {
                       loop
                       muted
                       playsInline
-                      className={`pointer-events-none absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ${
-                        isChampionsSlide && championImage ? "opacity-0" : "opacity-30"
-                      }`}
+                      className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-30"
                     >
                       <source src={slide.video} type="video/webm" />
                     </video>

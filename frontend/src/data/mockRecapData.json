@@ -19,6 +19,38 @@
       "consistency": 65
     }
   },
+  "champions": {
+    "main": {
+      "name": "Orianna",
+      "games": 7,
+      "winrate": 28.57,
+      "kda": 4.27,
+      "insight": "Despite a lower win rate, your mechanics and teamfight presence with Orianna showed incredible potential—55% kill participation proves you're a crucial part of every fight."
+    },
+    "top3": [
+      {
+        "name": "Aurora",
+        "games": 5,
+        "wr": 80.0
+      },
+      {
+        "name": "Gangplank",
+        "games": 5,
+        "wr": 60.0
+      },
+      {
+        "name": "Yone",
+        "games": 7,
+        "wr": 71.43
+      }
+    ],
+    "hiddenGem": {
+      "name": "Aurora",
+      "games": 5,
+      "winrate": 80.0,
+      "insight": "An 80% win rate on Aurora with only 5 games is insane—you clearly understand how to leverage her kit better than almost anyone."
+    }
+  },
   "topChampions": [
     {
       "name": "Yasuo",
