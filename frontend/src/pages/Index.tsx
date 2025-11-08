@@ -65,8 +65,8 @@ const Index = () => {
       return;
     }
 
-    // Navigate with all required parameters
-    navigate(`/loading?name=${encodeURIComponent(name)}&tag=${encodeURIComponent(tag)}&region=${encodeURIComponent(region)}`);
+    // Navigate directly to recap page with query parameters
+    navigate(`/recap?name=${encodeURIComponent(name)}&tag=${encodeURIComponent(tag)}&region=${encodeURIComponent(region)}`);
   };
 
   return (
