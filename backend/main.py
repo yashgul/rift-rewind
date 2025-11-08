@@ -79,6 +79,7 @@ def matchData(name: str, tag: str, region: str):
 
         match_stats_aggregator = MatchStatsAggregator()
         timeline_data = []
+        match_data_cache = {}  # Cache match data to avoid re-fetching
 
         for match_id in recent_match_ids:
             match_data = riot_api_client.get_match_metadata_by_match_id(
@@ -92,6 +93,13 @@ def matchData(name: str, tag: str, region: str):
                 required_keys = {"kda", "championName", "win"}
                 if required_keys.issubset(flattened_match_data):
                     match_stats_aggregator.add_match(flattened_match_data)
+                    
+                    # Store match data for later enrichment
+                    match_data_cache[match_id] = {
+                        "match_data": match_data,
+                        "flattened_data": flattened_match_data
+                    }
+                    
                     timeline_data.append(
                         {
                             "id": match_id,
@@ -107,7 +115,42 @@ def matchData(name: str, tag: str, region: str):
 
         logger.info(f"Timeline data generated: {timeline_data}")
 
-        enriched_timeline = find_and_generate_descriptions_of_interesting_matches(timeline_data)
+        # First, let LLM identify interesting matches
+        interesting_matches = find_and_generate_descriptions_of_interesting_matches(timeline_data)
+        
+        # Then enrich those matches with additional details from cache
+        enriched_timeline = []
+        for match in interesting_matches:
+            match_id = match["id"]
+            
+            # Get cached match data (no additional API calls needed)
+            if match_id in match_data_cache:
+                cached = match_data_cache[match_id]
+                match_data = cached["match_data"]
+                flattened_match_data = cached["flattened_data"]
+                
+                # Add additional details to the match
+                enriched_match = {
+                    **match,  # Keep id, kda, champ, win, description from LLM
+                    "date": match_data.get("info", {}).get("gameCreation"),
+                    "gameDuration": flattened_match_data.get("gameDuration"),
+                    "gameMode": match_data.get("info", {}).get("gameMode"),
+                    "kills": flattened_match_data.get("kills"),
+                    "deaths": flattened_match_data.get("deaths"),
+                    "assists": flattened_match_data.get("assists"),
+                    "totalDamageDealtToChampions": flattened_match_data.get("totalDamageDealtToChampions"),
+                    "goldEarned": flattened_match_data.get("goldEarned"),
+                    "visionScore": flattened_match_data.get("visionScore"),
+                    "pentaKills": flattened_match_data.get("pentaKills"),
+                    "quadraKills": flattened_match_data.get("quadraKills"),
+                    "tripleKills": flattened_match_data.get("tripleKills"),
+                    "doubleKills": flattened_match_data.get("doubleKills"),
+                    "killParticipation": flattened_match_data.get("killParticipation"),
+                    "teamPosition": flattened_match_data.get("teamPosition"),
+                }
+                enriched_timeline.append(enriched_match)
+        
+        logger.info(f"Enriched {len(enriched_timeline)} interesting matches with details")
 
         player_wrapped = generate_player_wrapped_json(
             player_data=match_stats_aggregator.get_summary(), name=name, tag=tag, region=region

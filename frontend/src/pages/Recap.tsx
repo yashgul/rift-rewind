@@ -73,11 +73,27 @@ interface RecapData {
   };
   timeline: Array<{
     id: string;
-      kda: number;
-      champ: string;
-      win: boolean;
+    kda: number;
+    champ: string;
+    win: boolean;
     description: string;
-    }>;
+    // Enriched fields from backend
+    date?: number;
+    gameDuration?: number;
+    gameMode?: string;
+    kills?: number;
+    deaths?: number;
+    assists?: number;
+    totalDamageDealtToChampions?: number;
+    goldEarned?: number;
+    visionScore?: number;
+    pentaKills?: number;
+    quadraKills?: number;
+    tripleKills?: number;
+    doubleKills?: number;
+    killParticipation?: number;
+    teamPosition?: string;
+  }>;
   };
 }
 
@@ -952,17 +968,182 @@ export default function Recap() {
                 </div>
 
                 {/* Match Details */}
-                <div className="flex flex-col gap-2 border-t border-[#785a28]/30 bg-[#0a1428]/60 p-4">
-                  {/* KDA */}
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs uppercase tracking-[0.2em] text-[#a09b8c]">KDA</span>
-                    <span className="text-2xl font-bold text-[#c89b3c]">{match.kda.toFixed(2)}</span>
+                <div className="relative flex flex-col gap-2 border-t border-[#785a28]/30 bg-[#0a1428]/60 p-4">
+                  {/* Default View - Key Stats */}
+                  <div className="space-y-2">
+                    {/* KDA */}
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs uppercase tracking-[0.2em] text-[#a09b8c]">KDA</span>
+                      <span className="text-2xl font-bold text-[#c89b3c]">{match.kda.toFixed(2)}</span>
+                    </div>
+
+                    {/* K/D/A Breakdown - if available */}
+                    {match.kills !== undefined && match.deaths !== undefined && match.assists !== undefined && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs uppercase tracking-[0.2em] text-[#a09b8c]">Score</span>
+                        <span className="text-sm font-semibold text-white">{match.kills}/{match.deaths}/{match.assists}</span>
+                      </div>
+                    )}
+
+                    {/* Description */}
+                    <p className="line-clamp-2 text-xs leading-relaxed text-[#d1c6ac] border-t border-[#785a28]/20 pt-2">
+                      {match.description}
+                    </p>
+                    
+                    {/* Hover indicator */}
+                    <p className="text-[10px] text-center text-[#a09b8c]/60 uppercase tracking-wider pt-1">
+                      Hover for details
+                    </p>
                   </div>
 
-                  {/* Description */}
-                  <p className="line-clamp-3 text-xs leading-relaxed text-[#d1c6ac]">
-                    {match.description}
-                  </p>
+                  {/* Hover Overlay - Detailed Stats */}
+                  <div className="absolute inset-0 bg-[#0a1428]/98 backdrop-blur-sm opacity-0 hover:opacity-100 transition-opacity duration-300 overflow-y-auto p-4 border-t border-[#785a28]/30">
+                    <div className="space-y-3">
+                      {/* Match ID */}
+                      <div className="pb-2 border-b border-[#785a28]/30">
+                        <p className="text-[10px] uppercase tracking-wider text-[#a09b8c]">Match ID</p>
+                        <p className="text-xs font-mono text-[#c89b3c] break-all">{match.id}</p>
+                      </div>
+
+                      {/* Combat Stats */}
+                      <div>
+                        <p className="text-xs uppercase tracking-wider text-[#c89b3c] mb-2">Combat</p>
+                        <div className="space-y-1.5 text-xs">
+                          {match.kills !== undefined && match.kills > 0 && (
+                            <div className="flex justify-between">
+                              <span className="text-[#a09b8c]">Kills</span>
+                              <span className="text-white font-semibold">{match.kills}</span>
+                            </div>
+                          )}
+                          {match.deaths !== undefined && (
+                            <div className="flex justify-between">
+                              <span className="text-[#a09b8c]">Deaths</span>
+                              <span className="text-white font-semibold">{match.deaths}</span>
+                            </div>
+                          )}
+                          {match.assists !== undefined && match.assists > 0 && (
+                            <div className="flex justify-between">
+                              <span className="text-[#a09b8c]">Assists</span>
+                              <span className="text-white font-semibold">{match.assists}</span>
+                            </div>
+                          )}
+                          {match.killParticipation !== undefined && match.killParticipation > 0 && (
+                            <div className="flex justify-between">
+                              <span className="text-[#a09b8c]">Kill Participation</span>
+                              <span className="text-white font-semibold">{(match.killParticipation * 100).toFixed(1)}%</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Multi-kills */}
+                      {(match.pentaKills || match.quadraKills || match.tripleKills || match.doubleKills) && (
+                        <div>
+                          <p className="text-xs uppercase tracking-wider text-[#c89b3c] mb-2">Multi-Kills</p>
+                          <div className="space-y-1.5 text-xs">
+                            {match.pentaKills !== undefined && match.pentaKills > 0 && (
+                              <div className="flex justify-between">
+                                <span className="text-[#a09b8c]">🔥 Penta Kills</span>
+                                <span className="text-[#ff4444] font-bold">{match.pentaKills}</span>
+                              </div>
+                            )}
+                            {match.quadraKills !== undefined && match.quadraKills > 0 && (
+                              <div className="flex justify-between">
+                                <span className="text-[#a09b8c]">Quadra Kills</span>
+                                <span className="text-[#ff8844] font-semibold">{match.quadraKills}</span>
+                              </div>
+                            )}
+                            {match.tripleKills !== undefined && match.tripleKills > 0 && (
+                              <div className="flex justify-between">
+                                <span className="text-[#a09b8c]">Triple Kills</span>
+                                <span className="text-white font-semibold">{match.tripleKills}</span>
+                              </div>
+                            )}
+                            {match.doubleKills !== undefined && match.doubleKills > 0 && (
+                              <div className="flex justify-between">
+                                <span className="text-[#a09b8c]">Double Kills</span>
+                                <span className="text-white font-semibold">{match.doubleKills}</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Performance */}
+                      <div>
+                        <p className="text-xs uppercase tracking-wider text-[#c89b3c] mb-2">Performance</p>
+                        <div className="space-y-1.5 text-xs">
+                          {match.totalDamageDealtToChampions !== undefined && match.totalDamageDealtToChampions > 0 && (
+                            <div className="flex justify-between">
+                              <span className="text-[#a09b8c]">Damage to Champions</span>
+                              <span className="text-white font-semibold">{match.totalDamageDealtToChampions.toLocaleString()}</span>
+                            </div>
+                          )}
+                          {match.goldEarned !== undefined && match.goldEarned > 0 && (
+                            <div className="flex justify-between">
+                              <span className="text-[#a09b8c]">Gold Earned</span>
+                              <span className="text-white font-semibold">{match.goldEarned.toLocaleString()}</span>
+                            </div>
+                          )}
+                          {match.visionScore !== undefined && match.visionScore > 0 && (
+                            <div className="flex justify-between">
+                              <span className="text-[#a09b8c]">Vision Score</span>
+                              <span className="text-white font-semibold">{match.visionScore}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Match Info */}
+                      <div>
+                        <p className="text-xs uppercase tracking-wider text-[#c89b3c] mb-2">Match Info</p>
+                        <div className="space-y-1.5 text-xs">
+                          {match.date && (
+                            <div className="flex justify-between">
+                              <span className="text-[#a09b8c]">Date</span>
+                              <span className="text-white font-semibold">
+                                {new Date(match.date).toLocaleDateString('en-US', { 
+                                  month: 'short', 
+                                  day: 'numeric',
+                                  year: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })}
+                              </span>
+                            </div>
+                          )}
+                          {match.gameDuration !== undefined && match.gameDuration > 0 && (
+                            <div className="flex justify-between">
+                              <span className="text-[#a09b8c]">Duration</span>
+                              <span className="text-white font-semibold">
+                                {Math.floor(match.gameDuration / 60)}m {match.gameDuration % 60}s
+                              </span>
+                            </div>
+                          )}
+                          {match.gameMode && (
+                            <div className="flex justify-between">
+                              <span className="text-[#a09b8c]">Game Mode</span>
+                              <span className="text-white font-semibold">{match.gameMode}</span>
+                            </div>
+                          )}
+                          {match.teamPosition && (
+                            <div className="flex justify-between">
+                              <span className="text-[#a09b8c]">Position</span>
+                              <span className="text-white font-semibold">{match.teamPosition}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Description */}
+                      <div className="border-t border-[#785a28]/30 pt-2">
+                        <p className="text-xs uppercase tracking-wider text-[#c89b3c] mb-2">Story</p>
+                        <p className="text-xs leading-relaxed text-[#d1c6ac]">
+                          {match.description}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             );
