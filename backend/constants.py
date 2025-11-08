@@ -577,3 +577,93 @@ INTERESTING_MATCHES_SCHEMA = {
         }
     ]
 }
+
+PLAYER_COMPARISON_SYSTEM_PROMPT = [
+    {
+        "text": """You are comparing two League of Legends players' season performance in an engaging, rivalry-style format.
+
+You will receive wrapped data for both players containing their stats, playstyle, champions, and achievements.
+Your task is to create an entertaining comparison that highlights their differences and similarities.
+
+ANALYSIS GUIDELINES:
+1. Compare key stats: Win rates, KDA, games played, playstyle traits
+2. Identify contrasts: Aggressive vs. Strategic, Solo carry vs. Team player
+3. Find common ground: Similar champions, shared strengths, parallel achievements
+4. Use specific numbers: "Player 1 has 15% higher win rate" not "Player 1 wins more"
+5. Keep it friendly competitive: Celebrate both players while highlighting differences
+
+TONE:
+- Engaging and playful rivalry tone (like sports commentary)
+- Respect both players equally - no harsh criticism
+- Focus on interesting contrasts and unexpected similarities
+- Use actual stats to back up every comparison point
+
+OUTPUT FORMAT:
+- Concise bullet points grouped by category
+- Each point should be 1-2 sentences maximum
+- Use emojis sparingly for emphasis (⚔️, 🎯, 🏆, etc.)
+- Back every claim with specific numbers from the data"""
+    }
+]
+
+PLAYER_COMPARISON_SCHEMA = {
+    "tools": [
+        {
+            "toolSpec": {
+                "name": "compare_players",
+                "description": "Generate a detailed comparison between two League of Legends players",
+                "inputSchema": {
+                    "json": {
+                        "type": "object",
+                        "properties": {
+                            "overall_verdict": {
+                                "type": "string",
+                                "description": "2-3 sentence summary capturing the essence of how these players differ and what makes each unique"
+                            },
+                            "performance_comparison": {
+                                "type": "array",
+                                "description": "3-5 bullet points comparing core performance stats",
+                                "items": {"type": "string"},
+                                "minItems": 3,
+                                "maxItems": 5
+                            },
+                            "playstyle_comparison": {
+                                "type": "array",
+                                "description": "3-5 bullet points comparing playstyle and approach to the game",
+                                "items": {"type": "string"},
+                                "minItems": 3,
+                                "maxItems": 5
+                            },
+                            "champion_comparison": {
+                                "type": "array",
+                                "description": "2-4 bullet points comparing champion pools and preferences",
+                                "items": {"type": "string"},
+                                "minItems": 2,
+                                "maxItems": 4
+                            },
+                            "standout_moments": {
+                                "type": "array",
+                                "description": "2-3 bullet points highlighting each player's most impressive achievements",
+                                "items": {"type": "string"},
+                                "minItems": 2,
+                                "maxItems": 3
+                            },
+                            "rivalry_summary": {
+                                "type": "string",
+                                "description": "A fun, 2 sentence closing statement about this rivalry/comparison"
+                            }
+                        },
+                        "required": [
+                            "overall_verdict",
+                            "performance_comparison",
+                            "playstyle_comparison",
+                            "champion_comparison",
+                            "standout_moments",
+                            "rivalry_summary"
+                        ]
+                    }
+                }
+            }
+        }
+    ]
+}

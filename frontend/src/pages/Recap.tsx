@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { PolarAngleAxis, PolarGrid, Radar, RadarChart } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { convertPeakTimeToRegion } from "@/lib/timeUtils";
+import { useRecapData } from "@/contexts/RecapDataContext";
 
 interface RecapData {
   message: {
@@ -131,6 +132,7 @@ const safeGet = <T,>(obj: unknown, path: string, defaultValue: T): T => {
 export default function Recap() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { getCachedRecap, setCachedRecap } = useRecapData();
   const [recapData, setRecapData] = useState<RecapData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -141,22 +143,37 @@ export default function Recap() {
   const [linkCopied, setLinkCopied] = useState(false);
   const [activeMatchIndex, setActiveMatchIndex] = useState(0);
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
+  
+  // Check if we came from comparison screen
+  const fromCompare = searchParams.get("fromCompare") === "true";
+  const comparisonParams = searchParams.get("comparisonParams");
 
   // Fetch data from API on mount
   useEffect(() => {
     const name = searchParams.get("name");
     const tag = searchParams.get("tag");
     const region = searchParams.get("region") || "americas"; // Default to americas if not provided
+    const testMode = searchParams.get("test_mode") === "true";
     
     if (!name || !tag) {
       navigate("/");
       return;
     }
 
+    // Check cache first (especially useful when coming from comparison)
+    const cached = getCachedRecap(name, tag, region);
+    if (cached) {
+      console.log("Using cached recap data for", `${name}#${tag}`);
+      setRecapData({ message: cached });
+      setIsLoading(false);
+      return;
+    }
+
     const fetchRecapData = async () => {
       try {
         const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:9000';
-        const apiUrl = `${backendUrl}/api/matchData?tag=${encodeURIComponent(tag)}&name=${encodeURIComponent(name)}&region=${encodeURIComponent(region)}`;
+        const testModeParam = testMode ? '&test_mode=true' : '';
+        const apiUrl = `${backendUrl}/api/matchData?tag=${encodeURIComponent(tag)}&name=${encodeURIComponent(name)}&region=${encodeURIComponent(region)}${testModeParam}`;
         
         console.log("Fetching recap data from:", apiUrl);
         
@@ -172,6 +189,8 @@ export default function Recap() {
         // Validate and set the data
         if (data && data.message && data.message.wrapped) {
           setRecapData(data as RecapData);
+          // Cache the fetched data
+          setCachedRecap(name, tag, region, data.message);
         } else {
           setError("Invalid data format received from API.");
         }
@@ -184,7 +203,7 @@ export default function Recap() {
     };
 
     fetchRecapData();
-  }, [navigate, searchParams]);
+  }, [navigate, searchParams, getCachedRecap, setCachedRecap]);
 
   // Load hero images
   useEffect(() => {
@@ -562,10 +581,20 @@ export default function Recap() {
           style={{ backgroundImage: "url('/rift_logo.png')" }}
           aria-label="Rift Rewind logo"
         />
-        <div>
+        <div className="flex-1">
           <p className="text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">{recapData.message.wrapped.unique_id || 'Player'}</p>
           <p className="mt-1 text-sm uppercase tracking-[0.3em] text-[#c89b3c] sm:mt-2 sm:text-base">Season {year}</p>
         </div>
+        
+        {/* Back to Comparison button - only show if came from comparison */}
+        {fromCompare && comparisonParams && (
+          <button
+            onClick={() => navigate(`/compare?${comparisonParams}`)}
+            className="ml-4 px-4 py-2 bg-card/40 border border-[#785a28] hover:border-[#c89b3c] rounded text-sm text-[#c89b3c] transition-all font-rajdhani font-medium hover:shadow-glow whitespace-nowrap"
+          >
+            ← Back to Comparison
+          </button>
+        )}
       </div>
 
       {/* Season Snapshot - Table style */}

@@ -12,12 +12,14 @@ from clients.awsBedrock import (
     find_and_generate_descriptions_of_interesting_matches,
     get_wrapped_from_dynamodb,
     store_wrapped_in_dynamodb,
+    compare_two_players,
 )
 from helpers.match_parser import parse_match_for_player
 from helpers.match_aggregator import MatchStatsAggregator
 
 # --- Load environment variables ---
 load_dotenv(verbose=True)
+os.environ['AWS_BEARER_TOKEN_BEDROCK'] = 'ABSKQmVkcm9ja0FQSUtleS00cG1jLWF0LTMzNTA1NzQ5MzIyODpRS09uRUU3enk3VHkyYUNxYzVwYVlRU01SMkNMa09NT3N0S00zdHZ6cmM2YkN1Z2ppY05aMzZHQ3VEMD0='
 
 # --- Logging Setup ---
 logging.basicConfig(
@@ -46,7 +48,7 @@ def read_root():
 
 
 @app.get("/api/matchData")
-def matchData(name: str, tag: str, region: str):
+def matchData(name: str, tag: str, region: str, test_mode: bool = False):
     try:
         # Create unique identifier to check in DynamoDB
         unique_id = f"{name.lower()}_{tag.lower()}_{region.lower()}"
@@ -70,7 +72,11 @@ def matchData(name: str, tag: str, region: str):
 
         logger.info(f"PUUID for {name}#{tag}: {puuid}")
 
-        recent_match_ids = riot_api_client.get_match_ids_by_puuid(puuid=puuid, region=region)
+        # In test mode, fetch fewer matches to avoid rate limits (30 instead of 100)
+        match_count = 30 if test_mode else 100
+        logger.info(f"{'[TEST MODE] ' if test_mode else ''}Fetching {match_count} matches")
+        
+        recent_match_ids = riot_api_client.get_match_ids_by_puuid(puuid=puuid, region=region, count=match_count)
 
         if not recent_match_ids:
             raise HTTPException(
@@ -195,6 +201,93 @@ def matchData(name: str, tag: str, region: str):
         raise HTTPException(
             status_code=500,
             detail=f"An error occurred while processing your request: {error_message}",
+        ) from e
+
+
+@app.get("/api/compareData")
+def compareData(
+    name1: str, tag1: str, region1: str,
+    name2: str, tag2: str, region2: str,
+    test_mode: bool = False
+):
+    """
+    Compare two players' wrapped data
+    
+    Args:
+        test_mode: If True, fetches only 30 matches per player to avoid rate limits (default: False)
+    """
+    try:
+        # Create unique identifiers for both players
+        unique_id1 = f"{name1.lower()}_{tag1.lower()}_{region1.lower()}"
+        unique_id2 = f"{name2.lower()}_{tag2.lower()}_{region2.lower()}"
+
+        logger.info(f"{'[TEST MODE] ' if test_mode else ''}Comparing players: {unique_id1} vs {unique_id2}")
+
+        # Get or fetch wrapped data for player 1
+        player1_data = get_wrapped_from_dynamodb(unique_id1)
+        if not player1_data:
+            logger.info(f"Player 1 data not found in DB, fetching from API")
+            # If not in DB, we need to generate it first
+            # Call matchData internally to generate the wrapped data
+            player1_result = matchData(name1, tag1, region1, test_mode=test_mode)
+            player1_data = player1_result["message"]
+            
+        # Get or fetch wrapped data for player 2
+        player2_data = get_wrapped_from_dynamodb(unique_id2)
+        if not player2_data:
+            logger.info(f"Player 2 data not found in DB, fetching from API")
+            player2_result = matchData(name2, tag2, region2, test_mode=test_mode)
+            player2_data = player2_result["message"]
+
+        # Extract wrapped data from both players
+        player1_wrapped = player1_data.get("wrapped", {}).get("wrapped_data", {})
+        player2_wrapped = player2_data.get("wrapped", {}).get("wrapped_data", {})
+
+        # Generate comparison using LLM
+        comparison = compare_two_players(
+            player1_wrapped=player1_wrapped,
+            player2_wrapped=player2_wrapped,
+            player1_name=f"{name1}#{tag1}",
+            player2_name=f"{name2}#{tag2}"
+        )
+
+        if not comparison:
+            raise HTTPException(
+                status_code=500,
+                detail="Failed to generate player comparison"
+            )
+
+        # Return both players' data along with comparison
+        result = {
+            "player1": {
+                "name": f"{name1}#{tag1}",
+                "region": region1,
+                "wrapped": player1_data.get("wrapped", {}),
+                "stats": player1_wrapped.get("stats", {}),
+                "wrapped_info": player1_wrapped.get("wrapped", {})
+            },
+            "player2": {
+                "name": f"{name2}#{tag2}",
+                "region": region2,
+                "wrapped": player2_data.get("wrapped", {}),
+                "stats": player2_wrapped.get("stats", {}),
+                "wrapped_info": player2_wrapped.get("wrapped", {})
+            },
+            "comparison": comparison
+        }
+
+        logger.info(f"Successfully generated comparison for {unique_id1} vs {unique_id2}")
+        return {"message": result}
+
+    except HTTPException:
+        raise
+    
+    except Exception as e:
+        error_message = traceback.format_exc()
+        logger.error(f"Error in compareData endpoint: {error_message}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"An error occurred while comparing players: {str(e)}"
         ) from e
 
 

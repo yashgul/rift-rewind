@@ -6,6 +6,8 @@ from constants import (
     WRAPPED_SYSTEM_PROMPT,
     INTERESTING_MATCHES_SYSTEM_PROMPT,
     INTERESTING_MATCHES_SCHEMA,
+    PLAYER_COMPARISON_SYSTEM_PROMPT,
+    PLAYER_COMPARISON_SCHEMA,
 )
 import traceback
 
@@ -348,6 +350,124 @@ def generate_player_wrapped_json(
         return None
 
 
+def compare_two_players(
+    player1_wrapped: dict,
+    player2_wrapped: dict,
+    player1_name: str,
+    player2_name: str,
+    system_prompt=PLAYER_COMPARISON_SYSTEM_PROMPT,
+    tool_config=PLAYER_COMPARISON_SCHEMA,
+):
+    """
+    Compares two players' wrapped data using Claude to generate an engaging comparison.
+
+    Args:
+        player1_wrapped: First player's wrapped data
+        player2_wrapped: Second player's wrapped data
+        player1_name: First player's display name
+        player2_name: Second player's display name
+        system_prompt: The system-level instructions for the model
+        tool_config: The tool configuration with schema
+
+    Returns:
+        dict: A dictionary containing the comparison analysis
+    """
+    try:
+        # Get AWS credentials from environment variables
+        aws_access_key_id = os.getenv("AWS_ACCESS_KEY_ID")
+        aws_secret_access_key = os.getenv("AWS_SECRET_ACCESS_KEY")
+        aws_region = os.getenv("AWS_REGION", "eu-north-1")
+
+        if not all([aws_access_key_id, aws_secret_access_key]):
+            raise Exception("AWS credentials not found in environment variables")
+
+        # Create a new session with our credentials
+        session = boto3.Session(
+            aws_access_key_id=aws_access_key_id,
+            aws_secret_access_key=aws_secret_access_key,
+            region_name=aws_region,
+        )
+
+        # Use the session to create the Bedrock client
+        bedrock_client = session.client("bedrock-runtime")
+
+        # Use Haiku for cost-effective comparison
+        model_id = "eu.anthropic.claude-haiku-4-5-20251001-v1:0"
+
+        # For better quality:
+        # model_id = "eu.anthropic.claude-sonnet-4-5-20250929-v1:0"
+
+        # Create the initial message from user with both players' data
+        messages = [
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "text": f"""Please compare these two League of Legends players using the compare_players tool.
+
+Player 1: {player1_name}
+{json.dumps(player1_wrapped, indent=2)}
+
+Player 2: {player2_name}
+{json.dumps(player2_wrapped, indent=2)}
+
+Generate an engaging, rivalry-style comparison highlighting their differences and similarities."""
+                    }
+                ],
+            }
+        ]
+
+        print(f"Invoking Bedrock Model for player comparison: {model_id}...")
+        print(f"Comparing {player1_name} vs {player2_name}")
+
+        # First call to the model
+        response = bedrock_client.converse(
+            modelId=model_id, messages=messages, system=system_prompt, toolConfig=tool_config
+        )
+
+        output_message = response["output"]["message"]
+        messages.append(output_message)
+        stop_reason = response["stopReason"]
+
+        print(f"Stop reason: {stop_reason}")
+
+        if stop_reason == "tool_use":
+            # Tool use requested - extract the tool result
+            tool_requests = response["output"]["message"]["content"]
+
+            for tool_request in tool_requests:
+                if "toolUse" in tool_request:
+                    tool = tool_request["toolUse"]
+                    print(f"Tool used: {tool['name']}")
+
+                    if tool["name"] == "compare_players":
+                        comparison_data = tool["input"]
+
+                        print("\n--- Player Comparison Generated ---")
+                        print("------------------------------------------")
+
+                        return comparison_data
+
+        elif stop_reason == "end_turn":
+            print("Model did not use the tool. Response:")
+            for content in output_message["content"]:
+                print(json.dumps(content, indent=2))
+            return None
+
+        else:
+            print(f"Unexpected stop reason: {stop_reason}")
+            return None
+
+    except ClientError as err:
+        message = err.response["Error"]["Message"]
+        print(f"A client error occurred: {message}")
+        return None
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        traceback.print_exc()
+        return None
+
+
 # --- 4. Pre-flight Check ---
 def check_aws_setup():
     """Verify AWS credentials and Bedrock access"""
@@ -362,4 +482,6 @@ def check_aws_setup():
         print("1. AWS credentials are configured (AWS CLI or environment variables)")
         print("2. You have access to Amazon Bedrock")
         print("3. Claude 3 Haiku model is enabled in eu-north-1 region")
+        return False
+
         return False
