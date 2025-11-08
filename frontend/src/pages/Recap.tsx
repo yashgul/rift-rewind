@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from "react"
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { PolarAngleAxis, PolarGrid, Radar, RadarChart } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { convertPeakTimeToRegion } from "@/lib/timeUtils";
 
 interface RecapData {
   message: {
@@ -469,8 +470,12 @@ export default function Recap() {
   const totalGames = safeGet(wrappedData, 'stats.games', 0);
   const winrate = safeGet(wrappedData, 'stats.winrate', 0);
   const hours = safeGet(wrappedData, 'stats.hours', 0);
-  const peakTime = safeGet(wrappedData, 'stats.peakTime', 'N/A');
+  const rawPeakTime = safeGet(wrappedData, 'stats.peakTime', 'N/A');
   const bestMonth = safeGet(wrappedData, 'stats.bestMonth', 'N/A');
+  
+  // Get region from URL params and convert peak time to local timezone
+  const region = searchParams.get("region") || "americas";
+  const peakTime = convertPeakTimeToRegion(rawPeakTime, region);
 
   const tagline = safeGet(wrappedData, 'wrapped.tagline', 'Your Season Recap');
   const summary = safeGet(wrappedData, 'wrapped.summary', 'Here\'s your performance summary.');
