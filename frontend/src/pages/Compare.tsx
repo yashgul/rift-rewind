@@ -87,8 +87,9 @@ export default function Compare() {
       try {
         setIsLoading(true);
         const testModeParam = testMode ? '&test_mode=true' : '';
+        const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:9000';
         const response = await fetch(
-          `http://localhost:9000/api/compareData?name1=${name1}&tag1=${tag1}&region1=${region1}&name2=${name2}&tag2=${tag2}&region2=${region2}${testModeParam}`
+          `${backendUrl}/api/compareData?name1=${name1}&tag1=${tag1}&region1=${region1}&name2=${name2}&tag2=${tag2}&region2=${region2}${testModeParam}`
         );
 
         if (!response.ok) {
