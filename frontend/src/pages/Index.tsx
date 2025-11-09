@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -10,53 +10,28 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Index = () => {
+  const [mode, setMode] = useState<"solo" | "compare">("solo");
   const [riotId, setRiotId] = useState(""); // Format: "name#tag"
-  const [riotId2, setRiotId2] = useState(""); // For comparison mode
   const [region, setRegion] = useState<string>("");
+  
+  // Comparison mode states
+  const [riotId1, setRiotId1] = useState("");
+  const [region1, setRegion1] = useState<string>("");
+  const [riotId2, setRiotId2] = useState("");
   const [region2, setRegion2] = useState<string>("");
+  
+  const [isMuted, setIsMuted] = useState(false);
   const [error, setError] = useState("");
-  const [isCompareMode, setIsCompareMode] = useState(false);
-  const [testMode, setTestMode] = useState(false); // For rate limit testing
   const navigate = useNavigate();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
-    if (isCompareMode) {
-      // Validate both players for comparison mode
-      if (!region || !region2) {
-        setError("Please select regions for both players");
-        return;
-      }
-
-      if (!riotId.trim() || !riotId2.trim()) {
-        setError("Please enter Riot IDs for both players");
-        return;
-      }
-
-      const parts1 = riotId.trim().split('#');
-      const parts2 = riotId2.trim().split('#');
-
-      if (parts1.length !== 2 || parts2.length !== 2) {
-        setError("Please enter both Riot IDs in the format: name#tag");
-        return;
-      }
-
-      const [name1, tag1] = parts1;
-      const [name2, tag2] = parts2;
-
-      if (!name1 || !tag1 || !name2 || !tag2) {
-        setError("Both name and tag are required for each player");
-        return;
-      }
-
-      // Navigate to compare page
-      navigate(`/compare?name1=${encodeURIComponent(name1)}&tag1=${encodeURIComponent(tag1)}&region1=${encodeURIComponent(region)}&name2=${encodeURIComponent(name2)}&tag2=${encodeURIComponent(tag2)}&region2=${encodeURIComponent(region2)}${testMode ? '&test_mode=true' : ''}`);
-    } else {
-      // Original single player flow
+    if (mode === "solo") {
       // Validate region is selected
       if (!region) {
         setError("Please select a region");
@@ -82,7 +57,37 @@ const Index = () => {
       }
 
       // Navigate directly to recap page with query parameters
-      navigate(`/recap?name=${encodeURIComponent(name)}&tag=${encodeURIComponent(tag)}&region=${encodeURIComponent(region)}${testMode ? '&test_mode=true' : ''}`);
+      navigate(`/recap?name=${encodeURIComponent(name)}&tag=${encodeURIComponent(tag)}&region=${encodeURIComponent(region)}`);
+    } else {
+      // Comparison mode validation
+      if (!region1 || !region2) {
+        setError("Please select regions for both players");
+        return;
+      }
+
+      if (!riotId1.trim() || !riotId2.trim()) {
+        setError("Please enter both players' Riot IDs");
+        return;
+      }
+
+      const parts1 = riotId1.trim().split('#');
+      const parts2 = riotId2.trim().split('#');
+
+      if (parts1.length !== 2 || parts2.length !== 2) {
+        setError("Please enter both Riot IDs in the format: name#tag");
+        return;
+      }
+
+      const [name1, tag1] = parts1;
+      const [name2, tag2] = parts2;
+
+      if (!name1 || !tag1 || !name2 || !tag2) {
+        setError("Both name and tag are required for each player");
+        return;
+      }
+
+      // Navigate to compare page with query parameters
+      navigate(`/compare?name1=${encodeURIComponent(name1)}&tag1=${encodeURIComponent(tag1)}&region1=${encodeURIComponent(region1)}&name2=${encodeURIComponent(name2)}&tag2=${encodeURIComponent(tag2)}&region2=${encodeURIComponent(region2)}`);
     }
   };
 
@@ -134,83 +139,25 @@ const Index = () => {
 
           {/* Input Form */}
           <form onSubmit={handleSubmit} className="space-y-4 animate-scale-in">
-            {/* Mode Toggle */}
-            <div className="flex justify-center gap-2 mb-6">
-              <button
-                type="button"
-                onClick={() => setIsCompareMode(false)}
-                className={`px-6 py-2 rounded-lg font-rajdhani font-medium transition-all duration-300 ${
-                  !isCompareMode
-                    ? 'bg-gradient-gold text-primary-foreground shadow-glow'
-                    : 'bg-card/40 border border-lol-gold/30 text-foreground/70 hover:border-lol-gold/60'
-                }`}
-              >
-                Single Player
-              </button>
-              <button
-                type="button"
-                onClick={() => setIsCompareMode(true)}
-                className={`px-6 py-2 rounded-lg font-rajdhani font-medium transition-all duration-300 ${
-                  isCompareMode
-                    ? 'bg-gradient-gold text-primary-foreground shadow-glow'
-                    : 'bg-card/40 border border-lol-gold/30 text-foreground/70 hover:border-lol-gold/60'
-                }`}
-              >
-                Compare Players ⚔️
-              </button>
-            </div>
+            {/* Mode Selector */}
+            <Tabs value={mode} onValueChange={(v) => setMode(v as "solo" | "compare")} className="w-full">
+              <TabsList className="grid w-full grid-cols-2 bg-card/80 backdrop-blur-sm border border-lol-gold/30">
+                <TabsTrigger value="solo" className="font-rajdhani font-medium data-[state=active]:bg-gradient-gold data-[state=active]:text-primary-foreground">
+                  Solo Recap
+                </TabsTrigger>
+                <TabsTrigger value="compare" className="font-rajdhani font-medium data-[state=active]:bg-gradient-gold data-[state=active]:text-primary-foreground">
+                  Duo Comparison
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
 
-            {/* Player 1 Inputs */}
-            <div className="w-full flex flex-col md:flex-row items-stretch md:items-center justify-center gap-3">
-              {isCompareMode && (
-                <p className="text-sm text-lol-gold font-rajdhani font-medium md:mr-2">Player 1:</p>
-              )}
-              {/* Region Selector - Now First */}
-              <div className="relative max-w-[120px] w-full group">
-                <div className="absolute inset-0 bg-gradient-gold opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-300 rounded-lg" />
-                <Select value={region} onValueChange={setRegion}>
-                  <SelectTrigger className="h-14 text-xl leading-tight bg-card/80 backdrop-blur-sm border-lol-gold/30 focus:border-lol-gold text-foreground font-rajdhani font-medium relative hover:border-lol-gold/60 transition-all duration-300 px-3">
-                    <SelectValue placeholder="Region" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="NA1">NA</SelectItem>
-                    <SelectItem value="EUW1">EUW</SelectItem>
-                    <SelectItem value="EUN1">EUNE</SelectItem>
-                    <SelectItem value="BR1">BR</SelectItem>
-                    <SelectItem value="KR">KR</SelectItem>
-                    <SelectItem value="PBE1">PBE</SelectItem>
-                    <SelectItem value="LA1">LAN</SelectItem>
-                    <SelectItem value="LA2">LAS</SelectItem>
-                    <SelectItem value="OC1">OCE</SelectItem>
-                    <SelectItem value="TR1">TR</SelectItem>
-                    <SelectItem value="RU">RU</SelectItem>
-                    <SelectItem value="JP1">JP</SelectItem>
-                    <SelectItem value="asia">Asia</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              {/* Riot ID Input - Now Second */}
-              <div className="relative max-w-md w-full group">
-                <div className="absolute inset-0 bg-gradient-gold opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-300 rounded-lg" />
-                <Input
-                  type="text"
-                  placeholder="name#tag (e.g., Hide on bush#KR1)"
-                  value={riotId}
-                  onChange={(e) => setRiotId(e.target.value)}
-                  className="h-14 text-xl leading-tight bg-card/80 backdrop-blur-sm border-lol-gold/30 focus:border-lol-gold text-foreground placeholder:text-muted-foreground font-rajdhani font-medium relative hover:border-lol-gold/60 transition-all duration-300 px-3"
-                />
-              </div>
-            </div>
-
-            {/* Player 2 Inputs - Only shown in compare mode */}
-            {isCompareMode && (
+            {mode === "solo" ? (
+              // Solo mode inputs
               <div className="w-full flex flex-col md:flex-row items-stretch md:items-center justify-center gap-3">
-                <p className="text-sm text-lol-gold font-rajdhani font-medium md:mr-2">Player 2:</p>
-                {/* Region Selector for Player 2 */}
+                {/* Region Selector */}
                 <div className="relative max-w-[120px] w-full group">
                   <div className="absolute inset-0 bg-gradient-gold opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-300 rounded-lg" />
-                  <Select value={region2} onValueChange={setRegion2}>
+                  <Select value={region} onValueChange={setRegion}>
                     <SelectTrigger className="h-14 text-xl leading-tight bg-card/80 backdrop-blur-sm border-lol-gold/30 focus:border-lol-gold text-foreground font-rajdhani font-medium relative hover:border-lol-gold/60 transition-all duration-300 px-3">
                       <SelectValue placeholder="Region" />
                     </SelectTrigger>
@@ -232,16 +179,100 @@ const Index = () => {
                   </Select>
                 </div>
                 
-                {/* Riot ID Input for Player 2 */}
+                {/* Riot ID Input */}
                 <div className="relative max-w-md w-full group">
                   <div className="absolute inset-0 bg-gradient-gold opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-300 rounded-lg" />
                   <Input
                     type="text"
-                    placeholder="name#tag"
-                    value={riotId2}
-                    onChange={(e) => setRiotId2(e.target.value)}
+                    placeholder="name#tag (e.g., Hide on bush#KR1)"
+                    value={riotId}
+                    onChange={(e) => setRiotId(e.target.value)}
                     className="h-14 text-xl leading-tight bg-card/80 backdrop-blur-sm border-lol-gold/30 focus:border-lol-gold text-foreground placeholder:text-muted-foreground font-rajdhani font-medium relative hover:border-lol-gold/60 transition-all duration-300 px-3"
                   />
+                </div>
+              </div>
+            ) : (
+              // Comparison mode inputs
+              <div className="space-y-3">
+                {/* Player 1 */}
+                <div className="w-full flex flex-col md:flex-row items-stretch md:items-center justify-center gap-3">
+                  <div className="relative max-w-[120px] w-full group">
+                    <div className="absolute inset-0 bg-gradient-gold opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-300 rounded-lg" />
+                    <Select value={region1} onValueChange={setRegion1}>
+                      <SelectTrigger className="h-14 text-xl leading-tight bg-card/80 backdrop-blur-sm border-lol-gold/30 focus:border-lol-gold text-foreground font-rajdhani font-medium relative hover:border-lol-gold/60 transition-all duration-300 px-3">
+                        <SelectValue placeholder="Region" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="NA1">NA</SelectItem>
+                        <SelectItem value="EUW1">EUW</SelectItem>
+                        <SelectItem value="EUN1">EUNE</SelectItem>
+                        <SelectItem value="BR1">BR</SelectItem>
+                        <SelectItem value="KR">KR</SelectItem>
+                        <SelectItem value="PBE1">PBE</SelectItem>
+                        <SelectItem value="LA1">LAN</SelectItem>
+                        <SelectItem value="LA2">LAS</SelectItem>
+                        <SelectItem value="OC1">OCE</SelectItem>
+                        <SelectItem value="TR1">TR</SelectItem>
+                        <SelectItem value="RU">RU</SelectItem>
+                        <SelectItem value="JP1">JP</SelectItem>
+                        <SelectItem value="asia">Asia</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div className="relative max-w-md w-full group">
+                    <div className="absolute inset-0 bg-gradient-gold opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-300 rounded-lg" />
+                    <Input
+                      type="text"
+                      placeholder="Player 1: name#tag"
+                      value={riotId1}
+                      onChange={(e) => setRiotId1(e.target.value)}
+                      className="h-14 text-xl leading-tight bg-card/80 backdrop-blur-sm border-lol-gold/30 focus:border-lol-gold text-foreground placeholder:text-muted-foreground font-rajdhani font-medium relative hover:border-lol-gold/60 transition-all duration-300 px-3"
+                    />
+                  </div>
+                </div>
+
+                {/* VS Divider */}
+                <div className="text-center">
+                  <span className="text-lol-gold font-bebas text-2xl tracking-wider">VS</span>
+                </div>
+
+                {/* Player 2 */}
+                <div className="w-full flex flex-col md:flex-row items-stretch md:items-center justify-center gap-3">
+                  <div className="relative max-w-[120px] w-full group">
+                    <div className="absolute inset-0 bg-gradient-gold opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-300 rounded-lg" />
+                    <Select value={region2} onValueChange={setRegion2}>
+                      <SelectTrigger className="h-14 text-xl leading-tight bg-card/80 backdrop-blur-sm border-lol-gold/30 focus:border-lol-gold text-foreground font-rajdhani font-medium relative hover:border-lol-gold/60 transition-all duration-300 px-3">
+                        <SelectValue placeholder="Region" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="NA1">NA</SelectItem>
+                        <SelectItem value="EUW1">EUW</SelectItem>
+                        <SelectItem value="EUN1">EUNE</SelectItem>
+                        <SelectItem value="BR1">BR</SelectItem>
+                        <SelectItem value="KR">KR</SelectItem>
+                        <SelectItem value="PBE1">PBE</SelectItem>
+                        <SelectItem value="LA1">LAN</SelectItem>
+                        <SelectItem value="LA2">LAS</SelectItem>
+                        <SelectItem value="OC1">OCE</SelectItem>
+                        <SelectItem value="TR1">TR</SelectItem>
+                        <SelectItem value="RU">RU</SelectItem>
+                        <SelectItem value="JP1">JP</SelectItem>
+                        <SelectItem value="asia">Asia</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div className="relative max-w-md w-full group">
+                    <div className="absolute inset-0 bg-gradient-gold opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-300 rounded-lg" />
+                    <Input
+                      type="text"
+                      placeholder="Player 2: name#tag"
+                      value={riotId2}
+                      onChange={(e) => setRiotId2(e.target.value)}
+                      className="h-14 text-xl leading-tight bg-card/80 backdrop-blur-sm border-lol-gold/30 focus:border-lol-gold text-foreground placeholder:text-muted-foreground font-rajdhani font-medium relative hover:border-lol-gold/60 transition-all duration-300 px-3"
+                    />
+                  </div>
                 </div>
               </div>
             )}
@@ -253,30 +284,15 @@ const Index = () => {
               </p>
             )}
 
-            {/* Test Mode Toggle - Global option */}
-            <div className="flex items-center justify-center gap-3 py-2">
-              <input
-                type="checkbox"
-                id="testMode"
-                checked={testMode}
-                onChange={(e) => setTestMode(e.target.checked)}
-                className="w-4 h-4 rounded border-lol-gold/30 bg-card/80 text-lol-gold focus:ring-lol-gold focus:ring-offset-0 cursor-pointer"
-              />
-              <label
-                htmlFor="testMode"
-                className="text-sm text-foreground/80 font-rajdhani cursor-pointer select-none hover:text-lol-gold transition-colors"
-              >
-                Test Mode (fetch only 30 matches to avoid rate limits)
-              </label>
-            </div>
-
             <Button
               type="submit"
               size="lg"
               className="bg-gradient-gold hover:shadow-glow hover:scale-105 transition-all duration-300 text-primary-foreground font-bebas tracking-wider px-8 h-14 text-xl group relative overflow-hidden"
-              disabled={isCompareMode ? (!riotId.trim() || !riotId2.trim() || !region || !region2) : (!riotId.trim() || !region)}
+              disabled={mode === "solo" ? (!riotId.trim() || !region) : (!riotId1.trim() || !region1 || !riotId2.trim() || !region2)}
             >
-              <span className="relative z-10">{isCompareMode ? 'COMPARE PLAYERS' : 'VIEW MY RECAP'}</span>
+              <span className="relative z-10">
+                {mode === "solo" ? "VIEW MY RECAP" : "COMPARE PLAYERS"}
+              </span>
               <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform relative z-10" />
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-700" />
             </Button>

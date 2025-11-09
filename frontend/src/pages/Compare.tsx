@@ -1,56 +1,71 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { ExternalLink } from "lucide-react";
-import { useRecapData } from "@/contexts/RecapDataContext";
 
 interface ComparisonData {
-  player1: {
-    name: string;
-    region: string;
-    stats: {
-      games: number;
-      winrate: number;
-      hours: number;
-      peakTime: string;
-      bestMonth: string;
-    };
-    wrapped_info: {
-      tagline: string;
-      summary: string;
-      archetype: string;
+  comparison_title: string;
+  overall_summary: string;
+  statistical_comparison: Array<{
+    category: string;
+    player1_value: string;
+    player2_value: string;
+    winner: string;
+    insight: string;
+  }>;
+  playstyle_comparison: {
+    summary: string;
+    player1_strengths: string[];
+    player2_strengths: string[];
+  };
+  champion_comparison: {
+    summary: string;
+    common_picks?: string[];
+    unique_player1?: string[];
+    unique_player2?: string[];
+  };
+  key_differences: string[];
+  verdict: {
+    winner: string;
+    reasoning: string;
+    closing_statement: string;
+  };
+}
+
+interface PlayerWrapped {
+  name: string;
+  region: string;
+  wrapped: {
+    wrapped: {
+      unique_id: string;
+      wrapped_data: {
+        wrapped: {
+          tagline: string;
+          summary: string;
+          archetype: string;
+        };
+        stats: {
+          games: number;
+          winrate: number;
+          hours: number;
+          peakTime: string;
+          bestMonth: string;
+        };
+      };
     };
   };
-  player2: {
-    name: string;
-    region: string;
-    stats: {
-      games: number;
-      winrate: number;
-      hours: number;
-      peakTime: string;
-      bestMonth: string;
-    };
-    wrapped_info: {
-      tagline: string;
-      summary: string;
-      archetype: string;
-    };
-  };
-  comparison: {
-    overall_verdict: string;
-    performance_comparison: string[];
-    playstyle_comparison: string[];
-    champion_comparison: string[];
-    standout_moments: string[];
-    rivalry_summary: string;
+}
+
+interface CompareResponse {
+  message: {
+    player1: PlayerWrapped;
+    player2: PlayerWrapped;
+    comparison: ComparisonData;
   };
 }
 
 export default function Compare() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { getComparisonCache, setComparisonCache } = useRecapData();
-  const [comparisonData, setComparisonData] = useState<ComparisonData | null>(null);
+  const [compareData, setCompareData] = useState<CompareResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -61,54 +76,37 @@ export default function Compare() {
     const name2 = searchParams.get("name2");
     const tag2 = searchParams.get("tag2");
     const region2 = searchParams.get("region2");
-    const testMode = searchParams.get("test_mode") === "true";
+    const testMode = searchParams.get("test") === "true";
 
     if (!name1 || !tag1 || !region1 || !name2 || !tag2 || !region2) {
       navigate("/");
       return;
     }
 
-    const currentParams = `${name1}_${tag1}_${region1}_${name2}_${tag2}_${region2}`;
-    
-    // Check if we have cached comparison data for these exact params
-    const cached = getComparisonCache();
-    if (cached && cached.searchParams === currentParams) {
-      console.log("Using cached comparison data");
-      setComparisonData({
-        player1: cached.players.player1,
-        player2: cached.players.player2,
-        comparison: cached.comparison
-      });
-      setIsLoading(false);
-      return;
-    }
-
-    const fetchComparisonData = async () => {
+    const fetchCompareData = async () => {
       try {
         setIsLoading(true);
-        const testModeParam = testMode ? '&test_mode=true' : '';
-        const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:9000';
-        const response = await fetch(
-          `${backendUrl}/api/compareData?name1=${name1}&tag1=${tag1}&region1=${region1}&name2=${name2}&tag2=${tag2}&region2=${region2}${testModeParam}`
-        );
+        const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:9000";
+        
+        const params = new URLSearchParams({
+          name1,
+          tag1,
+          region1,
+          name2,
+          tag2,
+          region2,
+          test_mode: testMode.toString(),
+        });
+
+        const response = await fetch(`${apiUrl}/api/compareData?${params}`);
 
         if (!response.ok) {
-          throw new Error("Failed to fetch comparison data");
+          const errorData = await response.json();
+          throw new Error(errorData.detail || "Failed to fetch comparison data");
         }
 
         const data = await response.json();
-        const compData = data.message;
-        setComparisonData(compData);
-        
-        // Cache the comparison data
-        setComparisonCache({
-          players: {
-            player1: compData.player1,
-            player2: compData.player2
-          },
-          comparison: compData.comparison,
-          searchParams: currentParams
-        });
+        setCompareData(data);
       } catch (err) {
         setError(err instanceof Error ? err.message : "An error occurred");
       } finally {
@@ -116,31 +114,30 @@ export default function Compare() {
       }
     };
 
-    fetchComparisonData();
-  }, [searchParams, navigate, getComparisonCache, setComparisonCache]);
+    fetchCompareData();
+  }, [searchParams, navigate]);
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-hero flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0a1428] via-[#0f1c2e] to-[#1a2332]">
         <div className="text-center space-y-4">
-          <div className="w-16 h-16 border-4 border-[#c89b3c] border-t-transparent rounded-full animate-spin mx-auto" />
-          <p className="text-xl text-[#c89b3c] font-rajdhani">Comparing Players...</p>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[#c89b3c] mx-auto"></div>
+          <p className="text-xl text-[#c89b3c] font-semibold">Comparing Players...</p>
+          <p className="text-sm text-[#a09b8c]">Analyzing performance data</p>
         </div>
       </div>
     );
   }
 
-  if (error || !comparisonData) {
+  if (error || !compareData) {
     return (
-      <div className="min-h-screen bg-gradient-hero flex items-center justify-center">
-        <div className="text-center space-y-6 max-w-md mx-auto px-4">
-          <h2 className="text-3xl font-bold bg-gradient-gold bg-clip-text text-transparent">
-            Error Loading Comparison
-          </h2>
-          <p className="text-red-400 font-rajdhani text-lg">{error}</p>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0a1428] via-[#0f1c2e] to-[#1a2332] p-4">
+        <div className="max-w-md w-full bg-[#0b1426]/90 border-2 border-[#785a28] rounded-lg p-8 text-center space-y-6">
+          <h2 className="text-2xl font-bold text-[#c89b3c]">Error Loading Comparison</h2>
+          <p className="text-[#d1c6ac]">{error || "Failed to load comparison data"}</p>
           <button
             onClick={() => navigate("/")}
-            className="px-6 py-3 bg-card border border-border hover:border-primary transition-colors rounded-lg text-foreground font-semibold"
+            className="px-6 py-3 bg-[#c89b3c] text-[#0a1428] font-semibold rounded-sm hover:bg-[#d8ac4d] transition-colors"
           >
             Go Back Home
           </button>
@@ -149,197 +146,200 @@ export default function Compare() {
     );
   }
 
-  const { player1, player2, comparison } = comparisonData;
-  
-  // Get current search params to pass along for back navigation
-  const comparisonParams = searchParams.toString();
+  const { player1, player2, comparison } = compareData.message;
+  const p1Data = player1.wrapped.wrapped.wrapped_data;
+  const p2Data = player2.wrapped.wrapped.wrapped_data;
 
   return (
-    <div className="min-h-screen bg-gradient-hero">
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
+    <div className="min-h-screen bg-gradient-to-br from-[#0a1428] via-[#0f1c2e] to-[#1a2332] py-12 px-4">
+      <div className="max-w-7xl mx-auto space-y-12">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold bg-gradient-gold bg-clip-text text-transparent mb-4">
-            Player Comparison
+        <div className="text-center space-y-4">
+          <h1 className="text-4xl md:text-5xl font-bold text-[#c89b3c]">
+            {comparison.comparison_title}
           </h1>
-          <p className="text-xl text-[#d1c6ac] font-rajdhani">
-            {player1.name} ⚔️ {player2.name}
+          <p className="text-lg text-[#d1c6ac] max-w-3xl mx-auto">
+            {comparison.overall_summary}
           </p>
         </div>
 
-        {/* Player Stats Cards - Side by Side */}
-        <div className="grid md:grid-cols-2 gap-6 mb-12">
+        {/* Player Cards Side by Side */}
+        <div className="grid md:grid-cols-2 gap-6">
           {/* Player 1 */}
-          <div className="bg-[#0b1426]/95 border-2 border-[#785a28] rounded-lg p-6 hover:border-[#c89b3c] transition-all">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-bold text-[#c89b3c]">{player1.name}</h2>
+          <div className="bg-[#0b1426]/90 border-2 border-[#785a28] rounded-lg p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-white">{player1.name}</h2>
               <button
-                onClick={() => {
-                  const [name, tag] = player1.name.split('#');
-                  navigate(`/recap?name=${name}&tag=${tag}&region=${player1.region}&fromCompare=true&comparisonParams=${encodeURIComponent(comparisonParams)}`);
-                }}
-                className="flex items-center gap-2 px-3 py-1.5 bg-card/40 border border-[#785a28] hover:border-[#c89b3c] rounded text-sm text-[#c89b3c] transition-all"
+                onClick={() => navigate(`/recap?name=${searchParams.get("name1")}&tag=${searchParams.get("tag1")}&region=${searchParams.get("region1")}`)}
+                className="text-xs px-3 py-1 border border-[#c89b3c] text-[#c89b3c] rounded hover:bg-[#c89b3c] hover:text-[#0a1428] transition-colors"
               >
-                Full Recap <ExternalLink className="w-4 h-4" />
+                View Full Recap
               </button>
             </div>
+            <p className="text-sm uppercase tracking-wider text-[#a09b8c]">{p1Data.wrapped.archetype}</p>
+            <p className="text-sm text-[#d1c6ac]">{p1Data.wrapped.tagline}</p>
             
-            <div className="space-y-3">
-              <div className="bg-[#0a1428]/60 p-4 rounded border border-[#273241]">
-                <p className="text-xs uppercase tracking-wider text-[#a09b8c] mb-1">Archetype</p>
-                <p className="text-lg font-bold text-white">{player1.wrapped_info.archetype}</p>
-                <p className="text-sm text-[#d1c6ac] mt-2">{player1.wrapped_info.tagline}</p>
+            {/* Stats Grid */}
+            <div className="grid grid-cols-2 gap-3 pt-4">
+              <div className="bg-[#0a1428]/60 p-3 rounded">
+                <p className="text-xs text-[#a09b8c]">Games</p>
+                <p className="text-xl font-bold text-white">{p1Data.stats.games}</p>
               </div>
+              <div className="bg-[#0a1428]/60 p-3 rounded">
+                <p className="text-xs text-[#a09b8c]">Win Rate</p>
+                <p className="text-xl font-bold text-[#c89b3c]">{p1Data.stats.winrate.toFixed(1)}%</p>
+              </div>
+              <div className="bg-[#0a1428]/60 p-3 rounded">
+                <p className="text-xs text-[#a09b8c]">Hours</p>
+                <p className="text-xl font-bold text-white">{p1Data.stats.hours}h</p>
+              </div>
+              <div className="bg-[#0a1428]/60 p-3 rounded">
+                <p className="text-xs text-[#a09b8c]">Peak Time</p>
+                <p className="text-sm font-bold text-white">{p1Data.stats.peakTime}</p>
+              </div>
+            </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div className="bg-[#0a1428]/60 p-3 rounded border border-[#273241]">
-                  <p className="text-xs uppercase tracking-wider text-[#a09b8c]">Games</p>
-                  <p className="text-2xl font-bold text-white">{player1.stats.games}</p>
-                </div>
-                <div className="bg-[#0a1428]/60 p-3 rounded border border-[#273241]">
-                  <p className="text-xs uppercase tracking-wider text-[#a09b8c]">Win Rate</p>
-                  <p className="text-2xl font-bold text-[#4caf50]">{player1.stats.winrate.toFixed(1)}%</p>
-                </div>
-                <div className="bg-[#0a1428]/60 p-3 rounded border border-[#273241]">
-                  <p className="text-xs uppercase tracking-wider text-[#a09b8c]">Hours</p>
-                  <p className="text-2xl font-bold text-white">{player1.stats.hours}h</p>
-                </div>
-                <div className="bg-[#0a1428]/60 p-3 rounded border border-[#273241]">
-                  <p className="text-xs uppercase tracking-wider text-[#a09b8c]">Peak Time</p>
-                  <p className="text-sm font-bold text-white">{player1.stats.peakTime}</p>
-                </div>
-              </div>
-
-              <div className="bg-[#0a1428]/60 p-3 rounded border border-[#273241]">
-                <p className="text-xs uppercase tracking-wider text-[#a09b8c] mb-2">Summary</p>
-                <p className="text-sm text-[#d1c6ac]">{player1.wrapped_info.summary}</p>
-              </div>
+            {/* Strengths */}
+            <div className="pt-4 border-t border-[#785a28]/30">
+              <p className="text-xs uppercase tracking-wider text-[#c89b3c] mb-2">Strengths</p>
+              <ul className="space-y-1">
+                {comparison.playstyle_comparison.player1_strengths.map((strength, idx) => (
+                  <li key={idx} className="text-sm text-[#d1c6ac] flex items-start">
+                    <span className="text-[#c89b3c] mr-2">•</span>
+                    {strength}
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
 
           {/* Player 2 */}
-          <div className="bg-[#0b1426]/95 border-2 border-[#785a28] rounded-lg p-6 hover:border-[#c89b3c] transition-all">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-bold text-[#c89b3c]">{player2.name}</h2>
+          <div className="bg-[#0b1426]/90 border-2 border-[#785a28] rounded-lg p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-white">{player2.name}</h2>
               <button
-                onClick={() => {
-                  const [name, tag] = player2.name.split('#');
-                  navigate(`/recap?name=${name}&tag=${tag}&region=${player2.region}&fromCompare=true&comparisonParams=${encodeURIComponent(comparisonParams)}`);
-                }}
-                className="flex items-center gap-2 px-3 py-1.5 bg-card/40 border border-[#785a28] hover:border-[#c89b3c] rounded text-sm text-[#c89b3c] transition-all"
+                onClick={() => navigate(`/recap?name=${searchParams.get("name2")}&tag=${searchParams.get("tag2")}&region=${searchParams.get("region2")}`)}
+                className="text-xs px-3 py-1 border border-[#c89b3c] text-[#c89b3c] rounded hover:bg-[#c89b3c] hover:text-[#0a1428] transition-colors"
               >
-                Full Recap <ExternalLink className="w-4 h-4" />
+                View Full Recap
               </button>
             </div>
+            <p className="text-sm uppercase tracking-wider text-[#a09b8c]">{p2Data.wrapped.archetype}</p>
+            <p className="text-sm text-[#d1c6ac]">{p2Data.wrapped.tagline}</p>
             
-            <div className="space-y-3">
-              <div className="bg-[#0a1428]/60 p-4 rounded border border-[#273241]">
-                <p className="text-xs uppercase tracking-wider text-[#a09b8c] mb-1">Archetype</p>
-                <p className="text-lg font-bold text-white">{player2.wrapped_info.archetype}</p>
-                <p className="text-sm text-[#d1c6ac] mt-2">{player2.wrapped_info.tagline}</p>
+            {/* Stats Grid */}
+            <div className="grid grid-cols-2 gap-3 pt-4">
+              <div className="bg-[#0a1428]/60 p-3 rounded">
+                <p className="text-xs text-[#a09b8c]">Games</p>
+                <p className="text-xl font-bold text-white">{p2Data.stats.games}</p>
               </div>
+              <div className="bg-[#0a1428]/60 p-3 rounded">
+                <p className="text-xs text-[#a09b8c]">Win Rate</p>
+                <p className="text-xl font-bold text-[#c89b3c]">{p2Data.stats.winrate.toFixed(1)}%</p>
+              </div>
+              <div className="bg-[#0a1428]/60 p-3 rounded">
+                <p className="text-xs text-[#a09b8c]">Hours</p>
+                <p className="text-xl font-bold text-white">{p2Data.stats.hours}h</p>
+              </div>
+              <div className="bg-[#0a1428]/60 p-3 rounded">
+                <p className="text-xs text-[#a09b8c]">Peak Time</p>
+                <p className="text-sm font-bold text-white">{p2Data.stats.peakTime}</p>
+              </div>
+            </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div className="bg-[#0a1428]/60 p-3 rounded border border-[#273241]">
-                  <p className="text-xs uppercase tracking-wider text-[#a09b8c]">Games</p>
-                  <p className="text-2xl font-bold text-white">{player2.stats.games}</p>
-                </div>
-                <div className="bg-[#0a1428]/60 p-3 rounded border border-[#273241]">
-                  <p className="text-xs uppercase tracking-wider text-[#a09b8c]">Win Rate</p>
-                  <p className="text-2xl font-bold text-[#4caf50]">{player2.stats.winrate.toFixed(1)}%</p>
-                </div>
-                <div className="bg-[#0a1428]/60 p-3 rounded border border-[#273241]">
-                  <p className="text-xs uppercase tracking-wider text-[#a09b8c]">Hours</p>
-                  <p className="text-2xl font-bold text-white">{player2.stats.hours}h</p>
-                </div>
-                <div className="bg-[#0a1428]/60 p-3 rounded border border-[#273241]">
-                  <p className="text-xs uppercase tracking-wider text-[#a09b8c]">Peak Time</p>
-                  <p className="text-sm font-bold text-white">{player2.stats.peakTime}</p>
-                </div>
-              </div>
-
-              <div className="bg-[#0a1428]/60 p-3 rounded border border-[#273241]">
-                <p className="text-xs uppercase tracking-wider text-[#a09b8c] mb-2">Summary</p>
-                <p className="text-sm text-[#d1c6ac]">{player2.wrapped_info.summary}</p>
-              </div>
+            {/* Strengths */}
+            <div className="pt-4 border-t border-[#785a28]/30">
+              <p className="text-xs uppercase tracking-wider text-[#c89b3c] mb-2">Strengths</p>
+              <ul className="space-y-1">
+                {comparison.playstyle_comparison.player2_strengths.map((strength, idx) => (
+                  <li key={idx} className="text-sm text-[#d1c6ac] flex items-start">
+                    <span className="text-[#c89b3c] mr-2">•</span>
+                    {strength}
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
         </div>
 
-        {/* LLM Comparison Analysis */}
-        <div className="bg-[#0b1426]/95 border-2 border-[#c89b3c] rounded-lg p-8 space-y-8">
-          <h2 className="text-3xl font-bold text-center text-[#c89b3c] mb-6">The Verdict</h2>
+        {/* Statistical Comparison */}
+        <div className="bg-[#0b1426]/90 border-2 border-[#785a28] rounded-lg p-6 space-y-4">
+          <h3 className="text-2xl font-bold text-[#c89b3c] mb-4">Head-to-Head Stats</h3>
+          <div className="space-y-3">
+            {comparison.statistical_comparison.map((stat, idx) => (
+              <div key={idx} className="bg-[#0a1428]/60 p-4 rounded-lg">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-semibold text-white">{stat.category}</span>
+                </div>
+                <div className="grid grid-cols-3 gap-4 items-center">
+                  <div className={`text-right ${stat.winner === 'player1' ? 'text-[#c89b3c] font-bold' : 'text-[#a09b8c]'}`}>
+                    {stat.player1_value}
+                  </div>
+                  <div className="text-center text-xs text-[#785a28]">VS</div>
+                  <div className={`text-left ${stat.winner === 'player2' ? 'text-[#c89b3c] font-bold' : 'text-[#a09b8c]'}`}>
+                    {stat.player2_value}
+                  </div>
+                </div>
+                <p className="text-xs text-[#d1c6ac] mt-2 italic">{stat.insight}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Playstyle Comparison */}
+        <div className="bg-[#0b1426]/90 border-2 border-[#785a28] rounded-lg p-6 space-y-4">
+          <h3 className="text-2xl font-bold text-[#c89b3c]">Playstyle Analysis</h3>
+          <p className="text-[#d1c6ac]">{comparison.playstyle_comparison.summary}</p>
+        </div>
+
+        {/* Champion Comparison */}
+        <div className="bg-[#0b1426]/90 border-2 border-[#785a28] rounded-lg p-6 space-y-4">
+          <h3 className="text-2xl font-bold text-[#c89b3c]">Champion Pools</h3>
+          <p className="text-[#d1c6ac]">{comparison.champion_comparison.summary}</p>
           
-          {/* Overall Verdict */}
-          <div className="bg-[#0a1428]/60 p-6 rounded-lg border border-[#785a28]">
-            <p className="text-lg text-[#d1c6ac] leading-relaxed">{comparison.overall_verdict}</p>
-          </div>
+          {comparison.champion_comparison.common_picks && comparison.champion_comparison.common_picks.length > 0 && (
+            <div>
+              <p className="text-sm text-[#a09b8c] mb-2">Common Picks:</p>
+              <div className="flex flex-wrap gap-2">
+                {comparison.champion_comparison.common_picks.map((champ, idx) => (
+                  <span key={idx} className="px-3 py-1 bg-[#0a1428]/60 border border-[#785a28] rounded text-sm text-white">
+                    {champ}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
 
-          {/* Performance Comparison */}
-          <div>
-            <h3 className="text-xl font-bold text-[#c89b3c] mb-4 uppercase tracking-wider">⚡ Performance</h3>
-            <ul className="space-y-3">
-              {comparison.performance_comparison.map((point, idx) => (
-                <li key={idx} className="flex items-start gap-3 bg-[#0a1428]/60 p-4 rounded border border-[#273241]">
-                  <span className="text-[#c89b3c] mt-1">•</span>
-                  <span className="text-[#d1c6ac]">{point}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
+        {/* Key Differences */}
+        <div className="bg-[#0b1426]/90 border-2 border-[#785a28] rounded-lg p-6 space-y-4">
+          <h3 className="text-2xl font-bold text-[#c89b3c]">Key Differences</h3>
+          <ul className="space-y-2">
+            {comparison.key_differences.map((diff, idx) => (
+              <li key={idx} className="text-[#d1c6ac] flex items-start">
+                <span className="text-[#c89b3c] mr-2 mt-1">▸</span>
+                <span>{diff}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
 
-          {/* Playstyle Comparison */}
-          <div>
-            <h3 className="text-xl font-bold text-[#c89b3c] mb-4 uppercase tracking-wider">🎯 Playstyle</h3>
-            <ul className="space-y-3">
-              {comparison.playstyle_comparison.map((point, idx) => (
-                <li key={idx} className="flex items-start gap-3 bg-[#0a1428]/60 p-4 rounded border border-[#273241]">
-                  <span className="text-[#c89b3c] mt-1">•</span>
-                  <span className="text-[#d1c6ac]">{point}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Champion Comparison */}
-          <div>
-            <h3 className="text-xl font-bold text-[#c89b3c] mb-4 uppercase tracking-wider">🏆 Champions</h3>
-            <ul className="space-y-3">
-              {comparison.champion_comparison.map((point, idx) => (
-                <li key={idx} className="flex items-start gap-3 bg-[#0a1428]/60 p-4 rounded border border-[#273241]">
-                  <span className="text-[#c89b3c] mt-1">•</span>
-                  <span className="text-[#d1c6ac]">{point}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Standout Moments */}
-          <div>
-            <h3 className="text-xl font-bold text-[#c89b3c] mb-4 uppercase tracking-wider">✨ Standout Moments</h3>
-            <ul className="space-y-3">
-              {comparison.standout_moments.map((point, idx) => (
-                <li key={idx} className="flex items-start gap-3 bg-[#0a1428]/60 p-4 rounded border border-[#273241]">
-                  <span className="text-[#c89b3c] mt-1">•</span>
-                  <span className="text-[#d1c6ac]">{point}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Rivalry Summary */}
-          <div className="bg-gradient-gold p-6 rounded-lg">
-            <p className="text-lg text-[#0a1428] font-semibold text-center">{comparison.rivalry_summary}</p>
-          </div>
+        {/* Verdict */}
+        <div className="bg-gradient-to-r from-[#785a28]/20 to-[#c89b3c]/20 border-2 border-[#c89b3c] rounded-lg p-8 text-center space-y-4">
+          <h3 className="text-3xl font-bold text-[#c89b3c]">The Verdict</h3>
+          <p className="text-lg text-white">{comparison.verdict.reasoning}</p>
+          <p className="text-xl font-semibold text-[#c89b3c] italic">
+            {comparison.verdict.closing_statement}
+          </p>
         </div>
 
         {/* Back Button */}
-        <div className="text-center mt-8">
+        <div className="text-center">
           <button
             onClick={() => navigate("/")}
-            className="px-8 py-3 bg-card border-2 border-[#785a28] hover:border-[#c89b3c] rounded-lg text-[#c89b3c] font-semibold transition-all hover:shadow-glow"
+            className="px-8 py-3 bg-[#c89b3c] text-[#0a1428] font-semibold rounded-sm hover:bg-[#d8ac4d] transition-colors"
           >
-            Compare Other Players
+            Back to Home
           </button>
         </div>
       </div>

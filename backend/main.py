@@ -12,14 +12,13 @@ from clients.awsBedrock import (
     find_and_generate_descriptions_of_interesting_matches,
     get_wrapped_from_dynamodb,
     store_wrapped_in_dynamodb,
-    compare_two_players,
+    generate_player_comparison,
 )
 from helpers.match_parser import parse_match_for_player
 from helpers.match_aggregator import MatchStatsAggregator
 
 # --- Load environment variables ---
 load_dotenv(verbose=True)
-os.environ['AWS_BEARER_TOKEN_BEDROCK'] = 'ABSKQmVkcm9ja0FQSUtleS00cG1jLWF0LTMzNTA1NzQ5MzIyODpRS09uRUU3enk3VHkyYUNxYzVwYVlRU01SMkNMa09NT3N0S00zdHZ6cmM2YkN1Z2ppY05aMzZHQ3VEMD0='
 
 # --- Logging Setup ---
 logging.basicConfig(
@@ -48,7 +47,7 @@ def read_root():
 
 
 @app.get("/api/matchData")
-def matchData(name: str, tag: str, region: str, test_mode: bool = False):
+def matchData(name: str, tag: str, region: str):
     try:
         # Create unique identifier to check in DynamoDB
         unique_id = f"{name.lower()}_{tag.lower()}_{region.lower()}"
@@ -72,11 +71,7 @@ def matchData(name: str, tag: str, region: str, test_mode: bool = False):
 
         logger.info(f"PUUID for {name}#{tag}: {puuid}")
 
-        # In test mode, fetch fewer matches to avoid rate limits (30 instead of 100)
-        match_count = 30 if test_mode else 100
-        logger.info(f"{'[TEST MODE] ' if test_mode else ''}Fetching {match_count} matches")
-        
-        recent_match_ids = riot_api_client.get_match_ids_by_puuid(puuid=puuid, region=region, count=match_count)
+        recent_match_ids = riot_api_client.get_match_ids_by_puuid(puuid=puuid, region=region)
 
         if not recent_match_ids:
             raise HTTPException(
@@ -211,83 +206,149 @@ def compareData(
     test_mode: bool = False
 ):
     """
-    Compare two players' wrapped data
-    
-    Args:
-        test_mode: If True, fetches only 30 matches per player to avoid rate limits (default: False)
+    Compare two players' wrapped data and generate AI comparison.
+    test_mode: If True, limits to 30 matches per player for faster testing
     """
+    test_mode = True
     try:
-        # Create unique identifiers for both players
-        unique_id1 = f"{name1.lower()}_{tag1.lower()}_{region1.lower()}"
-        unique_id2 = f"{name2.lower()}_{tag2.lower()}_{region2.lower()}"
-
-        logger.info(f"{'[TEST MODE] ' if test_mode else ''}Comparing players: {unique_id1} vs {unique_id2}")
-
-        # Get or fetch wrapped data for player 1
-        player1_data = get_wrapped_from_dynamodb(unique_id1)
-        if not player1_data:
-            logger.info(f"Player 1 data not found in DB, fetching from API")
-            # If not in DB, we need to generate it first
-            # Call matchData internally to generate the wrapped data
-            player1_result = matchData(name1, tag1, region1, test_mode=test_mode)
-            player1_data = player1_result["message"]
+        logger.info(f"Comparison request: {name1}#{tag1} vs {name2}#{tag2}")
+        
+        # Helper function to fetch player data
+        def fetch_player_data(name: str, tag: str, region: str):
+            unique_id = f"{name.lower()}_{tag.lower()}_{region.lower()}"
             
-        # Get or fetch wrapped data for player 2
-        player2_data = get_wrapped_from_dynamodb(unique_id2)
-        if not player2_data:
-            logger.info(f"Player 2 data not found in DB, fetching from API")
-            player2_result = matchData(name2, tag2, region2, test_mode=test_mode)
-            player2_data = player2_result["message"]
-
-        # Extract wrapped data from both players
-        player1_wrapped = player1_data.get("wrapped", {}).get("wrapped_data", {})
-        player2_wrapped = player2_data.get("wrapped", {}).get("wrapped_data", {})
-
-        # Generate comparison using LLM
-        comparison = compare_two_players(
-            player1_wrapped=player1_wrapped,
-            player2_wrapped=player2_wrapped,
-            player1_name=f"{name1}#{tag1}",
-            player2_name=f"{name2}#{tag2}"
-        )
-
-        if not comparison:
+            # Check if wrapped data exists in DynamoDB (skip for test accounts)
+            if tag not in ["KR1"] and not test_mode:
+                existing_data = get_wrapped_from_dynamodb(unique_id)
+                if existing_data:
+                    logger.info(f"Found existing wrapped data for {unique_id}")
+                    return existing_data
+            
+            # If not found, generate new wrapped data
+            riot_api_client = RiotAPIClient(default_region=region)
+            puuid = riot_api_client.get_puuid_from_name_and_tag(name, tag, region=region)
+            
+            if not puuid:
+                raise HTTPException(
+                    status_code=404, 
+                    detail=f"Could not find player {name}#{tag} in region {region}"
+                )
+            
+            logger.info(f"PUUID for {name}#{tag}: {puuid}")
+            
+            # Get match IDs
+            match_count = 30 if test_mode else 100
+            recent_match_ids = riot_api_client.get_match_ids_by_puuid(
+                puuid=puuid, region=region, count=match_count
+            )
+            
+            if not recent_match_ids:
+                raise HTTPException(
+                    status_code=404, 
+                    detail=f"No match history found for player {name}#{tag}"
+                )
+            
+            # Limit to 30 matches in test mode
+            if test_mode:
+                recent_match_ids = recent_match_ids[:30]
+                logger.info(f"Test mode: Limited to {len(recent_match_ids)} matches")
+            
+            match_stats_aggregator = MatchStatsAggregator()
+            
+            for match_id in recent_match_ids:
+                match_data = riot_api_client.get_match_metadata_by_match_id(
+                    match_id=match_id, region=region
+                )
+                if match_data:
+                    flattened_match_data = parse_match_for_player(
+                        match_data=match_data, target_puuid=puuid
+                    )
+                    
+                    required_keys = {"kda", "championName", "win"}
+                    if required_keys.issubset(flattened_match_data):
+                        match_stats_aggregator.add_match(flattened_match_data)
+            
+            player_wrapped = generate_player_wrapped_json(
+                player_data=match_stats_aggregator.get_summary(), 
+                name=name, tag=tag, region=region
+            )
+            
+            result = {"wrapped": player_wrapped}
+            
+            # Store in DynamoDB (only if not in test mode)
+            if not test_mode and result:
+                store_wrapped_in_dynamodb(result)
+                logger.info(f"Stored new wrapped data for {unique_id}")
+            
+            return result
+        
+        # Fetch both players' data
+        logger.info("Fetching data for player 1...")
+        player1_result = fetch_player_data(name1, tag1, region1)
+        
+        logger.info("Fetching data for player 2...")
+        player2_result = fetch_player_data(name2, tag2, region2)
+        
+        # Validate results exist
+        if not player1_result or not player2_result:
             raise HTTPException(
                 status_code=500,
-                detail="Failed to generate player comparison"
+                detail="Failed to fetch data for one or both players"
             )
-
-        # Return both players' data along with comparison
+        
+        # Extract the full wrapped objects (these have unique_id and wrapped_data)
+    
+        # Generate AI comparison - pass the full wrapped objects
+        logger.info("Generating AI comparison...")
+        player1_display = f"{name1}#{tag1}"
+        player2_display = f"{name2}#{tag2}"
+        
+        comparison_data = generate_player_comparison(
+            player1_data=player1_result,
+            player2_data=player2_result,
+            player1_name=player1_display,
+            player2_name=player2_display
+        )
+        
+        if not comparison_data:
+            raise HTTPException(
+                status_code=500,
+                detail="Failed to generate comparison analysis"
+            )
+        
+        # Return complete comparison result
         result = {
             "player1": {
-                "name": f"{name1}#{tag1}",
+                "name": player1_display,
                 "region": region1,
-                "wrapped": player1_data.get("wrapped", {}),
-                "stats": player1_wrapped.get("stats", {}),
-                "wrapped_info": player1_wrapped.get("wrapped", {})
+                "wrapped": player1_result
             },
             "player2": {
-                "name": f"{name2}#{tag2}",
+                "name": player2_display,
                 "region": region2,
-                "wrapped": player2_data.get("wrapped", {}),
-                "stats": player2_wrapped.get("stats", {}),
-                "wrapped_info": player2_wrapped.get("wrapped", {})
+                "wrapped": player2_result
             },
-            "comparison": comparison
+            "comparison": comparison_data
         }
-
-        logger.info(f"Successfully generated comparison for {unique_id1} vs {unique_id2}")
+        
         return {"message": result}
-
+    
     except HTTPException:
         raise
+    
+    except RiotAPIError as e:
+        logger.error(f"Riot API failure: {str(e)}")
+        raise HTTPException(
+            status_code=503,
+            detail="Riot API is currently unavailable. Please try again later.",
+        ) from e
     
     except Exception as e:
         error_message = traceback.format_exc()
         logger.error(f"Error in compareData endpoint: {error_message}")
         raise HTTPException(
             status_code=500,
-            detail=f"An error occurred while comparing players: {str(e)}"
+            detail=f"An error occurred while processing comparison: {str(e)}",
         ) from e
 
 

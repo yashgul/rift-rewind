@@ -578,88 +578,142 @@ INTERESTING_MATCHES_SCHEMA = {
     ]
 }
 
-PLAYER_COMPARISON_SYSTEM_PROMPT = [
-    {
-        "text": """You are comparing two League of Legends players' season performance in an engaging, rivalry-style format.
-
-You will receive wrapped data for both players containing their stats, playstyle, champions, and achievements.
-Your task is to create an entertaining comparison that highlights their differences and similarities.
-
-ANALYSIS GUIDELINES:
-1. Compare key stats: Win rates, KDA, games played, playstyle traits
-2. Identify contrasts: Aggressive vs. Strategic, Solo carry vs. Team player
-3. Find common ground: Similar champions, shared strengths, parallel achievements
-4. Use specific numbers: "Player 1 has 15% higher win rate" not "Player 1 wins more"
-5. Keep it friendly competitive: Celebrate both players while highlighting differences
-
-TONE:
-- Engaging and playful rivalry tone (like sports commentary)
-- Respect both players equally - no harsh criticism
-- Focus on interesting contrasts and unexpected similarities
-- Use actual stats to back up every comparison point
-
-OUTPUT FORMAT:
-- Concise bullet points grouped by category
-- Each point should be 1-2 sentences maximum
-- Use emojis sparingly for emphasis (⚔️, 🎯, 🏆, etc.)
-- Back every claim with specific numbers from the data"""
-    }
-]
-
 PLAYER_COMPARISON_SCHEMA = {
     "tools": [
         {
             "toolSpec": {
-                "name": "compare_players",
-                "description": "Generate a detailed comparison between two League of Legends players",
+                "name": "generate_player_comparison",
+                "description": "Generates a detailed comparison between two League of Legends players based on their wrapped data.",
                 "inputSchema": {
                     "json": {
                         "type": "object",
                         "properties": {
-                            "overall_verdict": {
+                            "comparison_title": {
                                 "type": "string",
-                                "description": "2-3 sentence summary capturing the essence of how these players differ and what makes each unique"
+                                "description": "A catchy 3-6 word title for this rivalry/comparison (e.g., 'Battle of the Legends', 'The Carry Showdown')"
                             },
-                            "performance_comparison": {
+                            "overall_summary": {
+                                "type": "string",
+                                "description": "2-3 sentences summarizing the comparison and who has the edge overall"
+                            },
+                            "statistical_comparison": {
                                 "type": "array",
-                                "description": "3-5 bullet points comparing core performance stats",
-                                "items": {"type": "string"},
-                                "minItems": 3,
-                                "maxItems": 5
+                                "description": "Exactly 6-8 key statistical comparisons",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "category": {
+                                            "type": "string",
+                                            "description": "The stat category (e.g., 'Win Rate', 'Games Played', 'KDA')"
+                                        },
+                                        "player1_value": {
+                                            "type": "string",
+                                            "description": "Player 1's value for this stat"
+                                        },
+                                        "player2_value": {
+                                            "type": "string",
+                                            "description": "Player 2's value for this stat"
+                                        },
+                                        "winner": {
+                                            "type": "string",
+                                            "description": "Which player wins this category: 'player1', 'player2', or 'tie'"
+                                        },
+                                        "insight": {
+                                            "type": "string",
+                                            "description": "Brief insight about this comparison (1 sentence)"
+                                        }
+                                    },
+                                    "required": ["category", "player1_value", "player2_value", "winner", "insight"]
+                                },
+                                "minItems": 6,
+                                "maxItems": 8
                             },
                             "playstyle_comparison": {
-                                "type": "array",
-                                "description": "3-5 bullet points comparing playstyle and approach to the game",
-                                "items": {"type": "string"},
-                                "minItems": 3,
-                                "maxItems": 5
+                                "type": "object",
+                                "properties": {
+                                    "summary": {
+                                        "type": "string",
+                                        "description": "2 sentences comparing their playstyles"
+                                    },
+                                    "player1_strengths": {
+                                        "type": "array",
+                                        "description": "3-4 key strengths of player 1",
+                                        "items": {"type": "string"},
+                                        "minItems": 3,
+                                        "maxItems": 4
+                                    },
+                                    "player2_strengths": {
+                                        "type": "array",
+                                        "description": "3-4 key strengths of player 2",
+                                        "items": {"type": "string"},
+                                        "minItems": 3,
+                                        "maxItems": 4
+                                    }
+                                },
+                                "required": ["summary", "player1_strengths", "player2_strengths"]
                             },
                             "champion_comparison": {
-                                "type": "array",
-                                "description": "2-4 bullet points comparing champion pools and preferences",
-                                "items": {"type": "string"},
-                                "minItems": 2,
-                                "maxItems": 4
+                                "type": "object",
+                                "properties": {
+                                    "summary": {
+                                        "type": "string",
+                                        "description": "1 sentence about their champion pools"
+                                    },
+                                    "common_picks": {
+                                        "type": "array",
+                                        "description": "Champions both players use (if any)",
+                                        "items": {"type": "string"}
+                                    },
+                                    "unique_player1": {
+                                        "type": "array",
+                                        "description": "Unique champions player 1 excels at",
+                                        "items": {"type": "string"}
+                                    },
+                                    "unique_player2": {
+                                        "type": "array",
+                                        "description": "Unique champions player 2 excels at",
+                                        "items": {"type": "string"}
+                                    }
+                                },
+                                "required": ["summary"]
                             },
-                            "standout_moments": {
+                            "key_differences": {
                                 "type": "array",
-                                "description": "2-3 bullet points highlighting each player's most impressive achievements",
-                                "items": {"type": "string"},
-                                "minItems": 2,
-                                "maxItems": 3
+                                "description": "Exactly 4-5 key differences between the players",
+                                "items": {
+                                    "type": "string",
+                                    "description": "One key difference (1 sentence)"
+                                },
+                                "minItems": 4,
+                                "maxItems": 5
                             },
-                            "rivalry_summary": {
-                                "type": "string",
-                                "description": "A fun, 2 sentence closing statement about this rivalry/comparison"
+                            "verdict": {
+                                "type": "object",
+                                "properties": {
+                                    "winner": {
+                                        "type": "string",
+                                        "description": "Who performed better overall: 'player1', 'player2', or 'tie'"
+                                    },
+                                    "reasoning": {
+                                        "type": "string",
+                                        "description": "2 sentences explaining the verdict"
+                                    },
+                                    "closing_statement": {
+                                        "type": "string",
+                                        "description": "1 sentence motivational closing for both players"
+                                    }
+                                },
+                                "required": ["winner", "reasoning", "closing_statement"]
                             }
                         },
                         "required": [
-                            "overall_verdict",
-                            "performance_comparison",
+                            "comparison_title",
+                            "overall_summary",
+                            "statistical_comparison",
                             "playstyle_comparison",
                             "champion_comparison",
-                            "standout_moments",
-                            "rivalry_summary"
+                            "key_differences",
+                            "verdict"
                         ]
                     }
                 }
@@ -667,3 +721,24 @@ PLAYER_COMPARISON_SCHEMA = {
         }
     ]
 }
+
+PLAYER_COMPARISON_SYSTEM_PROMPT = [
+    {
+        "text": """You are an expert League of Legends analyst creating an engaging comparison between two players based on their season performance.
+
+Your goal is to:
+1. Compare their statistics fairly and objectively
+2. Highlight each player's unique strengths and playstyles
+3. Draw interesting parallels and contrasts
+4. Be entertaining while being accurate
+5. Use actual numbers and percentages from their data
+6. Keep insights concise but meaningful
+
+Remember:
+- Both players should be celebrated for their achievements
+- Focus on what makes each unique
+- Use specific stats to back up your observations
+- Keep the tone engaging and positive
+- Make the comparison feel like a friendly rivalry"""
+    }
+]
