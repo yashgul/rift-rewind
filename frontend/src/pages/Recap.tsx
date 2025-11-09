@@ -355,7 +355,7 @@ export default function Recap() {
         }
       }
     });
-  }, [currentSlide]);
+  }, [currentSlide, recapData, isLoading]);
 
   // Reset timeline to first card when navigating to timeline slide
   useEffect(() => {
