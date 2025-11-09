@@ -17,6 +17,8 @@ Your League of Legends year wrapped - an AI-powered gaming recap experience.
 
 Deploy the entire application with one command on AWS EC2:
 
+> **🔒 For HTTPS setup with your domain, see [HTTPS-SETUP.md](./HTTPS-SETUP.md)**
+
 ```bash
 # 1. Clone the repository
 git clone https://github.com/yourusername/rift-rewind.git
@@ -153,8 +155,21 @@ DYNAMODB_TABLE_NAME=rift-rewind-wrapped-data
 
 Open these ports:
 - **Port 80** (HTTP) - Frontend access
+- **Port 443** (HTTPS) - Secure frontend access (required for SSL)
 - **Port 22** (SSH) - Server access
 - **Port 9000** (optional) - Direct backend API access
+
+### HTTPS / SSL Setup
+
+To enable HTTPS for your domain:
+
+```bash
+# Quick setup (recommended)
+sudo ./init-letsencrypt.sh
+docker-compose -f docker-compose.yml -f docker-compose.ssl.yml up -d
+```
+
+See **[HTTPS-SETUP.md](./HTTPS-SETUP.md)** for complete guide with automatic certificate renewal.
 
 ## 📊 API Endpoints
 

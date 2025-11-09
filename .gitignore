@@ -5,4 +5,16 @@ __pycache__/
 /backend/venv/
 frontend/node_modules/
 frontend/dist/
-.gitignore
+
+# SSL certificates and certbot data
+certbot/
+*.pem
+*.crt
+*.key
+
+# Nginx backups
+frontend/nginx.conf.backup
+frontend/nginx.conf.http-backup
+
+# Logs
+*.log
