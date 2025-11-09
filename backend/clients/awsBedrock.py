@@ -100,9 +100,10 @@ def store_wrapped_in_dynamodb(json_for_db: dict):
 
         # Convert all float values to Decimal
         converted_data = convert_floats_to_decimals(json_for_db)
+        print("Final Data to Store:", converted_data)
 
         table.put_item(Item=converted_data)
-        print(f"Successfully stored data for {json_for_db['unique_id']}")
+        print(f"Successfully stored data for {converted_data['unique_id']}")
         return True
     except Exception as e:
         print(f"Error storing in DynamoDB: {e}")

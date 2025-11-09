@@ -53,12 +53,20 @@ def matchData(name: str, tag: str, region: str):
         unique_id = f"{name.lower()}_{tag.lower()}_{region.lower()}"
 
         # Check if wrapped data exists in DynamoDB
-        # Skip for Faker for testing
-        if tag != "KR1":
-            existing_data = get_wrapped_from_dynamodb(unique_id)
-            if existing_data:
-                logger.info(f"Found existing wrapped data for {unique_id}")
-                return {"message": existing_data}
+        existing_data = get_wrapped_from_dynamodb(unique_id)
+        if existing_data:
+            logger.info(f"Found existing wrapped data for {unique_id}")
+            # existing_data has: {"unique_id": "...", "wrapped_data": {...}, "timeline": [...]}
+            # We need to return: {"message": {"wrapped": {"unique_id": ..., "wrapped_data": ...}, "timeline": [...]}}
+            wrapped_obj = {
+                "unique_id": existing_data.get("unique_id"),
+                "wrapped_data": existing_data.get("wrapped_data")
+            }
+            result = {
+                "wrapped": wrapped_obj,
+                "timeline": existing_data.get("timeline", [])
+            }
+            return {"message": result}
 
         # If not found in DynamoDB, generate new wrapped data
         riot_api_client = RiotAPIClient(default_region=region)
@@ -162,9 +170,15 @@ def matchData(name: str, tag: str, region: str):
             "timeline": enriched_timeline,
         }
 
-        # Store the new wrapped data in DynamoDB
-        if result:
-            store_wrapped_in_dynamodb(result)
+        # Store the complete data in DynamoDB (merge player_wrapped with timeline)
+        # player_wrapped = {"unique_id": "...", "wrapped_data": {...}}
+        # We need to store: {"unique_id": "...", "wrapped_data": {...}, "timeline": [...]}
+        if player_wrapped:
+            db_data = {
+                **player_wrapped,  # Spreads unique_id and wrapped_data
+                "timeline": enriched_timeline
+            }
+            store_wrapped_in_dynamodb(db_data)
             logger.info(f"Stored new wrapped data for {unique_id}")
 
         return {"message": result}
@@ -276,8 +290,9 @@ def compareData(
             result = {"wrapped": player_wrapped}
             
             # Store in DynamoDB (only if not in test mode)
-            if not test_mode and result:
-                store_wrapped_in_dynamodb(result)
+            # player_wrapped has the structure: {"unique_id": ..., "wrapped_data": {...}}
+            if not test_mode and player_wrapped:
+                store_wrapped_in_dynamodb(player_wrapped)
                 logger.info(f"Stored new wrapped data for {unique_id}")
             
             return result
