@@ -611,7 +611,7 @@ export default function Recap() {
   const primaryTagline = safeGet(wrappedData, 'playstyle.summary', 'Your unique playstyle.');
 
   const overviewSlide: ReactNode = (
-    <div className="mx-auto flex h-full w-full max-w-[1200px] flex-col justify-center gap-4 sm:gap-6">
+    <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-4 sm:gap-6 py-4 lg:py-0">
       {/* Header with logo and name */}
       <div className="flex items-center gap-4 sm:gap-6">
         <div
@@ -808,7 +808,7 @@ export default function Recap() {
   );
 
   const personalitySlide: ReactNode = (
-    <div className="mx-auto flex h-full w-full max-w-[1200px] flex-col justify-center gap-3 sm:gap-4">
+    <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-3 sm:gap-4 py-4 lg:py-0">
       {/* Top Row: Season Highlights */}
       <div className="rounded-sm border-2 border-[#785a28] bg-[#0b1426]/90 p-4 sm:p-5">
         <p className="text-xs uppercase tracking-[0.25em] text-[#c89b3c] sm:text-sm">Season Highlights</p>
@@ -918,9 +918,9 @@ export default function Recap() {
   );
 
   const timelineSlide: ReactNode = (
-    <div className="relative h-full w-full overflow-hidden">
+    <div className="relative w-full min-h-full lg:h-full lg:overflow-hidden">
       {/* Header - Compact at top */}
-      <div className="absolute left-0 right-0 top-4 z-20 text-center sm:top-6">
+      <div className="relative lg:absolute left-0 right-0 top-0 lg:top-4 z-20 text-center mb-4 lg:mb-0 pt-4 lg:pt-0">
         <h2 className="text-xl font-bold uppercase tracking-[0.2em] text-[#c89b3c] sm:text-2xl">
           Your Greatest Moments
         </h2>
@@ -936,7 +936,7 @@ export default function Recap() {
       </div>
 
       {timelineMatches.length === 0 ? (
-        <div className="flex h-full w-full items-center justify-center">
+        <div className="flex w-full items-center justify-center py-20 lg:h-full">
           <div className="max-w-md text-center">
             <p className="text-lg text-[#a09b8c]">No memorable matches to display yet. Keep playing to create your legacy!</p>
           </div>
@@ -944,8 +944,8 @@ export default function Recap() {
       ) : (
         <>
           {/* Vertical Timeline Container */}
-          <div className="absolute left-0 top-0 flex h-full w-full items-center justify-center">
-            <div className="flex h-full w-full max-w-[1600px] items-center justify-center gap-8 px-4">
+          <div className="relative lg:absolute left-0 top-0 flex w-full items-center justify-center py-8 lg:py-0 lg:h-full">
+            <div className="flex w-full max-w-[1600px] items-center justify-center gap-8 px-4 lg:h-full">
               
               {/* Left Stats Panel */}
               <div className="hidden lg:block w-[320px] shrink-0">
@@ -1046,8 +1046,8 @@ export default function Recap() {
               </div>
 
               {/* Center: Vertical Carousel */}
-              <div className="relative flex h-full items-center justify-center flex-1">
-                <div className="relative h-full w-full max-w-[520px]">
+              <div className="relative flex items-center justify-center flex-1 min-h-[600px] lg:h-full">
+                <div className="relative w-full max-w-[520px] h-[600px] lg:h-full">
                   {timelineMatches.map((match, index) => {
                     const championImage = getChampionImage(match.champ);
                     
@@ -1270,7 +1270,7 @@ export default function Recap() {
           </div>
 
           {/* Navigation Arrows - Vertical */}
-          <div className="absolute left-1/2 top-0 z-[60] flex h-full -translate-x-1/2 flex-col items-center justify-between py-8">
+          <div className="hidden lg:flex absolute left-1/2 top-0 z-[60] h-full -translate-x-1/2 flex-col items-center justify-between py-8">
             <button
               type="button"
               onClick={() => setActiveMatchIndex((prev) => (prev - 1 + timelineMatches.length) % timelineMatches.length)}
@@ -1312,7 +1312,7 @@ export default function Recap() {
           </div>
 
           {/* Progress Indicators - Vertical Timeline */}
-          <div className="absolute left-8 top-1/2 z-20 flex -translate-y-1/2 flex-col gap-3">
+          <div className="hidden lg:flex absolute left-8 top-1/2 z-20 -translate-y-1/2 flex-col gap-3">
             <div className="w-px bg-[#785a28]/50 h-full absolute left-1/2 -translate-x-1/2 -z-10" />
             {timelineMatches.slice(0, 10).map((_, index) => (
               <button
@@ -1326,13 +1326,55 @@ export default function Recap() {
               />
             ))}
           </div>
+
+          {/* Mobile Navigation Buttons */}
+          <div className="flex lg:hidden justify-center gap-4 mt-6 relative z-20">
+            <button
+              type="button"
+              onClick={() => setActiveMatchIndex((prev) => (prev - 1 + timelineMatches.length) % timelineMatches.length)}
+              className="rounded-full border-2 border-[#785a28] bg-[#0a1428]/90 p-3 backdrop-blur-sm transition-all hover:border-[#c89b3c] hover:bg-[#1b2a3a]"
+              aria-label="Previous match"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#c89b3c"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="h-6 w-6"
+              >
+                <polyline points="18 15 12 9 6 15" />
+              </svg>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveMatchIndex((prev) => (prev + 1) % timelineMatches.length)}
+              className="rounded-full border-2 border-[#785a28] bg-[#0a1428]/90 p-3 backdrop-blur-sm transition-all hover:border-[#c89b3c] hover:bg-[#1b2a3a]"
+              aria-label="Next match"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#c89b3c"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="h-6 w-6"
+              >
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            </button>
+          </div>
         </>
       )}
     </div>
   );
 
   const insightsSlide: ReactNode = (
-    <div className="mx-auto flex h-full w-full max-w-[1200px] flex-col justify-center gap-4 sm:gap-6 px-4">
+    <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-4 sm:gap-6 py-4 lg:py-0">
       {/* Header */}
       <div className="text-center mb-2">
         <h2 className="text-3xl font-bold uppercase tracking-[0.2em] text-[#c89b3c] sm:text-4xl">
@@ -1359,7 +1401,7 @@ export default function Recap() {
   );
 
   const shareSlide: ReactNode = (
-    <div className="mx-auto flex h-full w-full max-w-[1000px] flex-col justify-center gap-6 sm:gap-8">
+    <div className="mx-auto flex w-full max-w-[1000px] flex-col gap-6 sm:gap-8 py-4 lg:py-0">
       {/* Header */}
       <div className="text-center">
         <h2 className="text-3xl font-bold uppercase tracking-[0.2em] text-[#c89b3c] sm:text-4xl">
@@ -1470,7 +1512,7 @@ export default function Recap() {
       {/* Share Buttons */}
       <div className="space-y-4">
         <p className="text-center text-sm uppercase tracking-[0.2em] text-[#c89b3c]">Share On</p>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {/* X/Twitter */}
           <button
             type="button"
@@ -1634,7 +1676,7 @@ export default function Recap() {
               return (
                 <section
                   key={slide.id}
-                  className={`relative flex h-full min-w-full flex-col overflow-hidden px-4 py-3 text-[#f0e6d2] sm:px-6 sm:py-4 lg:px-10 lg:py-6 ${slide.background}`}
+                  className={`relative flex h-full min-w-full flex-col px-4 py-3 text-[#f0e6d2] sm:px-6 sm:py-4 lg:px-10 lg:py-6 overflow-y-auto lg:overflow-hidden ${slide.background}`}
                 >
                   {/* Default video background */}
                   {slide.video && (
@@ -1660,7 +1702,7 @@ export default function Recap() {
                     }}
                   />
                   
-                  <div className="relative z-[1] flex h-full flex-col">{slide.content}</div>
+                  <div className="relative z-[1] flex flex-col lg:h-full lg:justify-center min-h-full">{slide.content}</div>
                 </section>
               );
             })}
