@@ -83,13 +83,13 @@ const GlobalAudio = () => {
 
       {/* Volume Controls */}
       <div 
-        className="fixed top-6 right-6 z-50 flex items-center gap-3"
+        className="fixed top-[80px] right-6 z-50 flex items-center gap-3"
         onMouseEnter={() => setShowVolumeSlider(true)}
         onMouseLeave={() => setShowVolumeSlider(false)}
       >
         {/* Volume Slider */}
         {showVolumeSlider && (
-          <div className="bg-card/80 backdrop-blur-md border border-lol-gold/30 rounded-lg px-4 py-3 shadow-lg">
+          <div className="bg-gradient-to-br from-[#0ea5e9]/90 to-[#0a1428]/90 backdrop-blur-md border border-[#d4af37] rounded-lg px-4 py-3 shadow-[0_0_20px_rgba(212,175,55,0.3)]">
             <Slider
               value={[volume]}
               onValueChange={handleVolumeChange}
@@ -104,13 +104,13 @@ const GlobalAudio = () => {
         {/* Mute/Unmute Button */}
         <button
           onClick={toggleMute}
-          className="p-3 rounded-full bg-card/40 backdrop-blur-md border border-lol-gold/30 hover:bg-card/60 hover:border-lol-gold transition-all duration-300 hover:shadow-gold group"
+          className="p-3 rounded-full bg-gradient-to-br from-[#0ea5e9]/80 to-[#0a1428]/80 backdrop-blur-md border-2 border-[#d4af37] hover:from-[#0ea5e9] hover:to-[#0a1428] hover:border-[#f4d03f] hover:shadow-[0_0_20px_rgba(212,175,55,0.5)] transition-all duration-300 group"
           aria-label={isMuted ? "Unmute audio" : "Mute audio"}
         >
           {isMuted ? (
-            <VolumeX className="w-5 h-5 text-lol-gold" />
+            <VolumeX className="w-5 h-5 text-[#d4af37] drop-shadow-[0_0_8px_rgba(212,175,55,0.8)]" />
           ) : (
-            <Volume2 className="w-5 h-5 text-lol-gold group-hover:animate-pulse" />
+            <Volume2 className="w-5 h-5 text-[#d4af37] drop-shadow-[0_0_8px_rgba(212,175,55,0.8)] group-hover:animate-pulse" />
           )}
         </button>
       </div>

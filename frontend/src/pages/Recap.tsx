@@ -1570,18 +1570,6 @@ export default function Recap() {
             >
               Start New
             </button>
-            <button
-              type="button"
-              onClick={handleShare}
-              className="rounded-sm bg-[#c89b3c] px-3 py-1.5 text-xs font-semibold text-[#0a1428] transition-colors hover:bg-[#d8ac4d] sm:text-sm"
-            >
-              Share
-            </button>
-            <div
-              className="h-8 w-8 rounded-sm border-2 border-[#c89b3c] bg-cover bg-center sm:h-10 sm:w-10"
-              style={{ backgroundImage: "url('/rift_logo.png')" }}
-              aria-label="Player crest"
-            />
           </div>
         </header>
 
