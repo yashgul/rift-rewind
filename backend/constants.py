@@ -585,7 +585,7 @@ WHAT MAKES A MATCH INTERESTING:
 - Entertainment value: Memorable plays or funny situations
 
 INSTRUCTIONS:
-1. Analyze each match critically - only around 20% of matches should be "interesting"
+1. Analyze each match critically - only around 10% of matches should be "interesting"
 2. For each interesting match, write a 1-2 sentence description explaining WHY it's notable
 3. Be specific: Reference the actual stats (KDA, champion, outcome) in your description
 4. Use an engaging, celebratory tone like Spotify Wrapped

@@ -272,18 +272,22 @@ export default function Recap() {
   }, []);
 
   const goPrev = useCallback(() => {
-    const totalSlides = 5;
-    setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides);
+    setCurrentSlide((prev) => {
+      const total = 6; // Total number of slides
+      return (prev - 1 + total) % total;
+    });
   }, []);
 
   const goNext = useCallback(() => {
-    const totalSlides = 5;
-    setCurrentSlide((prev) => (prev + 1) % totalSlides);
+    setCurrentSlide((prev) => {
+      const total = 6; // Total number of slides
+      return (prev + 1) % total;
+    });
   }, []);
 
   const goToIndex = useCallback((index: number) => {
-    const totalSlides = 5;
-    if (index < 0 || index >= totalSlides) return;
+    const total = 6; // Total number of slides
+    if (index < 0 || index >= total) return;
     setCurrentSlide(index);
   }, []);
 
