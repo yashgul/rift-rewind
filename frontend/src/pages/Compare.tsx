@@ -68,6 +68,8 @@ export default function Compare() {
   const [compareData, setCompareData] = useState<CompareResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [summonerIcon1, setSummonerIcon1] = useState<string | null>(null);
+  const [summonerIcon2, setSummonerIcon2] = useState<string | null>(null);
 
   useEffect(() => {
     const name1 = searchParams.get("name1");
@@ -116,6 +118,44 @@ export default function Compare() {
 
     fetchCompareData();
   }, [searchParams, navigate]);
+
+  // Fetch summoner icons
+  useEffect(() => {
+    const name1 = searchParams.get("name1");
+    const tag1 = searchParams.get("tag1");
+    const region1 = searchParams.get("region1");
+    const name2 = searchParams.get("name2");
+    const tag2 = searchParams.get("tag2");
+    const region2 = searchParams.get("region2");
+
+    if (!name1 || !tag1 || !region1 || !name2 || !tag2 || !region2) {
+      return;
+    }
+
+    const fetchSummonerIcons = async () => {
+      try {
+        const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:9000';
+        
+        // Fetch player 1 icon
+        const response1 = await fetch(`${backendUrl}/api/summonerIcon?name=${encodeURIComponent(name1)}&tag=${encodeURIComponent(tag1)}&region=${encodeURIComponent(region1)}`);
+        if (response1.ok) {
+          const data1 = await response1.json();
+          if (data1.iconUrl) setSummonerIcon1(data1.iconUrl);
+        }
+
+        // Fetch player 2 icon
+        const response2 = await fetch(`${backendUrl}/api/summonerIcon?name=${encodeURIComponent(name2)}&tag=${encodeURIComponent(tag2)}&region=${encodeURIComponent(region2)}`);
+        if (response2.ok) {
+          const data2 = await response2.json();
+          if (data2.iconUrl) setSummonerIcon2(data2.iconUrl);
+        }
+      } catch (err) {
+        console.warn("Error fetching summoner icons:", err);
+      }
+    };
+
+    fetchSummonerIcons();
+  }, [searchParams]);
 
   if (isLoading) {
     return (
@@ -168,7 +208,14 @@ export default function Compare() {
           {/* Player 1 */}
           <div className="bg-[#0b1426]/90 border-2 border-[#785a28] rounded-lg p-6 space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-white">{player1.name}</h2>
+              <div className="flex items-center gap-3">
+                <div
+                  className="h-12 w-12 shrink-0 rounded-sm border-2 border-[#c89b3c] bg-cover bg-center shadow-lg"
+                  style={{ backgroundImage: `url('${summonerIcon1 || '/rift_logo.png'}')` }}
+                  aria-label={summonerIcon1 ? "Player 1 summoner icon" : "Default icon"}
+                />
+                <h2 className="text-2xl font-bold text-white">{player1.name}</h2>
+              </div>
               <button
                 onClick={() => navigate(`/recap?name=${searchParams.get("name1")}&tag=${searchParams.get("tag1")}&region=${searchParams.get("region1")}`)}
                 className="text-xs px-3 py-1 border border-[#c89b3c] text-[#c89b3c] rounded hover:bg-[#c89b3c] hover:text-[#0a1428] transition-colors"
@@ -216,7 +263,14 @@ export default function Compare() {
           {/* Player 2 */}
           <div className="bg-[#0b1426]/90 border-2 border-[#785a28] rounded-lg p-6 space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-white">{player2.name}</h2>
+              <div className="flex items-center gap-3">
+                <div
+                  className="h-12 w-12 shrink-0 rounded-sm border-2 border-[#c89b3c] bg-cover bg-center shadow-lg"
+                  style={{ backgroundImage: `url('${summonerIcon2 || '/rift_logo.png'}')` }}
+                  aria-label={summonerIcon2 ? "Player 2 summoner icon" : "Default icon"}
+                />
+                <h2 className="text-2xl font-bold text-white">{player2.name}</h2>
+              </div>
               <button
                 onClick={() => navigate(`/recap?name=${searchParams.get("name2")}&tag=${searchParams.get("tag2")}&region=${searchParams.get("region2")}`)}
                 className="text-xs px-3 py-1 border border-[#c89b3c] text-[#c89b3c] rounded hover:bg-[#c89b3c] hover:text-[#0a1428] transition-colors"

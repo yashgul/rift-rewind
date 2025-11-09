@@ -299,11 +299,6 @@ export default function Recap() {
     }
   }, []);
 
-  const handleDownloadImage = useCallback(() => {
-    // Placeholder for future screenshot functionality
-    console.info("Download image functionality - to be implemented");
-    alert("Screenshot download coming soon! For now, use your device's screenshot feature.");
-  }, []);
 
   const goPrev = useCallback(() => {
     setCurrentSlide((prev) => {
@@ -1310,8 +1305,8 @@ export default function Recap() {
         <div className="mb-6 flex items-center gap-4 border-b border-[#785a28] pb-4">
           <div
             className="h-16 w-16 shrink-0 rounded-sm border-2 border-[#c89b3c] bg-cover bg-center sm:h-20 sm:w-20"
-            style={{ backgroundImage: "url('/rift_logo.png')" }}
-            aria-label="Player avatar"
+            style={{ backgroundImage: `url('${summonerIconUrl || '/rift_logo.png'}')` }}
+            aria-label={summonerIconUrl ? "Summoner profile icon" : "Player avatar"}
           />
           <div>
             <p className="text-2xl font-bold text-white sm:text-3xl">{recapData.message.wrapped.unique_id}</p>
@@ -1467,20 +1462,6 @@ export default function Recap() {
                 <span className="text-sm font-semibold text-white">Copy Link</span>
               </>
             )}
-          </button>
-
-          {/* Download Image */}
-          <button
-            type="button"
-            onClick={handleDownloadImage}
-            className="group flex items-center justify-center gap-2 rounded-sm border border-[#4caf50]/50 bg-[#4caf50]/10 px-4 py-3 transition-all hover:bg-[#4caf50]/20 hover:border-[#4caf50]"
-          >
-            <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="#4caf50" strokeWidth="2">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-              <polyline points="7 10 12 15 17 10"></polyline>
-              <line x1="12" y1="15" x2="12" y2="3"></line>
-            </svg>
-            <span className="text-sm font-semibold text-white">Download</span>
           </button>
         </div>
       </div>
