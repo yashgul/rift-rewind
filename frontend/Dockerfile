@@ -12,6 +12,9 @@ RUN npm ci
 # Copy source code
 COPY . .
 
+# Set environment variable for build - empty string means use relative URLs
+ENV VITE_BACKEND_URL=""
+
 # Build the app
 RUN npm run build
 

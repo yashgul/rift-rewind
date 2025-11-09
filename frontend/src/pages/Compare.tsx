@@ -88,7 +88,8 @@ export default function Compare() {
     const fetchCompareData = async () => {
       try {
         setIsLoading(true);
-        const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:9000";
+        // Empty string means use relative URL (for production with nginx proxy)
+        const backendUrl = import.meta.env.VITE_BACKEND_URL === undefined ? "http://localhost:9000" : import.meta.env.VITE_BACKEND_URL;
         
         const params = new URLSearchParams({
           name1,
@@ -134,7 +135,8 @@ export default function Compare() {
 
     const fetchSummonerIcons = async () => {
       try {
-        const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:9000';
+        // Empty string means use relative URL (for production with nginx proxy)
+        const backendUrl = import.meta.env.VITE_BACKEND_URL === undefined ? 'http://localhost:9000' : import.meta.env.VITE_BACKEND_URL;
         
         // Fetch player 1 icon
         const response1 = await fetch(`${backendUrl}/api/summonerIcon?name=${encodeURIComponent(name1)}&tag=${encodeURIComponent(tag1)}&region=${encodeURIComponent(region1)}`);

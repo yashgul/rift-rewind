@@ -167,7 +167,8 @@ export default function Recap() {
 
     const fetchRecapData = async () => {
       try {
-        const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:9000';
+        // Empty string means use relative URL (for production with nginx proxy)
+        const backendUrl = import.meta.env.VITE_BACKEND_URL === undefined ? 'http://localhost:9000' : import.meta.env.VITE_BACKEND_URL;
         const apiUrl = `${backendUrl}/api/matchData?tag=${encodeURIComponent(tag)}&name=${encodeURIComponent(name)}&region=${encodeURIComponent(region)}`;
         
         console.log("Fetching recap data from:", apiUrl);
@@ -218,7 +219,8 @@ export default function Recap() {
 
     const fetchSummonerIcon = async () => {
       try {
-        const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:9000';
+        // Empty string means use relative URL (for production with nginx proxy)
+        const backendUrl = import.meta.env.VITE_BACKEND_URL === undefined ? 'http://localhost:9000' : import.meta.env.VITE_BACKEND_URL;
         const apiUrl = `${backendUrl}/api/summonerIcon?name=${encodeURIComponent(name)}&tag=${encodeURIComponent(tag)}&region=${encodeURIComponent(region)}`;
         
         const response = await fetch(apiUrl);

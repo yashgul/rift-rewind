@@ -18,7 +18,8 @@ const Loading = () => {
     const fetchRecapData = async () => {
       try {
         // Get backend URL from environment variable
-        const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:9000';
+        // Empty string means use relative URL (for production with nginx proxy)
+        const backendUrl = import.meta.env.VITE_BACKEND_URL === undefined ? 'http://localhost:9000' : import.meta.env.VITE_BACKEND_URL;
         
         // Construct the API URL with proper parameters
         const apiUrl = `${backendUrl}/api/matchData?tag=${encodeURIComponent(tag)}&name=${encodeURIComponent(name)}&region=${encodeURIComponent(region)}`;
