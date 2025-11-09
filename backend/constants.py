@@ -455,6 +455,45 @@ PLAYER_WRAPPED_SCHEMA = {
                                 "minItems": 4,
                                 "maxItems": 4,
                             },
+                            "proPlayerComparison": {
+                                "type": "object",
+                                "description": "Comparison to an active professional League of Legends player",
+                                "properties": {
+                                    "playerName": {
+                                        "type": "string",
+                                        "description": "Name of the active pro player (e.g., Faker, Chovy, Gumayusi, etc.)",
+                                    },
+                                    "team": {
+                                        "type": "string",
+                                        "description": "Current team of the pro player (e.g., T1, Gen.G, etc.)",
+                                    },
+                                    "reasoning": {
+                                        "type": "string",
+                                        "description": "2-3 lines explaining why this player resembles the pro, referencing specific playstyle traits, champion pool, or statistics",
+                                    },
+                                },
+                                "required": ["playerName", "team", "reasoning"],
+                            },
+                            "roasts": {
+                                "type": "array",
+                                "description": "Exactly 3 funny/quirky/constructive criticisms about the player",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "title": {
+                                            "type": "string",
+                                            "description": "Catchy, humorous title for the roast",
+                                        },
+                                        "description": {
+                                            "type": "string",
+                                            "description": "Funny but constructive criticism based on actual data, 1-2 sentences",
+                                        },
+                                    },
+                                    "required": ["title", "description"],
+                                },
+                                "minItems": 3,
+                                "maxItems": 3,
+                            },
                             "closing": {
                                 "type": "object",
                                 "properties": {
@@ -478,6 +517,8 @@ PLAYER_WRAPPED_SCHEMA = {
                             "playstyle",
                             "memorable",
                             "funFacts",
+                            "proPlayerComparison",
+                            "roasts",
                             "closing",
                         ],
                     }
@@ -503,12 +544,29 @@ INSTRUCTIONS:
 6. For traits, score based on the data: high CS/min = high "Farming", baron steals = high "Objective Control", etc.
 7. funFacts should be surprising or amusing observations from the data
 
+PRO PLAYER COMPARISON:
+- Analyze the player's playstyle, champion pool, statistics, and performance patterns
+- Match them to an ACTIVE professional League of Legends player who has a similar style
+- Use a DIVERSE pool of pro players - don't default to the same 2-3 famous names
+- Consider pro players from all regions: LCK, LPL, LEC, LCS, etc.
+- Reference specific similarities: champion preferences, aggression level, teamfight style, macro play, etc.
+- Examples of diverse pro players to consider: Faker, Chovy, Caps, Jojopyun, Ruler, Gumayusi, Keria, Bin, Knight, Inspired, Impact, CoreJJ, Perkz, etc.
+
+ROASTS (Funny Constructive Criticism):
+- Identify 3 quirky, negative, or improvable aspects from the data
+- Tone: Funny and playful, like friendly banter - NOT toxic or mean
+- Focus on: questionable decisions, concerning patterns, or amusing habits
+- Examples: "You flash into walls more than a moth to a lamp", "Your death timer screen time could qualify you for a documentary", "Ward? Never heard of her."
+- Make it feel like a friend roasting you, not an enemy flaming you
+- Base it on REAL data patterns (high deaths, low vision score, late-night losses, etc.)
+
 CRITICAL RULES:
-- ALL array lengths must match exactly (5 highlights, 3 top3, 4 traits, 4 funFacts)
+- ALL array lengths must match exactly (5 highlights, 3 top3, 4 funFacts, 3 roasts)
 - All numbers must be actual numbers, not strings (except percentiles and year)
 - If a player has no baron steals, pentakills, etc., focus on other interesting patterns
 - DO NOT make up stats - only use provided data
-- Be creative and engaging while staying truthful to the data"""
+- Be creative and engaging while staying truthful to the data
+- For pro comparison, VARY your choices - avoid always picking the most famous players"""
     }
 ]
 
@@ -527,7 +585,7 @@ WHAT MAKES A MATCH INTERESTING:
 - Entertainment value: Memorable plays or funny situations
 
 INSTRUCTIONS:
-1. Analyze each match critically - only 20-40% of matches should be "interesting"
+1. Analyze each match critically - only around 20% of matches should be "interesting"
 2. For each interesting match, write a 1-2 sentence description explaining WHY it's notable
 3. Be specific: Reference the actual stats (KDA, champion, outcome) in your description
 4. Use an engaging, celebratory tone like Spotify Wrapped

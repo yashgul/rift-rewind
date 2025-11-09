@@ -3,6 +3,8 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { PolarAngleAxis, PolarGrid, Radar, RadarChart } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { convertPeakTimeToRegion } from "@/lib/timeUtils";
+import { ProPlayerCard } from "@/components/recap/ProPlayerCard";
+import { RoastsCard } from "@/components/recap/RoastsCard";
 
 interface RecapData {
   message: {
@@ -65,6 +67,15 @@ interface RecapData {
           bestMonth: string;
         };
         funFacts: string[];
+        proPlayerComparison: {
+          playerName: string;
+          team: string;
+          reasoning: string;
+        };
+        roasts: Array<{
+          title: string;
+          description: string;
+        }>;
         closing: {
           message: string;
           year: string;
@@ -542,6 +553,12 @@ export default function Recap() {
 
   const funFacts = wrappedData.funFacts || [];
   const highlights = (wrappedData.highlights || []).slice(0, 4);
+  const proPlayerComparison = wrappedData.proPlayerComparison || {
+    playerName: "Unknown",
+    team: "Unknown",
+    reasoning: "Not enough data to compare.",
+  };
+  const roasts = wrappedData.roasts || [];
   
   const playstyleTraits = wrappedData.playstyle?.traits || {
     aggression: 0,
@@ -1210,6 +1227,33 @@ export default function Recap() {
     </div>
   );
 
+  const insightsSlide: ReactNode = (
+    <div className="mx-auto flex h-full w-full max-w-[1200px] flex-col justify-center gap-4 sm:gap-6 px-4">
+      {/* Header */}
+      <div className="text-center mb-2">
+        <h2 className="text-3xl font-bold uppercase tracking-[0.2em] text-[#c89b3c] sm:text-4xl">
+          Deep Insights
+        </h2>
+        <p className="mt-2 text-sm text-[#d1c6ac] sm:text-base">
+          The good, the bad, and the legendary
+        </p>
+      </div>
+
+      {/* Two Column Layout */}
+      <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
+        {/* Pro Player Comparison */}
+        <ProPlayerCard
+          playerName={proPlayerComparison.playerName}
+          team={proPlayerComparison.team}
+          reasoning={proPlayerComparison.reasoning}
+        />
+
+        {/* Roasts */}
+        <RoastsCard roasts={roasts} />
+      </div>
+    </div>
+  );
+
   const shareSlide: ReactNode = (
     <div className="mx-auto flex h-full w-full max-w-[1000px] flex-col justify-center gap-6 sm:gap-8">
       {/* Header */}
@@ -1440,6 +1484,13 @@ export default function Recap() {
       background: "bg-gradient-to-br from-[#0a1428] via-[#122036] to-[#1a2f46]",
       video: "/4.webm",
       content: timelineSlide,
+    },
+    {
+      id: "insights",
+      label: "Insights",
+      background: "bg-gradient-to-br from-[#0a1428] via-[#1a2336] to-[#0f1b2e]",
+      video: "/animated-piltover.webm",
+      content: insightsSlide,
     },
     {
       id: "share",
