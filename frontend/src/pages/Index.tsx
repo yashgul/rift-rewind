@@ -1,8 +1,8 @@
-import { useState, useRef, useEffect } from "react";
+import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Volume2, VolumeX } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -25,26 +25,7 @@ const Index = () => {
   
   const [isMuted, setIsMuted] = useState(false);
   const [error, setError] = useState("");
-  const audioRef = useRef<HTMLAudioElement>(null);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    // Auto-play audio on mount with reduced volume
-    if (audioRef.current) {
-      audioRef.current.volume = 0.3;
-      audioRef.current.play().catch(() => {
-        // Auto-play blocked, user will need to interact first
-        setIsMuted(true);
-      });
-    }
-  }, []);
-
-  const toggleMute = () => {
-    if (audioRef.current) {
-      audioRef.current.muted = !isMuted;
-      setIsMuted(!isMuted);
-    }
-  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -124,30 +105,12 @@ const Index = () => {
         <source src="https://ask-them-out.s3.ap-south-1.amazonaws.com/tmpt2lr5oe6.mp4" type="video/mp4" />
       </video>
 
-      {/* Audio */}
-      <audio ref={audioRef} loop muted={isMuted}>
-        <source src="/league-audio.mp3" type="audio/mpeg" />
-      </audio>
-
       {/* Overlay - slightly darker with subtle blur */}
       <div className="absolute inset-0 bg-lol-dark/15 backdrop-blur-[0.5px]" />
 
       {/* Decorative rings removed */}
       
       {/* Removed floating background squares/particles */}
-      
-      {/* Mute Button */}
-      <button
-        onClick={toggleMute}
-        className="absolute top-6 right-6 z-20 p-3 rounded-full bg-card/40 backdrop-blur-md border border-lol-gold/30 hover:bg-card/60 hover:border-lol-gold transition-all duration-300 hover:shadow-gold group"
-        aria-label={isMuted ? "Unmute audio" : "Mute audio"}
-      >
-        {isMuted ? (
-          <VolumeX className="w-5 h-5 text-lol-gold" />
-        ) : (
-          <Volume2 className="w-5 h-5 text-lol-gold group-hover:animate-pulse" />
-        )}
-      </button>
 
       {/* Content */}
       <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4">
