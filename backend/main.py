@@ -48,6 +48,89 @@ def read_root():
     return {"message": "Hello World from Rift Rewind Backend!"}
 
 
+def get_platform_from_region(region: str) -> str:
+    """Maps regional routing to platform routing for summoner-v4 API."""
+    region_to_platform = {
+        "americas": "na1",
+        "asia": "kr",
+        "europe": "euw1",
+        "sea": "oc1",
+    }
+    return region_to_platform.get(region.lower(), "na1")
+
+
+def get_alternative_platforms(region: str) -> list:
+    """Returns alternative platforms to try if the primary platform fails."""
+    alternatives = {
+        "americas": ["br1", "la1", "la2"],
+        "asia": ["jp1"],
+        "europe": ["eun1", "tr1", "ru"],
+        "sea": ["ph2", "sg2", "th2", "tw2", "vn2"],
+    }
+    return alternatives.get(region.lower(), [])
+
+
+@app.get("/api/summonerIcon")
+def get_summoner_icon(name: str, tag: str, region: str):
+    """
+    Fetches the summoner's profile icon ID and returns the icon URL.
+    """
+    try:
+        riot_api_client = RiotAPIClient(default_region=region)
+        
+        # Get PUUID first
+        puuid = riot_api_client.get_puuid_from_name_and_tag(name, tag, region=region)
+        
+        if not puuid:
+            raise HTTPException(
+                status_code=404, 
+                detail=f"Could not find player {name}#{tag} in region {region}"
+            )
+        
+        # Map region to platform and get summoner info
+        platform = get_platform_from_region(region)
+        summoner_data = riot_api_client.get_summoner_by_puuid(puuid, platform=platform)
+        
+        # Try alternative platforms if first attempt fails
+        if not summoner_data or "profileIconId" not in summoner_data:
+            for alt_platform in get_alternative_platforms(region):
+                if alt_platform == platform:
+                    continue
+                summoner_data = riot_api_client.get_summoner_by_puuid(puuid, platform=alt_platform)
+                if summoner_data and "profileIconId" in summoner_data:
+                    break
+            
+            if not summoner_data or "profileIconId" not in summoner_data:
+                raise HTTPException(
+                    status_code=404, 
+                    detail="Could not retrieve summoner icon"
+                )
+        
+        profile_icon_id = summoner_data["profileIconId"]
+        icon_url = f"https://ddragon.leagueoflegends.com/cdn/14.1.1/img/profileicon/{profile_icon_id}.png"
+        
+        return {
+            "profileIconId": profile_icon_id,
+            "iconUrl": icon_url,
+            "summonerLevel": summoner_data.get("summonerLevel", 0)
+        }
+        
+    except HTTPException:
+        raise
+    except RiotAPIError as e:
+        logger.error(f"Riot API error in summonerIcon endpoint: {str(e)}")
+        raise HTTPException(
+            status_code=503,
+            detail="Riot API is currently unavailable. Please try again later."
+        ) from e
+    except Exception as e:
+        logger.error(f"Error in summonerIcon endpoint: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"An error occurred while fetching summoner icon: {str(e)}"
+        ) from e
+
+
 @app.get("/api/matchData")
 def matchData(name: str, tag: str, region: str):
     try:

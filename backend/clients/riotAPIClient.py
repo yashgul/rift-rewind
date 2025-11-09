@@ -316,3 +316,29 @@ class RiotAPIClient:
             self.logger.warning(f"✗ Could not retrieve match data for {match_id}")
 
         return match_data
+
+    def get_summoner_by_puuid(
+        self,
+        puuid: str,
+        platform: str = "na1",
+    ) -> Optional[Dict]:
+        """
+        Gets summoner information for a given PUUID.
+
+        Args:
+            puuid (str): The player's PUUID
+            platform (str): The platform routing value (e.g., 'na1', 'euw1', 'kr')
+
+        Returns:
+            dict: The summoner information including profileIconId, or None if failed
+        """
+        self.logger.info(f"Fetching summoner info for PUUID: {puuid[:8]}...{puuid[-8:]}")
+        endpoint = f"lol/summoner/v4/summoners/by-puuid/{puuid}"
+        summoner_data = self._request(platform, endpoint)
+
+        if summoner_data:
+            self.logger.info(f"✓ Summoner data retrieved")
+        else:
+            self.logger.warning(f"✗ Could not retrieve summoner data for PUUID")
+
+        return summoner_data

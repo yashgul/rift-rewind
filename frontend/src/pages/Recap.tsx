@@ -151,6 +151,7 @@ export default function Recap() {
   const [heroImages, setHeroImages] = useState<Array<{ name: string; image: string }>>([]);
   const [linkCopied, setLinkCopied] = useState(false);
   const [activeMatchIndex, setActiveMatchIndex] = useState(0);
+  const [summonerIconUrl, setSummonerIconUrl] = useState<string | null>(null);
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
 
   // Fetch data from API on mount
@@ -204,6 +205,39 @@ export default function Recap() {
       .then(data => setHeroImages(data))
       .catch(() => console.warn("Failed to load hero images"));
   }, []);
+
+  // Fetch summoner icon
+  useEffect(() => {
+    const name = searchParams.get("name");
+    const tag = searchParams.get("tag");
+    const region = searchParams.get("region") || "americas";
+    
+    if (!name || !tag) {
+      return;
+    }
+
+    const fetchSummonerIcon = async () => {
+      try {
+        const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:9000';
+        const apiUrl = `${backendUrl}/api/summonerIcon?name=${encodeURIComponent(name)}&tag=${encodeURIComponent(tag)}&region=${encodeURIComponent(region)}`;
+        
+        const response = await fetch(apiUrl);
+        if (!response.ok) {
+          console.warn("Failed to fetch summoner icon");
+          return;
+        }
+        
+        const data = await response.json();
+        if (data && data.iconUrl) {
+          setSummonerIconUrl(data.iconUrl);
+        }
+      } catch (err) {
+        console.warn("Error fetching summoner icon:", err);
+      }
+    };
+
+    fetchSummonerIcon();
+  }, [searchParams]);
 
   // Helper function to get champion image
   const getChampionImage = useCallback((championName: string): string | undefined => {
@@ -580,8 +614,8 @@ export default function Recap() {
       <div className="flex items-center gap-4 sm:gap-6">
         <div
           className="h-20 w-20 shrink-0 rounded-sm border-2 border-[#c89b3c] bg-cover bg-center shadow-xl sm:h-28 sm:w-28 sm:border-4"
-          style={{ backgroundImage: "url('/rift_logo.png')" }}
-          aria-label="Rift Rewind logo"
+          style={{ backgroundImage: `url('${summonerIconUrl || '/rift_logo.png'}')` }}
+          aria-label={summonerIconUrl ? "Summoner profile icon" : "Rift Rewind logo"}
         />
         <div>
           <p className="text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">{recapData.message.wrapped.unique_id || 'Player'}</p>
