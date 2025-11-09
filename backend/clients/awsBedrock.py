@@ -6,8 +6,8 @@ from constants import (
     WRAPPED_SYSTEM_PROMPT,
     INTERESTING_MATCHES_SYSTEM_PROMPT,
     INTERESTING_MATCHES_SCHEMA,
-    PLAYER_COMPARISON_SYSTEM_PROMPT,
     PLAYER_COMPARISON_SCHEMA,
+    PLAYER_COMPARISON_SYSTEM_PROMPT,
 )
 import traceback
 
@@ -350,27 +350,44 @@ def generate_player_wrapped_json(
         return None
 
 
-def compare_two_players(
-    player1_wrapped: dict,
-    player2_wrapped: dict,
+# --- 4. Pre-flight Check ---
+def check_aws_setup():
+    """Verify AWS credentials and Bedrock access"""
+    try:
+        bedrock = boto3.client("bedrock-runtime", region_name="eu-north-1")
+        print("✅ AWS credentials found")
+        print("✅ Bedrock client initialized")
+        return True
+    except Exception as e:
+        print(f"❌ AWS setup issue: {e}")
+        print("\nPlease ensure:")
+        print("1. AWS credentials are configured (AWS CLI or environment variables)")
+        print("2. You have access to Amazon Bedrock")
+        print("3. Claude 3 Haiku model is enabled in eu-north-1 region")
+        return False
+
+
+def generate_player_comparison(
+    player1_data: dict,
+    player2_data: dict,
     player1_name: str,
     player2_name: str,
     system_prompt=PLAYER_COMPARISON_SYSTEM_PROMPT,
     tool_config=PLAYER_COMPARISON_SCHEMA,
 ):
     """
-    Compares two players' wrapped data using Claude to generate an engaging comparison.
+    Invokes the Bedrock Claude model to generate a comparison between two players.
 
     Args:
-        player1_wrapped: First player's wrapped data
-        player2_wrapped: Second player's wrapped data
+        player1_data: First player's wrapped data
+        player2_data: Second player's wrapped data
         player1_name: First player's display name
         player2_name: Second player's display name
         system_prompt: The system-level instructions for the model
         tool_config: The tool configuration with schema
 
     Returns:
-        dict: A dictionary containing the comparison analysis
+        dict: A dictionary containing the comparison data
     """
     try:
         # Get AWS credentials from environment variables
@@ -391,11 +408,11 @@ def compare_two_players(
         # Use the session to create the Bedrock client
         bedrock_client = session.client("bedrock-runtime")
 
-        # Use Haiku for cost-effective comparison
-        model_id = "eu.anthropic.claude-haiku-4-5-20251001-v1:0"
+        # Use Sonnet for better quality comparison
+        model_id = "eu.anthropic.claude-sonnet-4-5-20250929-v1:0"
 
-        # For better quality:
-        # model_id = "eu.anthropic.claude-sonnet-4-5-20250929-v1:0"
+        # For testing with Haiku:
+        # model_id = "eu.anthropic.claude-haiku-4-5-20251001-v1:0"
 
         # Create the initial message from user with both players' data
         messages = [
@@ -403,21 +420,20 @@ def compare_two_players(
                 "role": "user",
                 "content": [
                     {
-                        "text": f"""Please compare these two League of Legends players using the compare_players tool.
+                        "text": f"""Please analyze these two League of Legends players and generate a detailed comparison using the generate_player_comparison tool.
 
 Player 1: {player1_name}
-{json.dumps(player1_wrapped, indent=2)}
+{json.dumps(player1_data, indent=2)}
 
 Player 2: {player2_name}
-{json.dumps(player2_wrapped, indent=2)}
-
-Generate an engaging, rivalry-style comparison highlighting their differences and similarities."""
+{json.dumps(player2_data, indent=2)}"""
                     }
                 ],
             }
         ]
 
         print(f"Invoking Bedrock Model for player comparison: {model_id}...")
+        print(f"Region: {aws_region}")
         print(f"Comparing {player1_name} vs {player2_name}")
 
         # First call to the model
@@ -439,16 +455,19 @@ Generate an engaging, rivalry-style comparison highlighting their differences an
                 if "toolUse" in tool_request:
                     tool = tool_request["toolUse"]
                     print(f"Tool used: {tool['name']}")
+                    print(f"Tool use ID: {tool['toolUseId']}")
 
-                    if tool["name"] == "compare_players":
+                    if tool["name"] == "generate_player_comparison":
+                        # Extract the generated comparison data
                         comparison_data = tool["input"]
 
-                        print("\n--- Player Comparison Generated ---")
+                        print("\n--- Bedrock Comparison Output ---")
                         print("------------------------------------------")
 
                         return comparison_data
 
         elif stop_reason == "end_turn":
+            # Model responded without using tool
             print("Model did not use the tool. Response:")
             for content in output_message["content"]:
                 print(json.dumps(content, indent=2))
@@ -456,6 +475,7 @@ Generate an engaging, rivalry-style comparison highlighting their differences an
 
         else:
             print(f"Unexpected stop reason: {stop_reason}")
+            print("Response:", json.dumps(response, indent=2))
             return None
 
     except ClientError as err:
@@ -466,22 +486,3 @@ Generate an engaging, rivalry-style comparison highlighting their differences an
         print(f"An error occurred: {e}")
         traceback.print_exc()
         return None
-
-
-# --- 4. Pre-flight Check ---
-def check_aws_setup():
-    """Verify AWS credentials and Bedrock access"""
-    try:
-        bedrock = boto3.client("bedrock-runtime", region_name="eu-north-1")
-        print("✅ AWS credentials found")
-        print("✅ Bedrock client initialized")
-        return True
-    except Exception as e:
-        print(f"❌ AWS setup issue: {e}")
-        print("\nPlease ensure:")
-        print("1. AWS credentials are configured (AWS CLI or environment variables)")
-        print("2. You have access to Amazon Bedrock")
-        print("3. Claude 3 Haiku model is enabled in eu-north-1 region")
-        return False
-
-        return False
