@@ -1498,18 +1498,18 @@ export default function Recap() {
       content: personalitySlide,
     },
     {
-      id: "timeline",
-      label: "Greatest Moments",
-      background: "bg-gradient-to-br from-[#0a1428] via-[#122036] to-[#1a2f46]",
-      video: "/4.webm",
-      content: timelineSlide,
-    },
-    {
       id: "insights",
       label: "Insights",
       background: "bg-gradient-to-br from-[#0a1428] via-[#1a2336] to-[#0f1b2e]",
       video: "/animated-piltover.webm",
       content: insightsSlide,
+    },
+    {
+      id: "timeline",
+      label: "Greatest Moments",
+      background: "bg-gradient-to-br from-[#0a1428] via-[#122036] to-[#1a2f46]",
+      video: "/4.webm",
+      content: timelineSlide,
     },
     {
       id: "share",
