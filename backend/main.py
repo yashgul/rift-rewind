@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 import os
 import traceback
+from pydantic import BaseModel
 
 from clients.riotAPIClient import RiotAPIClient, RiotAPIError
 from clients.awsBedrock import (
@@ -14,6 +15,7 @@ from clients.awsBedrock import (
     store_wrapped_in_dynamodb,
     generate_player_comparison,
 )
+from clients.chatBot import get_chatbot_response
 from helpers.match_parser import parse_match_for_player
 from helpers.match_aggregator import MatchStatsAggregator
 
@@ -60,12 +62,9 @@ def matchData(name: str, tag: str, region: str):
             # We need to return: {"message": {"wrapped": {"unique_id": ..., "wrapped_data": ...}, "timeline": [...]}}
             wrapped_obj = {
                 "unique_id": existing_data.get("unique_id"),
-                "wrapped_data": existing_data.get("wrapped_data")
+                "wrapped_data": existing_data.get("wrapped_data"),
             }
-            result = {
-                "wrapped": wrapped_obj,
-                "timeline": existing_data.get("timeline", [])
-            }
+            result = {"wrapped": wrapped_obj, "timeline": existing_data.get("timeline", [])}
             return {"message": result}
 
         # If not found in DynamoDB, generate new wrapped data
@@ -102,13 +101,13 @@ def matchData(name: str, tag: str, region: str):
                 required_keys = {"kda", "championName", "win"}
                 if required_keys.issubset(flattened_match_data):
                     match_stats_aggregator.add_match(flattened_match_data)
-                    
+
                     # Store match data for later enrichment
                     match_data_cache[match_id] = {
                         "match_data": match_data,
-                        "flattened_data": flattened_match_data
+                        "flattened_data": flattened_match_data,
                     }
-                    
+
                     timeline_data.append(
                         {
                             "id": match_id,
@@ -126,18 +125,18 @@ def matchData(name: str, tag: str, region: str):
 
         # First, let LLM identify interesting matches
         interesting_matches = find_and_generate_descriptions_of_interesting_matches(timeline_data)
-        
+
         # Then enrich those matches with additional details from cache
         enriched_timeline = []
         for match in interesting_matches:
             match_id = match["id"]
-            
+
             # Get cached match data (no additional API calls needed)
             if match_id in match_data_cache:
                 cached = match_data_cache[match_id]
                 match_data = cached["match_data"]
                 flattened_match_data = cached["flattened_data"]
-                
+
                 # Add additional details to the match
                 enriched_match = {
                     **match,  # Keep id, kda, champ, win, description from LLM
@@ -147,7 +146,9 @@ def matchData(name: str, tag: str, region: str):
                     "kills": flattened_match_data.get("kills"),
                     "deaths": flattened_match_data.get("deaths"),
                     "assists": flattened_match_data.get("assists"),
-                    "totalDamageDealtToChampions": flattened_match_data.get("totalDamageDealtToChampions"),
+                    "totalDamageDealtToChampions": flattened_match_data.get(
+                        "totalDamageDealtToChampions"
+                    ),
                     "goldEarned": flattened_match_data.get("goldEarned"),
                     "visionScore": flattened_match_data.get("visionScore"),
                     "pentaKills": flattened_match_data.get("pentaKills"),
@@ -158,16 +159,18 @@ def matchData(name: str, tag: str, region: str):
                     "teamPosition": flattened_match_data.get("teamPosition"),
                 }
                 enriched_timeline.append(enriched_match)
-        
+
         logger.info(f"Enriched {len(enriched_timeline)} interesting matches with details")
 
+        parsed_stats = match_stats_aggregator.get_summary()
         player_wrapped = generate_player_wrapped_json(
-            player_data=match_stats_aggregator.get_summary(), name=name, tag=tag, region=region
+            player_data=parsed_stats, name=name, tag=tag, region=region
         )
 
         result = {
             "wrapped": player_wrapped,
             "timeline": enriched_timeline,
+            "player_data": parsed_stats,
         }
 
         # Store the complete data in DynamoDB (merge player_wrapped with timeline)
@@ -176,7 +179,7 @@ def matchData(name: str, tag: str, region: str):
         if player_wrapped:
             db_data = {
                 **player_wrapped,  # Spreads unique_id and wrapped_data
-                "timeline": enriched_timeline
+                "timeline": enriched_timeline,
             }
             store_wrapped_in_dynamodb(db_data)
             logger.info(f"Stored new wrapped data for {unique_id}")
@@ -215,9 +218,13 @@ def matchData(name: str, tag: str, region: str):
 
 @app.get("/api/compareData")
 def compareData(
-    name1: str, tag1: str, region1: str,
-    name2: str, tag2: str, region2: str,
-    test_mode: bool = False
+    name1: str,
+    tag1: str,
+    region1: str,
+    name2: str,
+    tag2: str,
+    region2: str,
+    test_mode: bool = False,
 ):
     """
     Compare two players' wrapped data and generate AI comparison.
@@ -226,49 +233,47 @@ def compareData(
     test_mode = True
     try:
         logger.info(f"Comparison request: {name1}#{tag1} vs {name2}#{tag2}")
-        
+
         # Helper function to fetch player data
         def fetch_player_data(name: str, tag: str, region: str):
             unique_id = f"{name.lower()}_{tag.lower()}_{region.lower()}"
-            
+
             # Check if wrapped data exists in DynamoDB (skip for test accounts)
             if tag not in ["KR1"] and not test_mode:
                 existing_data = get_wrapped_from_dynamodb(unique_id)
                 if existing_data:
                     logger.info(f"Found existing wrapped data for {unique_id}")
                     return existing_data
-            
+
             # If not found, generate new wrapped data
             riot_api_client = RiotAPIClient(default_region=region)
             puuid = riot_api_client.get_puuid_from_name_and_tag(name, tag, region=region)
-            
+
             if not puuid:
                 raise HTTPException(
-                    status_code=404, 
-                    detail=f"Could not find player {name}#{tag} in region {region}"
+                    status_code=404, detail=f"Could not find player {name}#{tag} in region {region}"
                 )
-            
+
             logger.info(f"PUUID for {name}#{tag}: {puuid}")
-            
+
             # Get match IDs
             match_count = 30 if test_mode else 100
             recent_match_ids = riot_api_client.get_match_ids_by_puuid(
                 puuid=puuid, region=region, count=match_count
             )
-            
+
             if not recent_match_ids:
                 raise HTTPException(
-                    status_code=404, 
-                    detail=f"No match history found for player {name}#{tag}"
+                    status_code=404, detail=f"No match history found for player {name}#{tag}"
                 )
-            
+
             # Limit to 30 matches in test mode
             if test_mode:
                 recent_match_ids = recent_match_ids[:30]
                 logger.info(f"Test mode: Limited to {len(recent_match_ids)} matches")
-            
+
             match_stats_aggregator = MatchStatsAggregator()
-            
+
             for match_id in recent_match_ids:
                 match_data = riot_api_client.get_match_metadata_by_match_id(
                     match_id=match_id, region=region
@@ -277,87 +282,74 @@ def compareData(
                     flattened_match_data = parse_match_for_player(
                         match_data=match_data, target_puuid=puuid
                     )
-                    
+
                     required_keys = {"kda", "championName", "win"}
                     if required_keys.issubset(flattened_match_data):
                         match_stats_aggregator.add_match(flattened_match_data)
-            
+
             player_wrapped = generate_player_wrapped_json(
-                player_data=match_stats_aggregator.get_summary(), 
-                name=name, tag=tag, region=region
+                player_data=match_stats_aggregator.get_summary(), name=name, tag=tag, region=region
             )
-            
+
             result = {"wrapped": player_wrapped}
-            
+
             # Store in DynamoDB (only if not in test mode)
             # player_wrapped has the structure: {"unique_id": ..., "wrapped_data": {...}}
             if not test_mode and player_wrapped:
                 store_wrapped_in_dynamodb(player_wrapped)
                 logger.info(f"Stored new wrapped data for {unique_id}")
-            
+
             return result
-        
+
         # Fetch both players' data
         logger.info("Fetching data for player 1...")
         player1_result = fetch_player_data(name1, tag1, region1)
-        
+
         logger.info("Fetching data for player 2...")
         player2_result = fetch_player_data(name2, tag2, region2)
-        
+
         # Validate results exist
         if not player1_result or not player2_result:
             raise HTTPException(
-                status_code=500,
-                detail="Failed to fetch data for one or both players"
+                status_code=500, detail="Failed to fetch data for one or both players"
             )
-        
+
         # Extract the full wrapped objects (these have unique_id and wrapped_data)
-    
+
         # Generate AI comparison - pass the full wrapped objects
         logger.info("Generating AI comparison...")
         player1_display = f"{name1}#{tag1}"
         player2_display = f"{name2}#{tag2}"
-        
+
         comparison_data = generate_player_comparison(
             player1_data=player1_result,
             player2_data=player2_result,
             player1_name=player1_display,
-            player2_name=player2_display
+            player2_name=player2_display,
         )
-        
+
         if not comparison_data:
-            raise HTTPException(
-                status_code=500,
-                detail="Failed to generate comparison analysis"
-            )
-        
+            raise HTTPException(status_code=500, detail="Failed to generate comparison analysis")
+
         # Return complete comparison result
         result = {
-            "player1": {
-                "name": player1_display,
-                "region": region1,
-                "wrapped": player1_result
-            },
-            "player2": {
-                "name": player2_display,
-                "region": region2,
-                "wrapped": player2_result
-            },
-            "comparison": comparison_data
+            "player1": {"name": player1_display, "region": region1, "wrapped": player1_result},
+            "player2": {"name": player2_display, "region": region2, "wrapped": player2_result},
+            "comparison": comparison_data,
         }
-        
+
         return {"message": result}
-    
+
     except HTTPException:
         raise
-    
+
     except RiotAPIError as e:
         logger.error(f"Riot API failure: {str(e)}")
         raise HTTPException(
             status_code=503,
             detail="Riot API is currently unavailable. Please try again later.",
         ) from e
-    
+
     except Exception as e:
         error_message = traceback.format_exc()
         logger.error(f"Error in compareData endpoint: {error_message}")
@@ -365,6 +357,51 @@ def compareData(
             status_code=500,
             detail=f"An error occurred while processing comparison: {str(e)}",
         ) from e
+
+
+class ChatbotRequest(BaseModel):
+    stats: dict
+    conversation: list
+
+
+@app.post("/api/chatbot/sendMessage")
+def chatbot_send_message(request: ChatbotRequest):
+    try:
+        stats = request.stats
+        conversation = request.conversation
+
+        # Validate that there's at least one message
+        if len(conversation) == 0:
+            logger.warning("Empty conversation provided")
+            raise HTTPException(status_code=400, detail="Conversation cannot be empty")
+
+        # Call the chatbot function
+        logger.info(f"Processing chatbot request with {len(conversation)} messages")
+        result = get_chatbot_response(stats, conversation)
+
+        if result["success"]:
+            logger.info("Chatbot response generated successfully")
+            return {
+                "success": True,
+                "response": result["response_text"],
+                "conversation": result["conversation"],
+                "token_usage": result["token_usage"],
+            }
+        else:
+            logger.error(f"Chatbot response failed: {result.get('error')}")
+            raise HTTPException(
+                status_code=500,
+                detail=result.get("error", "Unknown error occurred"),
+            )
+
+    except HTTPException:
+        # Re-raise HTTPExceptions
+        raise
+
+    except Exception as e:
+        error_msg = f"Unexpected error in chatbot_sendMessage endpoint: {str(e)}"
+        logger.exception(error_msg)
+        raise HTTPException(status_code=500, detail="Internal server error") from e
 
 
 if __name__ == "__main__":

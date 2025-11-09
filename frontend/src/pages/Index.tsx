@@ -16,13 +16,13 @@ const Index = () => {
   const [mode, setMode] = useState<"solo" | "compare">("solo");
   const [riotId, setRiotId] = useState(""); // Format: "name#tag"
   const [region, setRegion] = useState<string>("");
-  
+
   // Comparison mode states
   const [riotId1, setRiotId1] = useState("");
   const [region1, setRegion1] = useState<string>("");
   const [riotId2, setRiotId2] = useState("");
   const [region2, setRegion2] = useState<string>("");
-  
+
   const [isMuted, setIsMuted] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -109,7 +109,7 @@ const Index = () => {
       <div className="absolute inset-0 bg-lol-dark/15 backdrop-blur-[0.5px]" />
 
       {/* Decorative rings removed */}
-      
+
       {/* Removed floating background squares/particles */}
 
       {/* Content */}
@@ -178,7 +178,7 @@ const Index = () => {
                     </SelectContent>
                   </Select>
                 </div>
-                
+
                 {/* Riot ID Input */}
                 <div className="relative max-w-md w-full group">
                   <div className="absolute inset-0 bg-gradient-gold opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-300 rounded-lg" />
@@ -219,7 +219,7 @@ const Index = () => {
                       </SelectContent>
                     </Select>
                   </div>
-                  
+
                   <div className="relative max-w-md w-full group">
                     <div className="absolute inset-0 bg-gradient-gold opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-300 rounded-lg" />
                     <Input
@@ -262,7 +262,7 @@ const Index = () => {
                       </SelectContent>
                     </Select>
                   </div>
-                  
+
                   <div className="relative max-w-md w-full group">
                     <div className="absolute inset-0 bg-gradient-gold opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-300 rounded-lg" />
                     <Input

@@ -648,11 +648,11 @@ PLAYER_COMPARISON_SCHEMA = {
                         "properties": {
                             "comparison_title": {
                                 "type": "string",
-                                "description": "A catchy 3-6 word title for this rivalry/comparison (e.g., 'Battle of the Legends', 'The Carry Showdown')"
+                                "description": "A catchy 3-6 word title for this rivalry/comparison (e.g., 'Battle of the Legends', 'The Carry Showdown')",
                             },
                             "overall_summary": {
                                 "type": "string",
-                                "description": "2-3 sentences summarizing the comparison and who has the edge overall"
+                                "description": "2-3 sentences summarizing the comparison and who has the edge overall",
                             },
                             "statistical_comparison": {
                                 "type": "array",
@@ -662,107 +662,113 @@ PLAYER_COMPARISON_SCHEMA = {
                                     "properties": {
                                         "category": {
                                             "type": "string",
-                                            "description": "The stat category (e.g., 'Win Rate', 'Games Played', 'KDA')"
+                                            "description": "The stat category (e.g., 'Win Rate', 'Games Played', 'KDA')",
                                         },
                                         "player1_value": {
                                             "type": "string",
-                                            "description": "Player 1's value for this stat"
+                                            "description": "Player 1's value for this stat",
                                         },
                                         "player2_value": {
                                             "type": "string",
-                                            "description": "Player 2's value for this stat"
+                                            "description": "Player 2's value for this stat",
                                         },
                                         "winner": {
                                             "type": "string",
-                                            "description": "Which player wins this category: 'player1', 'player2', or 'tie'"
+                                            "description": "Which player wins this category: 'player1', 'player2', or 'tie'",
                                         },
                                         "insight": {
                                             "type": "string",
-                                            "description": "Brief insight about this comparison (1 sentence)"
-                                        }
+                                            "description": "Brief insight about this comparison (1 sentence)",
+                                        },
                                     },
-                                    "required": ["category", "player1_value", "player2_value", "winner", "insight"]
+                                    "required": [
+                                        "category",
+                                        "player1_value",
+                                        "player2_value",
+                                        "winner",
+                                        "insight",
+                                    ],
                                 },
                                 "minItems": 6,
-                                "maxItems": 8
+                                "maxItems": 8,
                             },
                             "playstyle_comparison": {
                                 "type": "object",
                                 "properties": {
                                     "summary": {
                                         "type": "string",
-                                        "description": "2 sentences comparing their playstyles"
+                                        "description": "2 sentences comparing their playstyles",
                                     },
                                     "player1_strengths": {
                                         "type": "array",
                                         "description": "3-4 key strengths of player 1",
                                         "items": {"type": "string"},
                                         "minItems": 3,
-                                        "maxItems": 4
+                                        "maxItems": 4,
                                     },
                                     "player2_strengths": {
                                         "type": "array",
                                         "description": "3-4 key strengths of player 2",
                                         "items": {"type": "string"},
                                         "minItems": 3,
-                                        "maxItems": 4
-                                    }
+                                        "maxItems": 4,
+                                    },
                                 },
-                                "required": ["summary", "player1_strengths", "player2_strengths"]
+                                "required": ["summary", "player1_strengths", "player2_strengths"],
                             },
                             "champion_comparison": {
                                 "type": "object",
                                 "properties": {
                                     "summary": {
                                         "type": "string",
-                                        "description": "1 sentence about their champion pools"
+                                        "description": "1 sentence about their champion pools",
                                     },
                                     "common_picks": {
                                         "type": "array",
                                         "description": "Champions both players use (if any)",
-                                        "items": {"type": "string"}
+                                        "items": {"type": "string"},
                                     },
                                     "unique_player1": {
                                         "type": "array",
                                         "description": "Unique champions player 1 excels at",
-                                        "items": {"type": "string"}
+                                        "items": {"type": "string"},
                                     },
                                     "unique_player2": {
                                         "type": "array",
                                         "description": "Unique champions player 2 excels at",
-                                        "items": {"type": "string"}
-                                    }
+                                        "items": {"type": "string"},
+                                    },
                                 },
-                                "required": ["summary"]
+                                "required": ["summary"],
                             },
                             "key_differences": {
                                 "type": "array",
                                 "description": "Exactly 4-5 key differences between the players",
                                 "items": {
                                     "type": "string",
-                                    "description": "One key difference (1 sentence)"
+                                    "description": "One key difference (1 sentence)",
                                 },
                                 "minItems": 4,
-                                "maxItems": 5
+                                "maxItems": 5,
                             },
                             "verdict": {
                                 "type": "object",
                                 "properties": {
                                     "winner": {
                                         "type": "string",
-                                        "description": "Who performed better overall: 'player1', 'player2', or 'tie'"
+                                        "description": "Who performed better overall: 'player1', 'player2', or 'tie'",
                                     },
                                     "reasoning": {
                                         "type": "string",
-                                        "description": "2 sentences explaining the verdict"
+                                        "description": "2 sentences explaining the verdict",
                                     },
                                     "closing_statement": {
                                         "type": "string",
-                                        "description": "1 sentence motivational closing for both players"
-                                    }
+                                        "description": "1 sentence motivational closing for both players",
+                                    },
                                 },
-                                "required": ["winner", "reasoning", "closing_statement"]
-                            }
+                                "required": ["winner", "reasoning", "closing_statement"],
+                            },
                         },
                         "required": [
                             "comparison_title",
@@ -771,10 +777,10 @@ PLAYER_COMPARISON_SCHEMA = {
                             "playstyle_comparison",
                             "champion_comparison",
                             "key_differences",
-                            "verdict"
-                        ]
+                            "verdict",
+                        ],
                     }
-                }
+                },
             }
         }
     ]
@@ -800,3 +806,90 @@ Remember:
 - Make the comparison feel like a friendly rivalry"""
     }
 ]
+CHATBOT_SYSTEM_PROMPT = """You are a League of Legends Performance Coach - an expert analyst helping players improve their gameplay based on their statistics and performance data.
+
+YOUR ROLE:
+- Answer questions about the player's stats, trends, and performance patterns
+- Provide actionable advice on how to improve specific aspects of their gameplay
+- Analyze champion performance and recommend champions to play or avoid
+- Identify strengths to leverage and weaknesses to address
+- Suggest which teammates or roles synergize best with their playstyle
+- Offer strategic insights based on their data
+
+PLAYER STATISTICS AVAILABLE:
+You have access to the player's detailed stats including:
+- Win rates, KDA, CS/min, vision score, damage dealt
+- Champion-specific performance metrics
+- Role distribution and performance by role
+- Game outcomes, streaks, and trends over time
+- Performance with specific teammates or in duo queues
+- Objective control (dragons, barons, turrets)
+- Gold efficiency and farming patterns
+
+HOW TO RESPOND:
+
+1. **Be Data-Driven:** Reference specific stats from their profile when giving advice
+   Example: "Your 3.2 KDA on Ahri is solid, but your 5.8 CS/min is below the 7+ target for mid lane."
+
+2. **Be Specific and Actionable:** Don't just say "improve farming" - explain HOW
+   Example: "Focus on last-hitting under tower - your CS drops 30% in losing matchups, suggesting tower farming is a weakness."
+
+3. **Prioritize Impact:** Focus on changes that will have the biggest effect on their win rate
+   Example: "You have a 65% win rate when securing first dragon vs 42% without - prioritize early dragon control."
+
+4. **Be Honest but Encouraging:** Point out weaknesses constructively
+   Example: "Your 4.2 vision score is holding you back - even 1-2 extra wards per game could improve map awareness significantly."
+
+5. **Consider Context:** Take into account their rank, role, and champion pool
+   Example: "For a Silver ADC, your positioning is good (low deaths), but work on increasing damage output in teamfights."
+
+WHAT TO ANALYZE:
+
+**Champion Performance:**
+- Win rate vs games played (avoid low win rate comfort picks)
+- Performance trends (improving vs declining on champions)
+- Champion pool diversity and meta relevance
+- Role flexibility
+
+**Gameplay Patterns:**
+- Early game vs late game strengths
+- Performance in winning vs losing lanes
+- Vision control habits
+- Objective priority
+- Death patterns (overaggression, poor positioning, etc.)
+
+**Duo/Team Synergy:**
+- Win rates with specific teammates
+- Role combinations that work well
+- Communication and coordination patterns
+
+**Improvement Priorities:**
+- Quick wins (small changes, big impact)
+- Long-term skill development
+- Mental game and tilt management
+- Champion pool optimization
+
+RESPONSE STYLE:
+- Conversational and supportive, not robotic
+- Use League terminology naturally (don't over-explain basics)
+- Keep responses concise unless asked for detailed analysis
+- Ask clarifying questions if the player's question is vague
+- Reference their actual stats when making points
+- Celebrate improvements and wins while addressing weaknesses
+
+EXAMPLE INTERACTIONS:
+
+User: "Why do I lose so much on Yasuo?"
+You: "Looking at your Yasuo stats: 38% win rate over 26 games with a 2.1 KDA. Your deaths per game (7.8) are high, suggesting overaggression or poor positioning in teamfights. Compare that to your 56% win rate on Malphite with similar games played - tankier champions seem to suit your playstyle better. Consider either: 1) Playing fewer Yasuo games until you master his limits, or 2) Focus on reducing deaths by playing safer in lane and waiting for your team to engage first."
+
+User: "How can I climb faster?"
+You: "Based on your stats, here are your highest-impact improvements:
+1. **Vision Score** - You average 0.8 wards/min vs the 1.2+ ideal for your role. More wards = better map awareness = fewer deaths.
+2. **Champion Focus** - You have 60%+ win rates on 3 champions but play 15+ regularly. Spam your best champions: [list top 3].
+3. **Early Dragons** - You're 18% higher win rate in games with first dragon. Prioritize early drake control.
+Start with #2 - it's the easiest change with immediate impact."
+
+User: "Who should I duo with?"
+You: "Your stats show the best synergy with [Teammate Name] - 67% win rate over 12 games together. When you play [your role] and they play [their role], you average [stat improvement]. Your communication seems strong since your vision scores both increase by 15% in duo games. I'd recommend queuing together more and focusing on your best champion combos: [specific combos based on data]."
+
+Remember: Your goal is to help players improve and climb by making their stats actionable and their practice focused."""
