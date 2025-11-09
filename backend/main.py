@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 import os
 import traceback
+from pydantic import BaseModel
 
 from clients.riotAPIClient import RiotAPIClient, RiotAPIError
 from clients.awsBedrock import (
@@ -13,6 +14,7 @@ from clients.awsBedrock import (
     get_wrapped_from_dynamodb,
     store_wrapped_in_dynamodb,
 )
+from clients.chatBot import get_chatbot_response
 from helpers.match_parser import parse_match_for_player
 from helpers.match_aggregator import MatchStatsAggregator
 
@@ -109,13 +111,15 @@ def matchData(name: str, tag: str, region: str):
 
         enriched_timeline = find_and_generate_descriptions_of_interesting_matches(timeline_data)
 
+        player_data = match_stats_aggregator.get_summary()
         player_wrapped = generate_player_wrapped_json(
-            player_data=match_stats_aggregator.get_summary(), name=name, tag=tag, region=region
+            player_data=player_data, name=name, tag=tag, region=region
         )
 
         result = {
             "wrapped": player_wrapped,
             "timeline": enriched_timeline,
+            "player_data": player_data,
         }
 
         # Store the new wrapped data in DynamoDB
@@ -153,6 +157,51 @@ def matchData(name: str, tag: str, region: str):
             status_code=500,
             detail=f"An error occurred while processing your request: {error_message}",
         ) from e
+
+
+class ChatbotRequest(BaseModel):
+    stats: dict
+    conversation: list
+
+
+@app.post("/api/chatbot/sendMessage")
+def chatbot_send_message(request: ChatbotRequest):
+    try:
+        stats = request.stats
+        conversation = request.conversation
+
+        # Validate that there's at least one message
+        if len(conversation) == 0:
+            logger.warning("Empty conversation provided")
+            raise HTTPException(status_code=400, detail="Conversation cannot be empty")
+
+        # Call the chatbot function
+        logger.info(f"Processing chatbot request with {len(conversation)} messages")
+        result = get_chatbot_response(stats, conversation)
+
+        if result["success"]:
+            logger.info("Chatbot response generated successfully")
+            return {
+                "success": True,
+                "response": result["response_text"],
+                "conversation": result["conversation"],
+                "token_usage": result["token_usage"],
+            }
+        else:
+            logger.error(f"Chatbot response failed: {result.get('error')}")
+            raise HTTPException(
+                status_code=500,
+                detail=result.get("error", "Unknown error occurred"),
+            )
+
+    except HTTPException:
+        # Re-raise HTTPExceptions
+        raise
+
+    except Exception as e:
+        error_msg = f"Unexpected error in chatbot_sendMessage endpoint: {str(e)}"
+        logger.exception(error_msg)
+        raise HTTPException(status_code=500, detail="Internal server error") from e
 
 
 if __name__ == "__main__":
