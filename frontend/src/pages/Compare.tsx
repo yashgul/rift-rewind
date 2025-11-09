@@ -88,7 +88,7 @@ export default function Compare() {
     const fetchCompareData = async () => {
       try {
         setIsLoading(true);
-        const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:9000";
+        const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:9000";
         
         const params = new URLSearchParams({
           name1,
@@ -100,7 +100,7 @@ export default function Compare() {
           test_mode: testMode.toString(),
         });
 
-        const response = await fetch(`${apiUrl}/api/compareData?${params}`);
+        const response = await fetch(`${backendUrl}/api/compareData?${params}`);
 
         if (!response.ok) {
           const errorData = await response.json();
@@ -158,12 +158,71 @@ export default function Compare() {
   }, [searchParams]);
 
   if (isLoading) {
+    const name1 = searchParams.get("name1") || "Player 1";
+    const tag1 = searchParams.get("tag1") || "";
+    const name2 = searchParams.get("name2") || "Player 2";
+    const tag2 = searchParams.get("tag2") || "";
+    
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0a1428] via-[#0f1c2e] to-[#1a2332]">
-        <div className="text-center space-y-4">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[#c89b3c] mx-auto"></div>
-          <p className="text-xl text-[#c89b3c] font-semibold">Comparing Players...</p>
-          <p className="text-sm text-[#a09b8c]">Analyzing performance data</p>
+      <div className="min-h-screen bg-gradient-to-br from-[#0a1428] via-[#111c32] to-[#1a2336] flex items-center justify-center relative overflow-hidden">
+        {/* Animated background elements */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#c89b3c]/10 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[#c89b3c]/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+        </div>
+
+        {/* Loading content */}
+        <div className="relative z-10 text-center space-y-8 px-4">
+          {/* Hexagon spinner */}
+          <div className="relative w-32 h-32 mx-auto">
+            <div className="absolute inset-0 animate-spin">
+              <svg viewBox="0 0 100 100" className="w-full h-full">
+                <defs>
+                  <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#c89b3c" />
+                    <stop offset="100%" stopColor="#d8ac4d" />
+                  </linearGradient>
+                </defs>
+                <polygon
+                  points="50,5 95,27.5 95,72.5 50,95 5,72.5 5,27.5"
+                  fill="none"
+                  stroke="url(#goldGradient)"
+                  strokeWidth="3"
+                />
+              </svg>
+            </div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-16 h-16 bg-gradient-to-br from-[#c89b3c] to-[#d8ac4d] rounded-full animate-pulse" />
+            </div>
+          </div>
+
+          {/* Loading text */}
+          <div className="space-y-4">
+            <h2 className="text-3xl font-bold bg-gradient-to-r from-[#c89b3c] to-[#d8ac4d] bg-clip-text text-transparent">
+              Comparing Players
+            </h2>
+            <div className="space-y-2">
+              <p className="text-[#a09b8c] animate-pulse" style={{ animationDelay: '0s' }}>
+                Analyzing {name1}#{tag1} vs {name2}#{tag2}...
+              </p>
+              <p className="text-[#a09b8c] animate-pulse" style={{ animationDelay: '0.5s' }}>
+                Comparing playstyle metrics...
+              </p>
+              <p className="text-[#a09b8c] animate-pulse" style={{ animationDelay: '1s' }}>
+                Generating comparison insights...
+              </p>
+            </div>
+          </div>
+
+          {/* Progress bar */}
+          <div className="w-64 mx-auto">
+            <div className="h-1 bg-[#785a28] rounded-full overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-[#c89b3c] to-[#d8ac4d] animate-pulse"
+                style={{ width: '100%' }}
+              />
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -171,16 +230,78 @@ export default function Compare() {
 
   if (error || !compareData) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0a1428] via-[#0f1c2e] to-[#1a2332] p-4">
-        <div className="max-w-md w-full bg-[#0b1426]/90 border-2 border-[#785a28] rounded-lg p-8 text-center space-y-6">
-          <h2 className="text-2xl font-bold text-[#c89b3c]">Error Loading Comparison</h2>
-          <p className="text-[#d1c6ac]">{error || "Failed to load comparison data"}</p>
-          <button
-            onClick={() => navigate("/")}
-            className="px-6 py-3 bg-[#c89b3c] text-[#0a1428] font-semibold rounded-sm hover:bg-[#d8ac4d] transition-colors"
-          >
-            Go Back Home
-          </button>
+      <div className="min-h-screen bg-gradient-to-br from-[#0a1428] via-[#1a1f32] to-[#1e2a3d] flex items-center justify-center relative overflow-hidden">
+        {/* Animated background elements */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-red-500/10 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-red-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+        </div>
+
+        <div className="relative z-10 max-w-2xl space-y-6 px-4 text-center">
+          {/* Error Icon */}
+          <div className="relative w-24 h-24 mx-auto">
+            <div className="absolute inset-0 flex items-center justify-center">
+              <svg viewBox="0 0 100 100" className="w-full h-full">
+                <defs>
+                  <linearGradient id="errorGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#ef4444" />
+                    <stop offset="100%" stopColor="#dc2626" />
+                  </linearGradient>
+                </defs>
+                <polygon
+                  points="50,5 95,27.5 95,72.5 50,95 5,72.5 5,27.5"
+                  fill="none"
+                  stroke="url(#errorGradient)"
+                  strokeWidth="3"
+                />
+                <line x1="35" y1="35" x2="65" y2="65" stroke="url(#errorGradient)" strokeWidth="4" strokeLinecap="round" />
+                <line x1="65" y1="35" x2="35" y2="65" stroke="url(#errorGradient)" strokeWidth="4" strokeLinecap="round" />
+              </svg>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <h2 className="text-3xl font-bold text-[#c89b3c] sm:text-4xl">
+              Unable to Load Comparison
+            </h2>
+            <div className="rounded-sm border border-red-500/30 bg-red-500/10 p-4">
+              <p className="text-base text-red-400 sm:text-lg">
+                {error || "Failed to load comparison data. Please try again."}
+              </p>
+            </div>
+            <p className="text-sm text-[#a09b8c]">
+              This could be due to:
+            </p>
+            <ul className="text-left text-sm text-[#d1c6ac] space-y-2 max-w-md mx-auto">
+              <li className="flex items-start gap-2">
+                <span className="text-[#c89b3c] mt-1">•</span>
+                <span>Invalid summoner names or tags</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-[#c89b3c] mt-1">•</span>
+                <span>Region mismatch or API unavailability</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-[#c89b3c] mt-1">•</span>
+                <span>Insufficient match history data for one or both players</span>
+              </li>
+            </ul>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-3 justify-center pt-4">
+            <button
+              onClick={() => window.location.reload()}
+              className="rounded-sm border-2 border-[#785a28] bg-transparent px-6 py-3 font-semibold text-[#c89b3c] transition-all hover:bg-[#785a28]/20 hover:border-[#c89b3c]"
+            >
+              Try Again
+            </button>
+            <button
+              onClick={() => navigate("/")}
+              className="rounded-sm border-2 border-[#c89b3c] bg-[#c89b3c] px-6 py-3 font-semibold text-[#0a1428] transition-all hover:bg-[#d8ac4d] hover:border-[#d8ac4d]"
+            >
+              Go Back Home
+            </button>
+          </div>
         </div>
       </div>
     );
