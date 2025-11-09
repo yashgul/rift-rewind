@@ -357,9 +357,16 @@ export default function Recap() {
     });
   }, [currentSlide]);
 
+  // Reset timeline to first card when navigating to timeline slide
+  useEffect(() => {
+    if (currentSlide === 4) { // Timeline is at index 4 in slides array
+      setActiveMatchIndex(0); // Always start with the first match (January)
+    }
+  }, [currentSlide]);
+
   // Keyboard navigation for timeline carousel
   useEffect(() => {
-    if (currentSlide !== 3) return;
+    if (currentSlide !== 4) return; // Timeline is at index 4
 
     const handleKeyPress = (e: KeyboardEvent) => {
       if (!recapData) return;
@@ -574,13 +581,13 @@ export default function Recap() {
 
   const mainChampion = championsData.main;
 
-  // Timeline data - sort by date (most recent first based on ID)
+  // Timeline data - sort by date (oldest first, starting from January)
   const timelineMatches = (recapData.message.timeline || []).length > 0 
     ? [...recapData.message.timeline].sort((a, b) => {
-        // Extract numeric part from ID (e.g., "KR_7858151244" -> 7858151244)
-        const aNum = parseInt(a.id.split('_')[1] || '0');
-        const bNum = parseInt(b.id.split('_')[1] || '0');
-        return bNum - aNum; // Descending order (most recent first)
+        // Sort by date field (ascending order - oldest first)
+        const aDate = a.date || 0;
+        const bDate = b.date || 0;
+        return aDate - bDate; // Ascending order (January first)
       })
     : [];
 
@@ -913,7 +920,7 @@ export default function Recap() {
   const timelineSlide: ReactNode = (
     <div className="relative h-full w-full overflow-hidden">
       {/* Header - Compact at top */}
-      <div className="absolute left-0 right-0 top-6 z-20 text-center sm:top-8">
+      <div className="absolute left-0 right-0 top-4 z-20 text-center sm:top-6">
         <h2 className="text-xl font-bold uppercase tracking-[0.2em] text-[#c89b3c] sm:text-2xl">
           Your Greatest Moments
         </h2>
@@ -936,321 +943,385 @@ export default function Recap() {
         </div>
       ) : (
         <>
-          {/* Carousel Container - Perfect Center of viewport */}
-          <div className="absolute left-0 top-0 flex h-full w-full items-center justify-center" style={{ perspective: "2000px" }}>
-            <div className="relative">
-              {timelineMatches.map((match, index) => {
-            const championImage = getChampionImage(match.champ);
-            
-            // Calculate position relative to active card
-            let position = index - activeMatchIndex;
-            
-            // Wrap around for seamless loop
-            if (position > timelineMatches.length / 2) {
-              position -= timelineMatches.length;
-            } else if (position < -timelineMatches.length / 2) {
-              position += timelineMatches.length;
-            }
-
-            const isActive = position === 0;
-            const isVisible = Math.abs(position) <= 2;
-            
-            // Calculate transformations - center the card first, then offset
-            const translateX = position * 350;
-            const scale = isActive ? 1 : Math.max(0.7, 1 - Math.abs(position) * 0.15);
-            const opacity = isActive ? 1 : Math.max(0.4, 1 - Math.abs(position) * 0.25);
-            const rotateY = position * 20;
-            const zIndex = isActive ? 50 : 40 - Math.abs(position);
-            
-            return (
-              <div
-                key={match.id}
-                onClick={() => setActiveMatchIndex(index)}
-                className={`absolute left-1/2 top-1/2 h-[500px] w-[340px] cursor-pointer overflow-hidden rounded-lg transition-all duration-500 ease-out sm:h-[540px] sm:w-[360px] ${
-                  match.win 
-                    ? 'border-2 border-[#4caf50]/50 bg-[#0b1426]/95 shadow-2xl' 
-                    : 'border-2 border-[#f44336]/50 bg-[#1a0b0e]/95 shadow-2xl'
-                } ${isActive ? 'hover:border-[#c89b3c]' : ''}`}
-                style={{
-                  transform: `translate(-50%, -50%) translateX(${translateX}px) scale(${scale}) rotateY(${rotateY}deg)`,
-                  opacity: isVisible ? opacity : 0,
-                  zIndex,
-                  pointerEvents: isVisible ? 'auto' : 'none',
-                }}
-              >
-                {/* Win/Loss Badge */}
-                <div className="absolute right-3 top-3 z-10">
-                  <div
-                    className={`rounded-sm px-2 py-1 text-xs font-bold uppercase ${
-                      match.win
-                        ? 'border border-[#4caf50]/40 bg-[#4caf50]/20 text-[#4caf50]'
-                        : 'border border-[#f44336]/40 bg-[#f44336]/20 text-[#f44336]'
-                    }`}
-                  >
-                    {match.win ? 'Victory' : 'Defeat'}
-                  </div>
-                </div>
-
-                {/* Champion Image */}
-                <div className="relative h-[300px] overflow-hidden bg-[#050b16] sm:h-[330px]">
-                  {championImage ? (
-                    <img
-                      src={championImage}
-                      alt={match.champ}
-                      className="h-full w-full object-cover object-center"
-                      draggable="false"
-                    />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#1a2336] to-[#0a1428]">
-                      <span className="text-6xl font-bold text-[#c89b3c] sm:text-7xl">
-                        {match.champ.charAt(0)}
-                      </span>
-                    </div>
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0a1428] via-transparent to-transparent opacity-60" />
-                  
-                  {/* Champion Name */}
-                  <div className="absolute bottom-3 left-3 right-3">
-                    <p className="text-xl font-bold text-white drop-shadow-lg sm:text-2xl">
-                      {match.champ}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Match Details */}
-                <div className="relative flex flex-col gap-2 border-t border-[#785a28]/30 bg-[#0a1428]/60 p-4">
-                  {/* Default View - Key Stats */}
-                  <div className="space-y-2">
-                    {/* KDA */}
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs uppercase tracking-[0.2em] text-[#a09b8c]">KDA</span>
-                      <span className="text-2xl font-bold text-[#c89b3c]">{match.kda.toFixed(2)}</span>
-                    </div>
-
-                    {/* K/D/A Breakdown - if available */}
-                    {match.kills !== undefined && match.deaths !== undefined && match.assists !== undefined && (
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs uppercase tracking-[0.2em] text-[#a09b8c]">Score</span>
-                        <span className="text-sm font-semibold text-white">{match.kills}/{match.deaths}/{match.assists}</span>
+          {/* Vertical Timeline Container */}
+          <div className="absolute left-0 top-0 flex h-full w-full items-center justify-center">
+            <div className="flex h-full w-full max-w-[1600px] items-center justify-center gap-8 px-4">
+              
+              {/* Left Stats Panel */}
+              <div className="hidden lg:block w-[320px] shrink-0">
+                {timelineMatches[activeMatchIndex] && (
+                  <div className="space-y-4">
+                    {/* Combat Stats Card */}
+                    <div className="rounded-lg border border-[#785a28]/40 bg-[#0b1426]/80 p-6">
+                      <div className="mb-6">
+                        <p className="text-xs font-medium uppercase tracking-wider text-[#a09b8c] mb-1">Combat Performance</p>
+                        <div className="h-px bg-[#785a28]/30 mt-2"></div>
                       </div>
-                    )}
-
-                    {/* Description */}
-                    <p className="line-clamp-2 text-xs leading-relaxed text-[#d1c6ac] border-t border-[#785a28]/20 pt-2">
-                      {match.description}
-                    </p>
-                    
-                    {/* Hover indicator */}
-                    <p className="text-[10px] text-center text-[#a09b8c]/60 uppercase tracking-wider pt-1">
-                      Hover for details
-                    </p>
-                  </div>
-
-                  {/* Hover Overlay - Detailed Stats */}
-                  <div className="absolute inset-0 bg-[#0a1428]/98 backdrop-blur-sm opacity-0 hover:opacity-100 transition-opacity duration-300 overflow-y-auto p-4 border-t border-[#785a28]/30">
-                    <div className="space-y-3">
-                      {/* Match ID */}
-                      <div className="pb-2 border-b border-[#785a28]/30">
-                        <p className="text-[10px] uppercase tracking-wider text-[#a09b8c]">Match ID</p>
-                        <p className="text-xs font-mono text-[#c89b3c] break-all">{match.id}</p>
-                      </div>
-
-                      {/* Combat Stats */}
-                      <div>
-                        <p className="text-xs uppercase tracking-wider text-[#c89b3c] mb-2">Combat</p>
-                        <div className="space-y-1.5 text-xs">
-                          {match.kills !== undefined && match.kills > 0 && (
-                            <div className="flex justify-between">
-                              <span className="text-[#a09b8c]">Kills</span>
-                              <span className="text-white font-semibold">{match.kills}</span>
-                            </div>
-                          )}
-                          {match.deaths !== undefined && (
-                            <div className="flex justify-between">
-                              <span className="text-[#a09b8c]">Deaths</span>
-                              <span className="text-white font-semibold">{match.deaths}</span>
-                            </div>
-                          )}
-                          {match.assists !== undefined && match.assists > 0 && (
-                            <div className="flex justify-between">
-                              <span className="text-[#a09b8c]">Assists</span>
-                              <span className="text-white font-semibold">{match.assists}</span>
-                            </div>
-                          )}
-                          {match.killParticipation !== undefined && match.killParticipation > 0 && (
-                            <div className="flex justify-between">
-                              <span className="text-[#a09b8c]">Kill Participation</span>
-                              <span className="text-white font-semibold">{(match.killParticipation * 100).toFixed(1)}%</span>
-                            </div>
-                          )}
+                      
+                      <div className="space-y-6">
+                        {/* KDA - Hero stat */}
+                        <div className="text-center">
+                          <p className="text-xs uppercase tracking-wider text-[#a09b8c]/70 mb-3">KDA</p>
+                          <p className="text-6xl font-bold text-[#c89b3c] tabular-nums">
+                            {timelineMatches[activeMatchIndex].kda.toFixed(2)}
+                          </p>
                         </div>
-                      </div>
 
-                      {/* Multi-kills */}
-                      {(match.pentaKills || match.quadraKills || match.tripleKills || match.doubleKills) && (
-                        <div>
-                          <p className="text-xs uppercase tracking-wider text-[#c89b3c] mb-2">Multi-Kills</p>
-                          <div className="space-y-1.5 text-xs">
-                            {match.pentaKills !== undefined && match.pentaKills > 0 && (
-                              <div className="flex justify-between">
-                                <span className="text-[#a09b8c]">🔥 Penta Kills</span>
-                                <span className="text-[#ff4444] font-bold">{match.pentaKills}</span>
-                              </div>
-                            )}
-                            {match.quadraKills !== undefined && match.quadraKills > 0 && (
-                              <div className="flex justify-between">
-                                <span className="text-[#a09b8c]">Quadra Kills</span>
-                                <span className="text-[#ff8844] font-semibold">{match.quadraKills}</span>
-                              </div>
-                            )}
-                            {match.tripleKills !== undefined && match.tripleKills > 0 && (
-                              <div className="flex justify-between">
-                                <span className="text-[#a09b8c]">Triple Kills</span>
-                                <span className="text-white font-semibold">{match.tripleKills}</span>
-                              </div>
-                            )}
-                            {match.doubleKills !== undefined && match.doubleKills > 0 && (
-                              <div className="flex justify-between">
-                                <span className="text-[#a09b8c]">Double Kills</span>
-                                <span className="text-white font-semibold">{match.doubleKills}</span>
-                              </div>
-                            )}
+                        {/* K/D/A Breakdown */}
+                        <div className="grid grid-cols-3 gap-4 pt-4 border-t border-[#785a28]/20">
+                          <div className="text-center">
+                            <p className="text-xs text-[#a09b8c]/70 mb-2">K</p>
+                            <p className="text-2xl font-semibold text-[#4caf50] tabular-nums">{timelineMatches[activeMatchIndex].kills || 0}</p>
+                          </div>
+                          <div className="text-center">
+                            <p className="text-xs text-[#a09b8c]/70 mb-2">D</p>
+                            <p className="text-2xl font-semibold text-[#f44336] tabular-nums">{timelineMatches[activeMatchIndex].deaths || 0}</p>
+                          </div>
+                          <div className="text-center">
+                            <p className="text-xs text-[#a09b8c]/70 mb-2">A</p>
+                            <p className="text-2xl font-semibold text-[#2196f3] tabular-nums">{timelineMatches[activeMatchIndex].assists || 0}</p>
                           </div>
                         </div>
-                      )}
 
-                      {/* Performance */}
-                      <div>
-                        <p className="text-xs uppercase tracking-wider text-[#c89b3c] mb-2">Performance</p>
-                        <div className="space-y-1.5 text-xs">
-                          {match.totalDamageDealtToChampions !== undefined && match.totalDamageDealtToChampions > 0 && (
-                            <div className="flex justify-between">
-                              <span className="text-[#a09b8c]">Damage to Champions</span>
-                              <span className="text-white font-semibold">{match.totalDamageDealtToChampions.toLocaleString()}</span>
+                        {/* Kill Participation */}
+                        {timelineMatches[activeMatchIndex].killParticipation !== undefined && (
+                          <div className="pt-4 border-t border-[#785a28]/20">
+                            <div className="flex items-center justify-between mb-3">
+                              <span className="text-xs text-[#a09b8c]/70">Kill Participation</span>
+                              <span className="text-lg font-semibold text-white tabular-nums">
+                                {(timelineMatches[activeMatchIndex].killParticipation * 100).toFixed(0)}%
+                              </span>
+                            </div>
+                            <div className="w-full bg-[#273241]/50 rounded-full h-1.5 overflow-hidden">
+                              <div 
+                                className="bg-[#c89b3c] h-full transition-all duration-500"
+                                style={{ width: `${(timelineMatches[activeMatchIndex].killParticipation * 100).toFixed(1)}%` }}
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Multi-kills Card */}
+                    {(timelineMatches[activeMatchIndex].pentaKills || 
+                      timelineMatches[activeMatchIndex].quadraKills || 
+                      timelineMatches[activeMatchIndex].tripleKills || 
+                      timelineMatches[activeMatchIndex].doubleKills) && (
+                      <div className="rounded-lg border border-[#785a28]/40 bg-[#0b1426]/80 p-6">
+                        <div className="mb-4">
+                          <p className="text-xs font-medium uppercase tracking-wider text-[#a09b8c] mb-1">Multi-Kills</p>
+                          <div className="h-px bg-[#785a28]/30 mt-2"></div>
+                        </div>
+                        <div className="space-y-3">
+                          {timelineMatches[activeMatchIndex].pentaKills !== undefined && timelineMatches[activeMatchIndex].pentaKills! > 0 && (
+                            <div className="flex items-center justify-between py-2">
+                              <span className="text-sm text-[#d1c6ac]">Pentakill</span>
+                              <span className="text-xl font-semibold text-[#ff4444] tabular-nums">{timelineMatches[activeMatchIndex].pentaKills}</span>
                             </div>
                           )}
-                          {match.goldEarned !== undefined && match.goldEarned > 0 && (
-                            <div className="flex justify-between">
-                              <span className="text-[#a09b8c]">Gold Earned</span>
-                              <span className="text-white font-semibold">{match.goldEarned.toLocaleString()}</span>
+                          {timelineMatches[activeMatchIndex].quadraKills !== undefined && timelineMatches[activeMatchIndex].quadraKills! > 0 && (
+                            <div className="flex items-center justify-between py-2">
+                              <span className="text-sm text-[#d1c6ac]">Quadrakill</span>
+                              <span className="text-xl font-semibold text-[#ff8844] tabular-nums">{timelineMatches[activeMatchIndex].quadraKills}</span>
                             </div>
                           )}
-                          {match.visionScore !== undefined && match.visionScore > 0 && (
-                            <div className="flex justify-between">
-                              <span className="text-[#a09b8c]">Vision Score</span>
-                              <span className="text-white font-semibold">{match.visionScore}</span>
+                          {timelineMatches[activeMatchIndex].tripleKills !== undefined && timelineMatches[activeMatchIndex].tripleKills! > 0 && (
+                            <div className="flex items-center justify-between py-2">
+                              <span className="text-sm text-[#d1c6ac]">Triple Kill</span>
+                              <span className="text-xl font-semibold text-[#ffc107] tabular-nums">{timelineMatches[activeMatchIndex].tripleKills}</span>
+                            </div>
+                          )}
+                          {timelineMatches[activeMatchIndex].doubleKills !== undefined && timelineMatches[activeMatchIndex].doubleKills! > 0 && (
+                            <div className="flex items-center justify-between py-2">
+                              <span className="text-sm text-[#d1c6ac]">Double Kill</span>
+                              <span className="text-xl font-semibold text-white tabular-nums">{timelineMatches[activeMatchIndex].doubleKills}</span>
                             </div>
                           )}
                         </div>
                       </div>
+                    )}
+                  </div>
+                )}
+              </div>
 
-                      {/* Match Info */}
-                      <div>
-                        <p className="text-xs uppercase tracking-wider text-[#c89b3c] mb-2">Match Info</p>
-                        <div className="space-y-1.5 text-xs">
-                          {match.date && (
-                            <div className="flex justify-between">
-                              <span className="text-[#a09b8c]">Date</span>
-                              <span className="text-white font-semibold">
-                                {new Date(match.date).toLocaleDateString('en-US', { 
+              {/* Center: Vertical Carousel */}
+              <div className="relative flex h-full items-center justify-center flex-1">
+                <div className="relative h-full w-full max-w-[520px]">
+                  {timelineMatches.map((match, index) => {
+                    const championImage = getChampionImage(match.champ);
+                    
+                    // Calculate position relative to active card
+                    let position = index - activeMatchIndex;
+                    
+                    // Wrap around for seamless loop
+                    if (position > timelineMatches.length / 2) {
+                      position -= timelineMatches.length;
+                    } else if (position < -timelineMatches.length / 2) {
+                      position += timelineMatches.length;
+                    }
+
+                    const isActive = position === 0;
+                    const isVisible = Math.abs(position) <= 1; // Show only 1 card above/below
+                    
+                    // Calculate vertical transformations - bigger spacing
+                    const translateY = position * 280;
+                    const scale = isActive ? 1 : Math.max(0.7, 1 - Math.abs(position) * 0.2);
+                    const opacity = isActive ? 1 : Math.max(0.15, 1 - Math.abs(position) * 0.5);
+                    const zIndex = isActive ? 50 : 40 - Math.abs(position);
+                    
+                    return (
+                      <div
+                        key={match.id}
+                        onClick={() => setActiveMatchIndex(index)}
+                        className={`absolute left-1/2 top-1/2 w-full cursor-pointer overflow-hidden rounded-xl transition-all duration-700 ease-out shadow-2xl ${
+                          match.win 
+                            ? 'border-4 border-[#4caf50]/60 bg-gradient-to-br from-[#0b1426]/98 to-[#0a1020]/98' 
+                            : 'border-4 border-[#f44336]/60 bg-gradient-to-br from-[#1a0b0e]/98 to-[#0a1020]/98'
+                        } ${isActive ? 'hover:border-[#c89b3c]' : ''}`}
+                        style={{
+                          transform: `translate(-50%, -50%) translateY(${translateY}px) scale(${scale})`,
+                          opacity: isVisible ? opacity : 0,
+                          zIndex,
+                          pointerEvents: isVisible ? 'auto' : 'none',
+                        }}
+                      >
+                        {/* Date Label - Timeline Style */}
+                        <div className="absolute -left-3 top-6 z-10">
+                          <div className="flex items-center gap-2">
+                            <div className="rounded-lg bg-gradient-to-r from-[#c89b3c] to-[#d8ac4d] px-4 py-2 shadow-xl">
+                              <p className="text-sm font-bold text-[#0a1428] whitespace-nowrap">
+                                {match.date && new Date(match.date).toLocaleDateString('en-US', { 
                                   month: 'short', 
                                   day: 'numeric',
-                                  year: 'numeric',
-                                  hour: '2-digit',
-                                  minute: '2-digit'
+                                  year: 'numeric'
                                 })}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Win/Loss Badge */}
+                        <div className="absolute right-4 top-4 z-10">
+                          <div
+                            className={`rounded-lg px-4 py-2 text-sm font-bold uppercase shadow-lg ${
+                              match.win
+                                ? 'border-2 border-[#4caf50] bg-[#4caf50]/30 text-[#4caf50] backdrop-blur-sm'
+                                : 'border-2 border-[#f44336] bg-[#f44336]/30 text-[#f44336] backdrop-blur-sm'
+                            }`}
+                          >
+                            {match.win ? '✓ Victory' : '✗ Defeat'}
+                          </div>
+                        </div>
+
+                        {/* Champion Image */}
+                        <div className="relative h-[420px] overflow-hidden bg-[#050b16]">
+                          {championImage ? (
+                            <img
+                              src={championImage}
+                              alt={match.champ}
+                              className="h-full w-full object-cover object-center"
+                              draggable="false"
+                            />
+                          ) : (
+                            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#1a2336] to-[#0a1428]">
+                              <span className="text-8xl font-bold text-[#c89b3c]">
+                                {match.champ.charAt(0)}
                               </span>
                             </div>
                           )}
-                          {match.gameDuration !== undefined && match.gameDuration > 0 && (
-                            <div className="flex justify-between">
-                              <span className="text-[#a09b8c]">Duration</span>
-                              <span className="text-white font-semibold">
-                                {Math.floor(match.gameDuration / 60)}m {match.gameDuration % 60}s
-                              </span>
+                          <div className="absolute inset-0 bg-gradient-to-t from-[#0a1428] via-transparent to-transparent opacity-70" />
+                          
+                          {/* Champion Name & Position */}
+                          <div className="absolute bottom-4 left-4 right-4">
+                            <div className="flex items-end justify-between">
+                              <div>
+                                <p className="text-4xl font-bold text-white drop-shadow-2xl mb-2">
+                                  {match.champ}
+                                </p>
+                                {match.teamPosition && (
+                                  <div className="inline-block bg-[#c89b3c] px-3 py-1 rounded-md">
+                                    <p className="text-xs font-bold uppercase tracking-wider text-[#0a1428]">
+                                      {match.teamPosition}
+                                    </p>
+                                  </div>
+                                )}
+                              </div>
                             </div>
-                          )}
-                          {match.gameMode && (
-                            <div className="flex justify-between">
-                              <span className="text-[#a09b8c]">Game Mode</span>
-                              <span className="text-white font-semibold">{match.gameMode}</span>
-                            </div>
-                          )}
-                          {match.teamPosition && (
-                            <div className="flex justify-between">
-                              <span className="text-[#a09b8c]">Position</span>
-                              <span className="text-white font-semibold">{match.teamPosition}</span>
-                            </div>
-                          )}
+                          </div>
+                        </div>
+
+                        {/* Match Summary */}
+                        <div className="border-t-2 border-[#785a28]/40 bg-[#0a1428]/80 backdrop-blur-sm p-5">
+                          <p className="text-base leading-relaxed text-[#d1c6ac] line-clamp-3">
+                            {match.description}
+                          </p>
                         </div>
                       </div>
+                    );
+                  })}
+                </div>
+              </div>
 
-                      {/* Description */}
-                      <div className="border-t border-[#785a28]/30 pt-2">
-                        <p className="text-xs uppercase tracking-wider text-[#c89b3c] mb-2">Story</p>
-                        <p className="text-xs leading-relaxed text-[#d1c6ac]">
-                          {match.description}
-                        </p>
+              {/* Right Stats Panel */}
+              <div className="hidden lg:block w-[320px] shrink-0">
+                {timelineMatches[activeMatchIndex] && (
+                  <div className="space-y-4">
+                    {/* Performance Card */}
+                    <div className="rounded-lg border border-[#785a28]/40 bg-[#0b1426]/80 p-6">
+                      <div className="mb-6">
+                        <p className="text-xs font-medium uppercase tracking-wider text-[#a09b8c] mb-1">Performance</p>
+                        <div className="h-px bg-[#785a28]/30 mt-2"></div>
+                      </div>
+                      
+                      <div className="space-y-5">
+                        {/* Damage */}
+                        {timelineMatches[activeMatchIndex].totalDamageDealtToChampions !== undefined && (
+                          <div>
+                            <div className="flex items-baseline justify-between mb-1">
+                              <span className="text-xs text-[#a09b8c]/70">Damage</span>
+                              <div className="text-right">
+                                <span className="text-2xl font-semibold text-[#f44336] tabular-nums">
+                                  {(timelineMatches[activeMatchIndex].totalDamageDealtToChampions! / 1000).toFixed(1)}K
+                                </span>
+                              </div>
+                            </div>
+                            <p className="text-[10px] text-[#a09b8c]/50 text-right tabular-nums">
+                              {timelineMatches[activeMatchIndex].totalDamageDealtToChampions?.toLocaleString()}
+                            </p>
+                          </div>
+                        )}
+
+                        {/* Gold */}
+                        {timelineMatches[activeMatchIndex].goldEarned !== undefined && (
+                          <div>
+                            <div className="flex items-baseline justify-between mb-1">
+                              <span className="text-xs text-[#a09b8c]/70">Gold</span>
+                              <div className="text-right">
+                                <span className="text-2xl font-semibold text-[#c89b3c] tabular-nums">
+                                  {(timelineMatches[activeMatchIndex].goldEarned! / 1000).toFixed(1)}K
+                                </span>
+                              </div>
+                            </div>
+                            <p className="text-[10px] text-[#a09b8c]/50 text-right tabular-nums">
+                              {timelineMatches[activeMatchIndex].goldEarned?.toLocaleString()}
+                            </p>
+                          </div>
+                        )}
+
+                        {/* Vision */}
+                        {timelineMatches[activeMatchIndex].visionScore !== undefined && (
+                          <div className="flex items-baseline justify-between pt-4 border-t border-[#785a28]/20">
+                            <span className="text-xs text-[#a09b8c]/70">Vision Score</span>
+                            <span className="text-2xl font-semibold text-[#2196f3] tabular-nums">
+                              {timelineMatches[activeMatchIndex].visionScore}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Match Info Card */}
+                    <div className="rounded-lg border border-[#785a28]/40 bg-[#0b1426]/80 p-6">
+                      <div className="mb-6">
+                        <p className="text-xs font-medium uppercase tracking-wider text-[#a09b8c] mb-1">Match Info</p>
+                        <div className="h-px bg-[#785a28]/30 mt-2"></div>
+                      </div>
+                      
+                      <div className="space-y-4">
+                        {/* Duration */}
+                        {timelineMatches[activeMatchIndex].gameDuration !== undefined && (
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs text-[#a09b8c]/70">Duration</span>
+                            <span className="text-base font-semibold text-white tabular-nums">
+                              {Math.floor(timelineMatches[activeMatchIndex].gameDuration! / 60)}m {timelineMatches[activeMatchIndex].gameDuration! % 60}s
+                            </span>
+                          </div>
+                        )}
+
+                        {/* Game Mode */}
+                        {timelineMatches[activeMatchIndex].gameMode && (
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs text-[#a09b8c]/70">Mode</span>
+                            <span className="text-sm font-medium text-white">
+                              {timelineMatches[activeMatchIndex].gameMode}
+                            </span>
+                          </div>
+                        )}
+
+                        {/* Time */}
+                        {timelineMatches[activeMatchIndex].date && (
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs text-[#a09b8c]/70">Time</span>
+                            <span className="text-sm font-medium text-white tabular-nums">
+                              {new Date(timelineMatches[activeMatchIndex].date!).toLocaleTimeString('en-US', { 
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })}
+                            </span>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
-                </div>
+                )}
               </div>
-            );
-              })}
             </div>
           </div>
 
-          {/* Navigation Arrows */}
-          <div className="absolute left-0 top-1/2 z-[60] flex w-full -translate-y-1/2 items-center justify-between px-4 sm:px-8">
-        <button
-          type="button"
-          onClick={() => setActiveMatchIndex((prev) => (prev - 1 + timelineMatches.length) % timelineMatches.length)}
-          className="rounded-full border-2 border-[#785a28] bg-[#0a1428]/90 p-3 backdrop-blur-sm transition-all hover:border-[#c89b3c] hover:bg-[#1b2a3a] hover:scale-110"
-          aria-label="Previous match"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="#c89b3c"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="h-6 w-6"
-          >
-            <polyline points="15 18 9 12 15 6" />
-          </svg>
-        </button>
-        <button
-          type="button"
-          onClick={() => setActiveMatchIndex((prev) => (prev + 1) % timelineMatches.length)}
-          className="rounded-full border-2 border-[#785a28] bg-[#0a1428]/90 p-3 backdrop-blur-sm transition-all hover:border-[#c89b3c] hover:bg-[#1b2a3a] hover:scale-110"
-          aria-label="Next match"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="#c89b3c"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="h-6 w-6"
-          >
-            <polyline points="9 18 15 12 9 6" />
-          </svg>
-        </button>
-      </div>
+          {/* Navigation Arrows - Vertical */}
+          <div className="absolute left-1/2 top-0 z-[60] flex h-full -translate-x-1/2 flex-col items-center justify-between py-8">
+            <button
+              type="button"
+              onClick={() => setActiveMatchIndex((prev) => (prev - 1 + timelineMatches.length) % timelineMatches.length)}
+              className="rounded-full border-2 border-[#785a28] bg-[#0a1428]/90 p-3 backdrop-blur-sm transition-all hover:border-[#c89b3c] hover:bg-[#1b2a3a] hover:scale-110"
+              aria-label="Previous match"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#c89b3c"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="h-6 w-6"
+              >
+                <polyline points="18 15 12 9 6 15" />
+              </svg>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveMatchIndex((prev) => (prev + 1) % timelineMatches.length)}
+              className="rounded-full border-2 border-[#785a28] bg-[#0a1428]/90 p-3 backdrop-blur-sm transition-all hover:border-[#c89b3c] hover:bg-[#1b2a3a] hover:scale-110"
+              aria-label="Next match"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#c89b3c"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="h-6 w-6"
+              >
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            </button>
+          </div>
 
-          {/* Progress Indicators */}
-          <div className="absolute bottom-8 left-1/2 z-20 flex -translate-x-1/2 gap-2 sm:bottom-12">
+          {/* Progress Indicators - Vertical Timeline */}
+          <div className="absolute left-8 top-1/2 z-20 flex -translate-y-1/2 flex-col gap-3">
+            <div className="w-px bg-[#785a28]/50 h-full absolute left-1/2 -translate-x-1/2 -z-10" />
             {timelineMatches.slice(0, 10).map((_, index) => (
               <button
                 key={index}
                 onClick={() => setActiveMatchIndex(index)}
-                className={`h-2 rounded-full transition-all ${
-                  index === activeMatchIndex ? 'w-8 bg-[#c89b3c]' : 'w-2 bg-[#2c3542] hover:bg-[#3a4658]'
+                className={`rounded-full transition-all ${
+                  index === activeMatchIndex 
+                    ? 'h-3 w-3 bg-[#c89b3c] ring-4 ring-[#c89b3c]/30' 
+                    : 'h-2 w-2 bg-[#2c3542] hover:bg-[#3a4658]'
                 }`}
               />
             ))}
