@@ -462,16 +462,12 @@ PLAYER_WRAPPED_SCHEMA = {
                                         "type": "string",
                                         "description": "Name of the active pro player (e.g., Faker, Chovy, Gumayusi, etc.)",
                                     },
-                                    "team": {
-                                        "type": "string",
-                                        "description": "Current team of the pro player (e.g., T1, Gen.G, etc.)",
-                                    },
                                     "reasoning": {
                                         "type": "string",
                                         "description": "2-3 lines explaining why this player resembles the pro, referencing specific playstyle traits, champion pool, or statistics",
                                     },
                                 },
-                                "required": ["playerName", "team", "reasoning"],
+                                "required": ["playerName", "reasoning"],
                             },
                             "roasts": {
                                 "type": "array",

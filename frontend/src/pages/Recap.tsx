@@ -69,7 +69,6 @@ interface RecapData {
         funFacts: string[];
         proPlayerComparison: {
           playerName: string;
-          team: string;
           reasoning: string;
         };
         roasts: Array<{
@@ -1494,7 +1493,6 @@ export default function Recap() {
         {/* Pro Player Comparison */}
         <ProPlayerCard
           playerName={proPlayerComparison.playerName}
-          team={proPlayerComparison.team}
           reasoning={proPlayerComparison.reasoning}
         />
 

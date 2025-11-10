@@ -3,11 +3,10 @@ import { Trophy } from "lucide-react";
 
 interface ProPlayerCardProps {
   playerName: string;
-  team: string;
   reasoning: string;
 }
 
-export const ProPlayerCard = ({ playerName, team, reasoning }: ProPlayerCardProps) => {
+export const ProPlayerCard = ({ playerName, reasoning }: ProPlayerCardProps) => {
   return (
     <Card className="relative overflow-hidden bg-gradient-to-br from-card/95 via-card/90 to-card/95 backdrop-blur-xl border-lol-gold/40 hover:border-lol-gold/60 transition-all duration-500 group">
       {/* Animated background gradient - Reference for hover effect used throughout Recap.tsx */}
@@ -29,9 +28,6 @@ export const ProPlayerCard = ({ playerName, team, reasoning }: ProPlayerCardProp
             <h3 className="text-xl sm:text-2xl lg:text-3xl font-bebas tracking-wide text-foreground group-hover:text-lol-gold transition-colors duration-300">
               {playerName}
             </h3>
-            <p className="text-xs sm:text-sm lg:text-base font-rajdhani text-muted-foreground">
-              {team}
-            </p>
           </div>
           
           {/* Decorative icon */}
