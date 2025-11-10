@@ -12,6 +12,14 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
+// Suggested players list
+const SUGGESTED_PLAYERS = [
+  { riotId: "Hide on bush#KR1", region: "asia" },
+  { riotId: "Keria#4111", region: "asia" },
+  { riotId: "LR Nemesis #LRAT", region: "europe" },
+  { riotId: "Thebausffs#COOL", region: "europe" },
+];
+
 
 const Index = () => {
   const [mode, setMode] = useState<"solo" | "compare">("solo");
@@ -28,6 +36,79 @@ const Index = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const intervalRef = useRef(null);
+
+  // Autocomplete states
+  const [showSuggestionsSolo, setShowSuggestionsSolo] = useState(false);
+  const [showSuggestions1, setShowSuggestions1] = useState(false);
+  const [showSuggestions2, setShowSuggestions2] = useState(false);
+  const inputRefSolo = useRef<HTMLDivElement>(null);
+  const inputRef1 = useRef<HTMLDivElement>(null);
+  const inputRef2 = useRef<HTMLDivElement>(null);
+  const suggestionsRefSolo = useRef<HTMLDivElement>(null);
+  const suggestionsRef1 = useRef<HTMLDivElement>(null);
+  const suggestionsRef2 = useRef<HTMLDivElement>(null);
+
+  // Filter suggestions based on input
+  const getFilteredSuggestions = (input: string) => {
+    if (!input.trim()) return SUGGESTED_PLAYERS;
+    const lowerInput = input.toLowerCase();
+    return SUGGESTED_PLAYERS.filter(
+      (player) => player.riotId.toLowerCase().includes(lowerInput)
+    );
+  };
+
+  // Handle suggestion selection
+  const handleSuggestionSelect = (
+    player: { riotId: string; region: string },
+    inputType: "solo" | "player1" | "player2"
+  ) => {
+    if (inputType === "solo") {
+      setRiotId(player.riotId);
+      setRegion(player.region);
+      setShowSuggestionsSolo(false);
+    } else if (inputType === "player1") {
+      setRiotId1(player.riotId);
+      setRegion1(player.region);
+      setShowSuggestions1(false);
+    } else {
+      setRiotId2(player.riotId);
+      setRegion2(player.region);
+      setShowSuggestions2(false);
+    }
+  };
+
+  // Close suggestions when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        inputRefSolo.current &&
+        !inputRefSolo.current.contains(event.target as Node) &&
+        suggestionsRefSolo.current &&
+        !suggestionsRefSolo.current.contains(event.target as Node)
+      ) {
+        setShowSuggestionsSolo(false);
+      }
+      if (
+        inputRef1.current &&
+        !inputRef1.current.contains(event.target as Node) &&
+        suggestionsRef1.current &&
+        !suggestionsRef1.current.contains(event.target as Node)
+      ) {
+        setShowSuggestions1(false);
+      }
+      if (
+        inputRef2.current &&
+        !inputRef2.current.contains(event.target as Node) &&
+        suggestionsRef2.current &&
+        !suggestionsRef2.current.contains(event.target as Node)
+      ) {
+        setShowSuggestions2(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -171,13 +252,37 @@ const Index = () => {
                 {/* Riot ID Input */}
                 <div className="relative max-w-md w-full group">
                   <div className="absolute inset-0 bg-gradient-gold opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-300 rounded-lg" />
-                  <Input
-                    type="text"
-                    placeholder="name#tag (e.g., Hide on bush#KR1)"
-                    value={riotId}
-                    onChange={(e) => setRiotId(e.target.value)}
-                    className="h-14 text-xl leading-tight bg-card/80 backdrop-blur-sm border-lol-gold/30 focus:border-lol-gold text-foreground placeholder:text-muted-foreground font-rajdhani font-medium relative hover:border-lol-gold/60 transition-all duration-300 px-3"
-                  />
+                  <div className="relative" ref={inputRefSolo}>
+                    <Input
+                      type="text"
+                      placeholder="name#tag (e.g., Hide on bush#KR1)"
+                      value={riotId}
+                      onChange={(e) => {
+                        setRiotId(e.target.value);
+                        setShowSuggestionsSolo(true);
+                      }}
+                      onFocus={() => setShowSuggestionsSolo(true)}
+                      className="h-14 text-xl leading-tight bg-card/80 backdrop-blur-sm border-lol-gold/30 focus:border-lol-gold text-foreground placeholder:text-muted-foreground font-rajdhani font-medium relative hover:border-lol-gold/60 transition-all duration-300 px-3"
+                    />
+                    {showSuggestionsSolo && getFilteredSuggestions(riotId).length > 0 && (
+                      <div
+                        ref={suggestionsRefSolo}
+                        className="absolute z-50 w-full mt-0.5 bg-card/90 backdrop-blur-sm border border-lol-gold/10 rounded-md shadow-sm max-h-40 overflow-y-auto"
+                      >
+                        {getFilteredSuggestions(riotId).map((player, index) => (
+                          <button
+                            key={index}
+                            type="button"
+                            onClick={() => handleSuggestionSelect(player, "solo")}
+                            className="w-full text-left px-2 py-1.5 hover:bg-lol-gold/10 transition-colors duration-150 font-rajdhani text-sm text-foreground/90 border-b border-lol-gold/5 last:border-b-0"
+                          >
+                            <div className="font-medium text-xs">{player.riotId}</div>
+                            <div className="text-xs text-muted-foreground/70 capitalize">{player.region}</div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             ) : (
@@ -202,13 +307,37 @@ const Index = () => {
 
                   <div className="relative max-w-md w-full group">
                     <div className="absolute inset-0 bg-gradient-gold opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-300 rounded-lg" />
-                    <Input
-                      type="text"
-                      placeholder="Player 1: name#tag"
-                      value={riotId1}
-                      onChange={(e) => setRiotId1(e.target.value)}
-                      className="h-14 text-xl leading-tight bg-card/80 backdrop-blur-sm border-lol-gold/30 focus:border-lol-gold text-foreground placeholder:text-muted-foreground font-rajdhani font-medium relative hover:border-lol-gold/60 transition-all duration-300 px-3"
-                    />
+                    <div className="relative" ref={inputRef1}>
+                      <Input
+                        type="text"
+                        placeholder="Player 1: name#tag"
+                        value={riotId1}
+                        onChange={(e) => {
+                          setRiotId1(e.target.value);
+                          setShowSuggestions1(true);
+                        }}
+                        onFocus={() => setShowSuggestions1(true)}
+                        className="h-14 text-xl leading-tight bg-card/80 backdrop-blur-sm border-lol-gold/30 focus:border-lol-gold text-foreground placeholder:text-muted-foreground font-rajdhani font-medium relative hover:border-lol-gold/60 transition-all duration-300 px-3"
+                      />
+                      {showSuggestions1 && getFilteredSuggestions(riotId1).length > 0 && (
+                        <div
+                          ref={suggestionsRef1}
+                          className="absolute z-50 w-full mt-0.5 bg-card/90 backdrop-blur-sm border border-lol-gold/10 rounded-md shadow-sm max-h-40 overflow-y-auto"
+                        >
+                          {getFilteredSuggestions(riotId1).map((player, index) => (
+                            <button
+                              key={index}
+                              type="button"
+                              onClick={() => handleSuggestionSelect(player, "player1")}
+                              className="w-full text-left px-2 py-1.5 hover:bg-lol-gold/10 transition-colors duration-150 font-rajdhani text-sm text-foreground/90 border-b border-lol-gold/5 last:border-b-0"
+                            >
+                              <div className="font-medium text-xs">{player.riotId}</div>
+                              <div className="text-xs text-muted-foreground/70 capitalize">{player.region}</div>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
 
@@ -236,13 +365,37 @@ const Index = () => {
 
                   <div className="relative max-w-md w-full group">
                     <div className="absolute inset-0 bg-gradient-gold opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-300 rounded-lg" />
-                    <Input
-                      type="text"
-                      placeholder="Player 2: name#tag"
-                      value={riotId2}
-                      onChange={(e) => setRiotId2(e.target.value)}
-                      className="h-14 text-xl leading-tight bg-card/80 backdrop-blur-sm border-lol-gold/30 focus:border-lol-gold text-foreground placeholder:text-muted-foreground font-rajdhani font-medium relative hover:border-lol-gold/60 transition-all duration-300 px-3"
-                    />
+                    <div className="relative" ref={inputRef2}>
+                      <Input
+                        type="text"
+                        placeholder="Player 2: name#tag"
+                        value={riotId2}
+                        onChange={(e) => {
+                          setRiotId2(e.target.value);
+                          setShowSuggestions2(true);
+                        }}
+                        onFocus={() => setShowSuggestions2(true)}
+                        className="h-14 text-xl leading-tight bg-card/80 backdrop-blur-sm border-lol-gold/30 focus:border-lol-gold text-foreground placeholder:text-muted-foreground font-rajdhani font-medium relative hover:border-lol-gold/60 transition-all duration-300 px-3"
+                      />
+                      {showSuggestions2 && getFilteredSuggestions(riotId2).length > 0 && (
+                        <div
+                          ref={suggestionsRef2}
+                          className="absolute z-50 w-full mt-0.5 bg-card/90 backdrop-blur-sm border border-lol-gold/10 rounded-md shadow-sm max-h-40 overflow-y-auto"
+                        >
+                          {getFilteredSuggestions(riotId2).map((player, index) => (
+                            <button
+                              key={index}
+                              type="button"
+                              onClick={() => handleSuggestionSelect(player, "player2")}
+                              className="w-full text-left px-2 py-1.5 hover:bg-lol-gold/10 transition-colors duration-150 font-rajdhani text-sm text-foreground/90 border-b border-lol-gold/5 last:border-b-0"
+                            >
+                              <div className="font-medium text-xs">{player.riotId}</div>
+                              <div className="text-xs text-muted-foreground/70 capitalize">{player.region}</div>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>

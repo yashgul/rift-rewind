@@ -192,6 +192,11 @@ export default function Compare() {
     setCurrentSlide(index);
   }, []);
 
+  // Helper function to navigate to recap
+  const handleViewRecap = useCallback((name: string, tag: string, region: string) => {
+    navigate(`/recap?name=${encodeURIComponent(name)}&tag=${encodeURIComponent(tag)}&region=${encodeURIComponent(region)}`);
+  }, [navigate]);
+
   // Keyboard navigation
   const handleKeyDown = useCallback((event: KeyboardEvent) => {
     if (
@@ -415,6 +420,14 @@ export default function Compare() {
   const p1Data = player1.wrapped.wrapped.wrapped_data;
   const p2Data = player2.wrapped.wrapped.wrapped_data;
 
+  // Get player params for navigation
+  const name1 = searchParams.get("name1") || "";
+  const tag1 = searchParams.get("tag1") || "";
+  const region1 = searchParams.get("region1") || "";
+  const name2 = searchParams.get("name2") || "";
+  const tag2 = searchParams.get("tag2") || "";
+  const region2 = searchParams.get("region2") || "";
+
   // Slide 1: Overview - Head to Head
   const overviewSlide: ReactNode = (
     <div className="mx-auto w-full max-w-7xl h-full flex flex-col justify-center">
@@ -434,6 +447,14 @@ export default function Compare() {
           <div className="relative overflow-hidden bg-[#0b1426]/90 border-2 border-[#ef4444]/50 rounded-lg hover:border-[#ef4444] transition-colors">
             {/* Red accent bar */}
             <div className="absolute top-0 left-0 w-1 h-full bg-[#ef4444]" />
+            
+            {/* View Recap Button - Top Right */}
+            <button
+              onClick={() => handleViewRecap(name1, tag1, region1)}
+              className="absolute top-3 right-3 z-10 px-3 py-1.5 bg-[#c89b3c]/20 border border-[#c89b3c]/50 text-[#c89b3c] text-xs sm:text-sm font-semibold rounded hover:bg-[#c89b3c]/30 hover:border-[#c89b3c] transition-all shadow-lg shadow-[#c89b3c]/20"
+            >
+              View Recap →
+            </button>
             
             <div className="p-4 sm:p-5">
               <div className="flex items-center gap-3 mb-4">
@@ -489,6 +510,14 @@ export default function Compare() {
           <div className="relative overflow-hidden bg-[#0b1426]/90 border-2 border-[#3b82f6]/50 rounded-lg hover:border-[#3b82f6] transition-colors">
             {/* Blue accent bar */}
             <div className="absolute top-0 left-0 w-1 h-full bg-[#3b82f6]" />
+            
+            {/* View Recap Button - Top Right */}
+            <button
+              onClick={() => handleViewRecap(name2, tag2, region2)}
+              className="absolute top-3 right-3 z-10 px-3 py-1.5 bg-[#c89b3c]/20 border border-[#c89b3c]/50 text-[#c89b3c] text-xs sm:text-sm font-semibold rounded hover:bg-[#c89b3c]/30 hover:border-[#c89b3c] transition-all shadow-lg shadow-[#c89b3c]/20"
+            >
+              View Recap →
+            </button>
             
             <div className="p-4 sm:p-5">
               <div className="flex items-center gap-3 mb-4">
