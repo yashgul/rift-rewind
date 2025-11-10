@@ -344,7 +344,9 @@ def generate_player_wrapped_json(
 
         # Log the total_hours_played value being passed to LLM
         total_hours_from_data = player_data.get("total_hours_played", "NOT FOUND")
+        best_win_streak_from_data = player_data.get("best_win_streak", "NOT FOUND")
         print(f"[DEBUG] total_hours_played being passed to LLM: {total_hours_from_data}")
+        print(f"[DEBUG] best_win_streak being passed to LLM: {best_win_streak_from_data}")
         
         # Create the initial message from user with player data
         messages = [
@@ -392,8 +394,11 @@ def generate_player_wrapped_json(
 
                         # Log what hours value the LLM generated
                         llm_hours = wrapped_data.get("stats", {}).get("hours", "NOT FOUND")
+                        llm_best_streak = wrapped_data.get("memorable", {}).get("bestStreak", "NOT FOUND")
                         print(f"[DEBUG] LLM generated hours value: {llm_hours}")
                         print(f"[DEBUG] Expected hours from input: {total_hours_from_data}")
+                        print(f"[DEBUG] LLM generated bestStreak value: {llm_best_streak}")
+                        print(f"[DEBUG] Expected bestStreak from input: {best_win_streak_from_data}")
 
                         print("\n--- Bedrock Output (Tool Call Result) ---")
                         # print(json.dumps(wrapped_data, indent=2))
