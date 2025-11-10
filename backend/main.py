@@ -22,7 +22,6 @@ from helpers.item_data import get_item_name
 
 # --- Load environment variables ---
 load_dotenv(verbose=True)
-os.environ['AWS_BEARER_TOKEN_BEDROCK'] = 'ABSKQmVkcm9ja0FQSUtleS00cG1jLWF0LTMzNTA1NzQ5MzIyODpRS09uRUU3enk3VHkyYUNxYzVwYVlRU01SMkNMa09NT3N0S00zdHZ6cmM2YkN1Z2ppY05aMzZHQ3VEMD0='
 
 # --- Logging Setup ---
 logging.basicConfig(
