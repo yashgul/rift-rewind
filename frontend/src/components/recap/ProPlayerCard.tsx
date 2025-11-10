@@ -10,10 +10,10 @@ interface ProPlayerCardProps {
 export const ProPlayerCard = ({ playerName, team, reasoning }: ProPlayerCardProps) => {
   return (
     <Card className="relative overflow-hidden bg-gradient-to-br from-card/95 via-card/90 to-card/95 backdrop-blur-xl border-lol-gold/40 hover:border-lol-gold/60 transition-all duration-500 group">
-      {/* Animated background gradient */}
+      {/* Animated background gradient - Reference for hover effect used throughout Recap.tsx */}
       <div className="absolute inset-0 bg-gradient-to-br from-lol-gold/5 via-transparent to-lol-blue/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
       
-      {/* Glow effect */}
+      {/* Glow effect - Reference for hover effect used throughout Recap.tsx */}
       <div className="absolute -inset-1 bg-gradient-gold opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500" />
       
       <div className="relative p-3 sm:p-4 lg:p-6 space-y-2 sm:space-y-3 lg:space-y-4">
