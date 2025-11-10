@@ -342,6 +342,10 @@ def generate_player_wrapped_json(
         # good model =>
         # model_id = "eu.anthropic.claude-sonnet-4-5-20250929-v1:0"
 
+        # Log the total_hours_played value being passed to LLM
+        total_hours_from_data = player_data.get("total_hours_played", "NOT FOUND")
+        print(f"[DEBUG] total_hours_played being passed to LLM: {total_hours_from_data}")
+        
         # Create the initial message from user with player data
         messages = [
             {
@@ -385,6 +389,11 @@ def generate_player_wrapped_json(
                     if tool["name"] == "generate_player_wrapped":
                         # Extract the generated wrapped data
                         wrapped_data = tool["input"]
+
+                        # Log what hours value the LLM generated
+                        llm_hours = wrapped_data.get("stats", {}).get("hours", "NOT FOUND")
+                        print(f"[DEBUG] LLM generated hours value: {llm_hours}")
+                        print(f"[DEBUG] Expected hours from input: {total_hours_from_data}")
 
                         print("\n--- Bedrock Output (Tool Call Result) ---")
                         # print(json.dumps(wrapped_data, indent=2))

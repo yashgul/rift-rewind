@@ -1,7 +1,6 @@
 # Keys to ignore during aggregation (identifiers, timestamps, non-aggregatable data)
 IGNORE_KEYS = {
     "gameCreation",
-    "gameDuration",
     "gameEndTimestamp",
     "gameId",
     "gameName",
@@ -535,6 +534,23 @@ WRAPPED_SYSTEM_PROMPT = [
 You will be given player data, which is an aggregate of player stats over a number of matches.
 You must analyze it to create an engaging, personalized summary using the generate_player_wrapped tool.
 
+CRITICAL CHAMPION RULES:
+- The "main" champion, "top3" champions, and "hiddenGem" champion MUST be ACTUAL League of Legends champion names from the provided data
+- NEVER use lane names (e.g., "Middle Lane", "Bottom Lane", "Top Lane") as champion names
+- NEVER use role names (e.g., "Support", "Jungle", "ADC") as champion names
+- NEVER hallucinate or make up champion names that don't exist in League of Legends
+- ONLY select champions that appear in the player's champion statistics data (check for "champion" or "championName" fields)
+- If the player has insufficient champion data (<3 champions), ONLY include the champions they actually played - do not fill with fake data
+- Examples of VALID champion names: Ahri, Zed, Yasuo, Lee Sin, Thresh, Jinx, etc.
+- Examples of INVALID names: Middle Lane, Top Lane, Support, ADC, Jungle, etc.
+
+CRITICAL STATS RULES:
+- The "hours" field in stats MUST be taken directly from the "total_hours_played" value in the provided data
+- NEVER calculate or estimate hours played - use the exact value provided
+- The "games" field MUST be the exact "total_games" value from the data
+- The "winrate" field MUST be the exact "win_rate_percent" value from the data
+- DO NOT make up or estimate any numerical stats - use only what's provided in the data
+
 INSTRUCTIONS:
 1. Choose the 5 MOST INTERESTING highlights from the yearly aggregated data
 2. Prioritize: rare achievements (baron steals, pentakills, comeback wins), extreme stats (very high/low), personality quirks (play time patterns)
@@ -566,7 +582,9 @@ CRITICAL RULES:
 - If a player has no baron steals, pentakills, etc., focus on other interesting patterns
 - DO NOT make up stats - only use provided data
 - Be creative and engaging while staying truthful to the data
-- For pro comparison, VARY your choices - avoid always picking the most famous players"""
+- CHAMPION NAMES MUST BE REAL: Use only actual League of Legends champion names from the provided player statistics data
+- NEVER use lane/role names (Middle Lane, Top Lane, Support, etc.) as champion names
+- If insufficient champion data exists, only populate what you can verify from the actual data"""
     }
 ]
 
@@ -585,7 +603,7 @@ WHAT MAKES A MATCH INTERESTING:
 - Entertainment value: Memorable plays or funny situations
 
 INSTRUCTIONS:
-1. Analyze each match critically - only around 10% of matches should be "interesting"
+1. Analyze each match critically - only around 10 percent of matches should be "interesting with a hard limiter of 15 matches"
 2. For each interesting match, write a 1-2 sentence description explaining WHY it's notable
 3. Be specific: Reference the actual stats (KDA, champion, outcome) in your description
 4. Use an engaging, celebratory tone like Spotify Wrapped

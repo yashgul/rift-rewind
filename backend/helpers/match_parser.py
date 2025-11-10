@@ -68,6 +68,10 @@ def _flatten_player_stats(game_info: dict, participant_data: dict) -> dict:
     result.update(participant_data)
     result["enemySurrendered"] = result["win"] and result["gameEndedInSurrender"]
     result["surrendered"] = not result["win"] and result["gameEndedInSurrender"]
+    
+    # Override gameDuration with the actual game duration from game_info (not participant's timePlayed)
+    # gameDuration at game_info level is the actual match duration in seconds
+    result["gameDuration"] = game_info.get("gameDuration", 0)
 
     # Remove unneeded components from participant data, especially nested data
     result.pop("perks", None)

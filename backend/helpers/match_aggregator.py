@@ -18,6 +18,7 @@ class MatchStatsAggregator:
         self.champion_stats = defaultdict(lambda: {"games_played": 0})
         self.role_stats = defaultdict(lambda: {"games_played": 0})
         self.hourly_stats = defaultdict(lambda: {"games": 0})
+        self.total_time_played_seconds = 0  # Track total play time in seconds
 
         # Track only current month stats and best month
         self.current_month_stats = {}  # {month_key: {wins, losses, games}}
@@ -37,6 +38,19 @@ class MatchStatsAggregator:
 
             champion = match_data.get("championName", "Unknown")
             role = match_data.get("teamPosition")
+
+            # Track game duration for total hours played
+            game_duration = match_data.get("gameDuration", 0)
+            if game_duration > 0:
+                # Check if gameDuration is in milliseconds (values > 10000 are likely milliseconds)
+                # Typical game is 1200-2400 seconds (20-40 min), so anything > 10000 is probably milliseconds
+                if game_duration > 10000:
+                    game_duration = game_duration / 1000  # Convert milliseconds to seconds
+                    logger.debug(f"Converted gameDuration from milliseconds: {game_duration:.1f} seconds ({game_duration/60:.1f} minutes)")
+                else:
+                    logger.debug(f"Adding game duration: {game_duration} seconds ({game_duration/60:.1f} minutes)")
+                
+                self.total_time_played_seconds += game_duration
 
             # Aggregate to all three views
             self._aggregate_stats(self.overall_stats, match_data)
@@ -281,11 +295,19 @@ class MatchStatsAggregator:
 
         wins = self.overall_stats.get("win", 0)
 
+        # Calculate total hours played (convert seconds to hours, round to nearest integer)
+        total_hours = round(self.total_time_played_seconds / 3600) if self.total_time_played_seconds > 0 else 0
+        
+        # Log the calculation for debugging
+        logger.info(f"Total time played: {self.total_time_played_seconds} seconds = {self.total_time_played_seconds/3600:.2f} hours (rounded to {total_hours}h)")
+        logger.info(f"Average game duration: {self.total_time_played_seconds/games_played:.1f} seconds ({self.total_time_played_seconds/games_played/60:.1f} minutes)")
+
         summary = {
             "total_games": games_played,
             "wins": wins,
             "losses": games_played - wins,
             "win_rate_percent": round(wins / games_played * 100, 2) if games_played > 0 else 0,
+            "total_hours_played": total_hours,
             "avg_kills_per_game": overall.get("kills_avg_per_game", 0),
             "avg_deaths_per_game": overall.get("deaths_avg_per_game", 0),
             "avg_assists_per_game": overall.get("assists_avg_per_game", 0),
@@ -410,6 +432,11 @@ class MatchStatsAggregator:
         filtered_roles.pop("", None)
 
         return {
+            "total_games": data.get("total_games", 0),
+            "wins": data.get("wins", 0),
+            "losses": data.get("losses", 0),
+            "win_rate_percent": data.get("win_rate_percent", 0),
+            "total_hours_played": data.get("total_hours_played", 0),
             "all_stats_avg_per_game": data.get("all_stats_avg_per_game", {}),
             "champion_stats": filtered_champions,
             "role_stats": filtered_roles,
