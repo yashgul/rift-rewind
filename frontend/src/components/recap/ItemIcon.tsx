@@ -17,7 +17,7 @@ export const ItemIcon = ({ itemId, itemName }: ItemIconProps) => {
 
   return (
     <div
-      className="group/item relative"
+      className="group/item relative z-10"
       title={itemName || undefined}
     >
       <img
@@ -32,7 +32,7 @@ export const ItemIcon = ({ itemId, itemName }: ItemIconProps) => {
       />
       {/* Tooltip on hover */}
       {itemName && (
-        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-[#0a1428] border border-[#c89b3c] rounded-md opacity-0 group-hover/item:opacity-100 pointer-events-none transition-opacity duration-200 whitespace-nowrap z-50">
+        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-[#0a1428] border border-[#c89b3c] rounded-md opacity-0 group-hover/item:opacity-100 pointer-events-none transition-opacity duration-200 whitespace-nowrap z-[100]">
           <p className="text-xs font-medium text-[#d1c6ac]">{itemName}</p>
           <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-[#c89b3c]"></div>
         </div>

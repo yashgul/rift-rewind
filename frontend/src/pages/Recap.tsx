@@ -7,6 +7,7 @@ import { ProPlayerCard } from "@/components/recap/ProPlayerCard";
 import { RoastsCard } from "@/components/recap/RoastsCard";
 import { FunFactsCard } from "@/components/recap/FunFactsCard";
 import { ItemIcon } from "@/components/recap/ItemIcon";
+import { Trophy, Target, Zap, Star, Award, TrendingUp, Sparkles, Crown } from "lucide-react";
 
 interface RecapData {
   message: {
@@ -874,52 +875,26 @@ export default function Recap() {
         {/* Glow effect */}
         <div className="absolute -inset-1 bg-gradient-to-r from-[#c89b3c] to-[#d8ac4d] opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500" />
         
-        <p className="relative text-[10px] uppercase tracking-[0.15em] text-[#c89b3c] sm:text-xs">Season Highlights</p>
+        <div className="relative flex items-center gap-2 mb-2">
+          <Trophy className="h-4 w-4 text-[#c89b3c]" />
+          <p className="text-[10px] uppercase tracking-[0.15em] text-[#c89b3c] sm:text-xs font-bold">Season Highlights</p>
+        </div>
         <div className="relative mt-1.5 grid gap-1.5 sm:mt-2 sm:gap-2 lg:gap-3 lg:grid-cols-2">
-          {highlights.slice(0, 2).map((highlight, index) => (
-            <div
-              key={index}
-              className="rounded-sm border-l-2 border-[#c89b3c] bg-[#091222]/80 p-2 sm:p-2.5 lg:p-3"
-            >
-              <div className="flex items-start gap-2">
-                {highlight.icon && (
-                  <div className="relative h-8 w-8 sm:h-10 sm:w-10 shrink-0 overflow-hidden rounded-sm bg-[#050b16]">
-                    {getChampionImage(highlight.icon) ? (
-                      <img
-                        src={getChampionImage(highlight.icon)}
-                        alt={highlight.icon}
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#1a2336] to-[#0a1428]">
-                        <span className="text-xs sm:text-sm font-bold text-[#c89b3c]">{highlight.icon.charAt(0)}</span>
-                  </div>
-                    )}
-                </div>
-                )}
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-bold text-white sm:text-sm">{highlight.title}</p>
-                  {highlight.percentile && (
-                    <p className="mt-0.5 text-[9px] uppercase tracking-[0.1em] text-[#c89b3c]">
-                      {highlight.percentile}
-                    </p>
-                  )}
-                  <p className="mt-0.5 text-[10px] leading-snug text-[#d1c6ac] line-clamp-2 sm:text-xs">{highlight.description}</p>
-                  <p className="mt-0.5 text-[9px] italic text-[#a09b8c] line-clamp-1 sm:text-[10px]">"{highlight.flavor}"</p>
-              </div>
-          </div>
-              </div>
-            ))}
-          {/* Show additional 2 highlights on larger screens */}
-          <div className="hidden lg:contents">
-            {highlights.slice(2, 4).map((highlight, index) => (
+          {highlights.slice(0, 2).map((highlight, index) => {
+            const iconMap = [Trophy, Target, Zap, Star, Award, TrendingUp, Sparkles, Crown];
+            const IconComponent = iconMap[index % iconMap.length];
+            
+            return (
               <div
-                key={index + 2}
-                className="rounded-sm border-l-2 border-[#c89b3c] bg-[#091222]/80 p-3"
+                key={index}
+                className="group/card relative rounded-sm border-l-2 border-[#c89b3c] bg-gradient-to-br from-[#091222]/80 to-[#0a1020]/80 p-2 sm:p-2.5 lg:p-3 hover:border-[#d8ac4d] transition-all duration-300"
               >
-                <div className="flex items-start gap-2">
+                {/* Card glow on hover */}
+                <div className="absolute inset-0 bg-gradient-to-br from-[#c89b3c]/10 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-300" />
+                
+                <div className="relative flex items-start gap-2">
                   {highlight.icon && (
-                    <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-sm bg-[#050b16]">
+                    <div className="relative h-8 w-8 sm:h-10 sm:w-10 shrink-0 overflow-hidden rounded-sm bg-[#050b16] border border-[#785a28]/40">
                       {getChampionImage(highlight.icon) ? (
                         <img
                           src={getChampionImage(highlight.icon)}
@@ -928,24 +903,89 @@ export default function Recap() {
                         />
                       ) : (
                         <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#1a2336] to-[#0a1428]">
-                          <span className="text-sm font-bold text-[#c89b3c]">{highlight.icon.charAt(0)}</span>
-                    </div>
+                          <span className="text-xs sm:text-sm font-bold text-[#c89b3c]">{highlight.icon.charAt(0)}</span>
+                        </div>
                       )}
-                  </div>
+                      {/* Decorative icon badge */}
+                      <div className="absolute -bottom-1 -right-1 rounded-full bg-[#c89b3c] p-0.5">
+                        <IconComponent className="h-2.5 w-2.5 text-[#0a1428]" />
+                      </div>
+                    </div>
                   )}
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-white">{highlight.title}</p>
+                    <div className="flex items-start justify-between gap-1">
+                      <p className="text-xs font-bold text-white sm:text-sm">{highlight.title}</p>
+                      {!highlight.icon && <IconComponent className="h-4 w-4 text-[#c89b3c] shrink-0" />}
+                    </div>
                     {highlight.percentile && (
-                      <p className="mt-0.5 text-[9px] uppercase tracking-[0.1em] text-[#c89b3c]">
-                        {highlight.percentile}
-                      </p>
+                      <div className="mt-0.5 inline-flex items-center gap-1 rounded bg-[#c89b3c]/20 px-1.5 py-0.5">
+                        <Star className="h-2.5 w-2.5 text-[#c89b3c] fill-[#c89b3c]" />
+                        <p className="text-[9px] uppercase tracking-[0.1em] text-[#c89b3c] font-semibold">
+                          {highlight.percentile}
+                        </p>
+                      </div>
                     )}
-                    <p className="mt-0.5 text-xs leading-snug text-[#d1c6ac] line-clamp-2">{highlight.description}</p>
-                    <p className="mt-0.5 text-[10px] italic text-[#a09b8c] line-clamp-1">"{highlight.flavor}"</p>
+                    <p className="mt-1 text-[10px] leading-snug text-[#d1c6ac] line-clamp-2 sm:text-xs">{highlight.description}</p>
+                    <p className="mt-1 text-[9px] italic text-[#a09b8c]/80 line-clamp-1 sm:text-[10px]">"{highlight.flavor}"</p>
+                  </div>
                 </div>
-            </div>
+              </div>
+            );
+          })}
+          {/* Show additional 2 highlights on larger screens */}
+          <div className="hidden lg:contents">
+            {highlights.slice(2, 4).map((highlight, index) => {
+              const iconMap = [Trophy, Target, Zap, Star, Award, TrendingUp, Sparkles, Crown];
+              const IconComponent = iconMap[(index + 2) % iconMap.length];
+              
+              return (
+                <div
+                  key={index + 2}
+                  className="group/card relative rounded-sm border-l-2 border-[#c89b3c] bg-gradient-to-br from-[#091222]/80 to-[#0a1020]/80 p-3 hover:border-[#d8ac4d] transition-all duration-300"
+                >
+                  {/* Card glow on hover */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#c89b3c]/10 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-300" />
+                  
+                  <div className="relative flex items-start gap-2">
+                    {highlight.icon && (
+                      <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-sm bg-[#050b16] border border-[#785a28]/40">
+                        {getChampionImage(highlight.icon) ? (
+                          <img
+                            src={getChampionImage(highlight.icon)}
+                            alt={highlight.icon}
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#1a2336] to-[#0a1428]">
+                            <span className="text-sm font-bold text-[#c89b3c]">{highlight.icon.charAt(0)}</span>
+                          </div>
+                        )}
+                        {/* Decorative icon badge */}
+                        <div className="absolute -bottom-1 -right-1 rounded-full bg-[#c89b3c] p-0.5">
+                          <IconComponent className="h-2.5 w-2.5 text-[#0a1428]" />
+                        </div>
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-1">
+                        <p className="text-sm font-bold text-white">{highlight.title}</p>
+                        {!highlight.icon && <IconComponent className="h-4 w-4 text-[#c89b3c] shrink-0" />}
+                      </div>
+                      {highlight.percentile && (
+                        <div className="mt-0.5 inline-flex items-center gap-1 rounded bg-[#c89b3c]/20 px-1.5 py-0.5">
+                          <Star className="h-2.5 w-2.5 text-[#c89b3c] fill-[#c89b3c]" />
+                          <p className="text-[9px] uppercase tracking-[0.1em] text-[#c89b3c] font-semibold">
+                            {highlight.percentile}
+                          </p>
+                        </div>
+                      )}
+                      <p className="mt-1 text-xs leading-snug text-[#d1c6ac] line-clamp-2">{highlight.description}</p>
+                      <p className="mt-1 text-[10px] italic text-[#a09b8c]/80 line-clamp-1">"{highlight.flavor}"</p>
+                    </div>
+                  </div>
                 </div>
-              ))}
+              );
+            })}
           </div>
         </div>
       </div>
@@ -960,8 +1000,14 @@ export default function Recap() {
           {/* Glow effect */}
           <div className="absolute -inset-1 bg-gradient-to-r from-[#c89b3c] to-[#d8ac4d] opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500" />
           
-          <p className="relative text-[10px] uppercase tracking-[0.15em] text-[#c89b3c] sm:text-xs">Playstyle Analysis</p>
-          <p className="relative mt-0.5 text-base font-bold text-white sm:text-lg lg:text-xl">{archetype}</p>
+          <div className="relative flex items-center gap-2 mb-1">
+            <Sparkles className="h-4 w-4 text-[#c89b3c]" />
+            <p className="text-[10px] uppercase tracking-[0.15em] text-[#c89b3c] sm:text-xs font-bold">Playstyle Analysis</p>
+          </div>
+          <div className="relative flex items-center gap-2">
+            <Crown className="h-5 w-5 text-[#c89b3c] fill-[#c89b3c]/20" />
+            <p className="text-base font-bold text-white sm:text-lg lg:text-xl">{archetype}</p>
+          </div>
           <p className="relative mt-0.5 text-[9px] leading-tight text-[#d1c6ac] line-clamp-1 sm:text-[10px] lg:text-xs">{primaryTagline}</p>
           
           <div className="relative mt-1 flex items-center justify-center sm:mt-1.5 lg:mt-2">
@@ -1017,9 +1063,9 @@ export default function Recap() {
   const timelineSlide: ReactNode = (
     <div className="relative w-full min-h-full lg:h-full lg:overflow-hidden">
       {/* Header - Compact at top */}
-      <div className="relative lg:absolute left-0 right-0 top-0 lg:top-4 z-20 text-center mb-4 lg:mb-0 pt-4 lg:pt-0">
+      <div className="relative lg:absolute left-0 right-0 top-0 lg:top-12 z-20 text-center mb-4 lg:mb-0 pt-4 lg:pt-0">
         {timelineMatches.length > 0 ? (
-          <p className=" text-xl text-[#ffffff] sm:text-sm">
+          <p className="text-xl font-bold text-[#ffffff] sm:text-sm opacity-90">
             {activeMatchIndex + 1} / {timelineMatches.length}
           </p>
         ) : (
@@ -1222,7 +1268,7 @@ export default function Recap() {
                             <img
                               src={championImage}
                               alt={match.champ}
-                              className="h-full w-full object-cover object-center"
+                              className="h-full w-full object-cover object-top"
                               draggable="false"
                             />
                           ) : (
@@ -1264,8 +1310,8 @@ export default function Recap() {
                           
                           return items.length > 0 ? (
                             <div className="border-t-2 border-[#785a28]/40 bg-[#0a1428]/95 backdrop-blur-sm px-5 py-4">
-                              <p className="text-xs font-medium uppercase tracking-wider text-[#a09b8c] mb-3">Final Build</p>
-                              <div className="flex gap-2 flex-wrap">
+                              <p className="text-xs font-medium uppercase tracking-wider text-[#a09b8c] mb-3 text-center">Final Build</p>
+                              <div className="flex gap-2 flex-wrap justify-center">
                                 {items.map((item, idx) => (
                                   <ItemIcon
                                     key={`${match.id}-item-${idx}`}
@@ -1303,7 +1349,7 @@ export default function Recap() {
                       <div className="absolute -inset-1 bg-gradient-to-r from-[#c89b3c] to-[#d8ac4d] opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500" />
                       
                       <div className="relative mb-6">
-                        <p className="text-xs font-medium uppercase tracking-wider text-[#a09b8c] mb-1">Performance</p>
+                        <p className="text-xs font-bold uppercase tracking-wider text-[#a09b8c] mb-1">Performance</p>
                         <div className="h-px bg-[#785a28]/30 mt-2"></div>
                       </div>
                       
@@ -1363,7 +1409,7 @@ export default function Recap() {
                       <div className="absolute -inset-1 bg-gradient-to-r from-[#c89b3c] to-[#d8ac4d] opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500" />
                       
                       <div className="relative mb-6">
-                        <p className="text-xs font-medium uppercase tracking-wider text-[#a09b8c] mb-1">Match Info</p>
+                        <p className="text-xs font-bold uppercase tracking-wider text-[#a09b8c] mb-1">Match Info</p>
                         <div className="h-px bg-[#785a28]/30 mt-2"></div>
                       </div>
                       
@@ -1409,7 +1455,7 @@ export default function Recap() {
           </div>
 
           {/* Navigation Arrows - Vertical */}
-          <div className="hidden lg:flex absolute left-1/2 top-0 z-[60] h-full -translate-x-1/2 flex-col items-center justify-between py-8">
+          <div className="hidden lg:flex absolute left-1/2 top-0 z-[60] h-full -translate-x-1/2 flex-col items-center justify-between py-4">
             <button
               type="button"
               onClick={() => setActiveMatchIndex((prev) => (prev - 1 + timelineMatches.length) % timelineMatches.length)}
@@ -1855,7 +1901,7 @@ export default function Recap() {
         </main>
 
         <div className="shrink-0 border-t border-[#273241] bg-[#050b16] px-4 py-2 sm:px-6 sm:py-3 lg:px-10">
-          <div className="mx-auto flex w-full max-w-[1200px] flex-wrap items-center justify-between gap-3">
+          <div className="mx-auto flex w-full max-w-[1200px] flex-wrap items-center justify-between gap-3 relative">
             <div className="flex items-center gap-1.5 sm:gap-2">
               {slides.map((slide, index) => (
                 <button
@@ -1870,7 +1916,7 @@ export default function Recap() {
                 />
               ))}
             </div>
-            <p className="hidden text-xs uppercase tracking-[0.25em] text-[#a09b8c] sm:block">
+            <p className="hidden text-xs uppercase tracking-[0.25em] text-[#a09b8c] sm:block sm:absolute sm:left-1/2 sm:-translate-x-1/2">
               {slides[currentSlide]?.label}
             </p>
             <div className="flex items-center gap-2">
