@@ -1407,10 +1407,10 @@ export default function Recap() {
       {/* Header */}
       <div className="text-center mb-0 sm:mb-1">
         <h2 className="text-xl font-bold uppercase tracking-[0.12em] text-[#c89b3c] sm:text-2xl lg:text-3xl lg:tracking-[0.15em]">
-          Deep Insights
+          Insights
         </h2>
         <p className="mt-0.5 text-[10px] text-[#d1c6ac] sm:text-xs lg:text-sm">
-          The good, the bad, and the legendary
+          The good, the bad, and the LEGENDARY
         </p>
       </div>
 
@@ -1622,42 +1622,42 @@ export default function Recap() {
       id: "overview",
       label: "Overview",
       background: "bg-gradient-to-br from-[#0a1428] via-[#111c32] to-[#1a2336]",
-      video: "/1.webm",
+      video: "/1.mp4",
       content: overviewSlide,
     },
     {
       id: "champions",
-      label: "Champions",
+      label: "Your Top Champions",
       background: "bg-gradient-to-br from-[#0a1428] via-[#1b2a3a] to-[#132238]",
-      video: "/2.webm",
+      video: "/2.mp4",
       content: championsSlide,
     },
     {
       id: "personality",
-      label: "Highlights",
+      label: "The Highlights",
       background: "bg-gradient-to-br from-[#0a1428] via-[#161f33] to-[#1c2a3f]",
-      video: "/animated-piltover.webm",
+      video: "/3.mp4",
       content: personalitySlide,
     },
     {
       id: "insights",
-      label: "Insights",
+      label: "'Key' Insights",
       background: "bg-gradient-to-br from-[#0a1428] via-[#1a2336] to-[#0f1b2e]",
-      video: "/animated-piltover.webm",
+      video: "/aura.webm",
       content: insightsSlide,
     },
     {
       id: "timeline",
-      label: "Greatest Moments",
+      label: "Your Greatest Moments",
       background: "bg-gradient-to-br from-[#0a1428] via-[#122036] to-[#1a2f46]",
-      video: "/4.webm",
+      video: "/5.mp4",
       content: timelineSlide,
     },
     {
       id: "share",
       label: "Share",
       background: "bg-gradient-to-br from-[#0a1428] via-[#1a1f32] to-[#1e2a3d]",
-      video: "/animated-zaun.webm",
+      video: "/6.mp4",
       content: shareSlide,
     },
   ];
