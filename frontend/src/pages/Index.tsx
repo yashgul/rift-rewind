@@ -119,7 +119,7 @@ const Index = () => {
             <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-96 h-96 bg-lol-blue/5 rounded-full blur-3xl animate-pulse-gold" style={{ animationDelay: '1s' }} />
             <img
               id="rift-logo"
-              src="/rift_logo1.png"
+              src="/rift_logo.png"
               alt="League of Legends"
               className="
                 w-100 h-100 

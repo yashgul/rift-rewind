@@ -276,7 +276,7 @@ export default function Recap() {
     if (typeof window === "undefined") return;
 
     const sharePayload = {
-      title: "Rift Rewind",
+      title: "Rift Wrapped",
       text: "Check out my League of Legends season recap",
       url: window.location.href,
     } satisfies ShareData;
@@ -702,7 +702,7 @@ export default function Recap() {
         <div className="h-20 w-20 shrink-0 rounded-sm border-2 border-[#c89b3c] shadow-xl sm:h-28 sm:w-28 sm:border-4 bg-[#0a1428] overflow-hidden">
           <img
             src={summonerIconUrl && summonerIconUrl.trim() !== '' ? summonerIconUrl : '/favicon.png'}
-            alt={summonerIconUrl ? "Summoner profile icon" : "Rift Rewind logo"}
+            alt={summonerIconUrl ? "Summoner profile icon" : "Rift Wrapped logo"}
             className="h-full w-full object-cover"
             onError={(e) => {
               const target = e.target as HTMLImageElement;
@@ -1917,7 +1917,7 @@ export default function Recap() {
               <img src="favicon.png" />
             </div>
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.25em] sm:text-xs">Rift Rewind</p>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.25em] sm:text-xs">Rift Wrapped</p>
               <h1 className="text-sm font-bold uppercase tracking-[0.15em] sm:text-base lg:text-lg">Season 2025</h1>
             </div>
           </div>

@@ -46,7 +46,7 @@ app.add_middleware(
 
 @app.get("/")
 def read_root():
-    return {"message": "Hello World from Rift Rewind Backend!"}
+    return {"message": "Hello World from Rift Wrapped Backend!"}
 
 
 def get_platform_from_region(region: str) -> str:

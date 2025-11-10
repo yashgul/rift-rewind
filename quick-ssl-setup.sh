@@ -21,7 +21,7 @@ sudo docker run -it --rm \
   --standalone \
   --agree-tos \
   --email ishaan.shah@gmail.com \
-  -d riftrewind.ishaan812.com
+  -d riftwrapped.ishaan812.com
 
 # Update nginx to use SSL config
 echo "Updating nginx configuration..."
@@ -32,4 +32,4 @@ echo "Starting all services with SSL..."
 docker-compose -f docker-compose.yml -f docker-compose.ssl.yml up -d --build
 
 echo ""
-echo "✅ Done! Visit https://riftrewind.ishaan812.com"
+echo "✅ Done! Visit https://riftwrapped.ishaan812.com"
