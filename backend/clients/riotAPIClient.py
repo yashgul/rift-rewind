@@ -240,7 +240,7 @@ class RiotAPIClient:
         count: int = 100,
     ) -> Optional[List[str]]:
         """
-        Gets a list of match IDs for a given PUUID.
+        Gets a list of match IDs for a given PUUID with pagination to fetch all matches since Jan 1, 2025.
 
         Corresponds to the endpoint:
         /lol/match/v5/matches/by-puuid/{puuid}/ids
@@ -249,33 +249,73 @@ class RiotAPIClient:
             puuid (str): The player's PUUID. (Required)
             region (str, optional): The region to query. Defaults to the client's default region.
             match_type (str, optional): The type of match to filter for (e.g., 'ranked', 'normal').
-            start (int, optional): The start index (for pagination).
-            count (int, optional): The number of match IDs to return (for pagination).
+            start (int, optional): The start index (for pagination). Default 0.
+            count (int, optional): The number of match IDs to return per request. Default 100.
 
         Returns:
-            list: A list of match IDs, or None if the request failed.
+            list: A list of all match IDs since Jan 1, 2025, or None if the request failed.
         """
         self.logger.info(f"Fetching match IDs for PUUID: {puuid[:8]}...{puuid[-8:]}")
-        self.logger.debug(f"Parameters: type={match_type}, start={start}, count={count}")
+        
+        # Calculate epoch timestamp for January 1, 2025 00:00:00 UTC
+        from datetime import datetime, timezone
+        jan_1_2025 = datetime(2025, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
+        start_time = int(jan_1_2025.timestamp())
+        
+        self.logger.info(f"Fetching matches since Jan 1, 2025 (epoch: {start_time})")
+        self.logger.debug(f"Parameters: type={match_type}, count={count}")
 
         # Construct the endpoint path
         endpoint = f"lol/match/v5/matches/by-puuid/{puuid}/ids"
 
-        query_params = {"start": start, "count": count}
-        if match_type is not None:
-            query_params["type"] = match_type
+        all_match_ids = []
+        current_start = start
+        page_num = 1
 
-        # Call the internal request method
-        match_ids = self._request(region, endpoint, params=query_params)
+        while True:
+            query_params = {
+                "start": current_start,
+                "count": count,
+                "startTime": start_time
+            }
+            if match_type is not None:
+                query_params["type"] = match_type
 
-        if match_ids:
-            self.logger.info(f"✓ Retrieved {len(match_ids)} match IDs")
-            if match_ids:
-                self.logger.debug(f"First match ID: {match_ids[0]}")
+            self.logger.info(f"Fetching page {page_num} (start={current_start}, count={count})")
+
+            # Call the internal request method
+            match_ids = self._request(region, endpoint, params=query_params)
+
+            if match_ids is None:
+                # Request failed
+                self.logger.warning("✗ Failed to retrieve match IDs")
+                return None if not all_match_ids else all_match_ids
+            
+            if not match_ids:
+                # Empty response, no more matches
+                self.logger.info(f"✓ No more matches found. Pagination complete.")
+                break
+
+            all_match_ids.extend(match_ids)
+            self.logger.info(f"✓ Retrieved {len(match_ids)} match IDs (total so far: {len(all_match_ids)})")
+
+            # If we got fewer matches than requested, we've reached the end
+            if len(match_ids) < count:
+                self.logger.info(f"✓ Received {len(match_ids)} matches (less than {count}). Reached end of results.")
+                break
+
+            # Move to next page
+            current_start += count
+            page_num += 1
+
+        if all_match_ids:
+            self.logger.info(f"✓ Total match IDs retrieved: {len(all_match_ids)}")
+            self.logger.debug(f"First match ID: {all_match_ids[0]}")
+            self.logger.debug(f"Last match ID: {all_match_ids[-1]}")
         else:
             self.logger.warning("✗ No match IDs retrieved")
 
-        return match_ids
+        return all_match_ids if all_match_ids else None
 
     def get_match_metadata_by_match_id(
         self,
