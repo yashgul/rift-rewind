@@ -9,9 +9,9 @@ import json
 logger = logging.getLogger(__name__)
 
 # Configuration
-MAX_TOKENS = 512
+MAX_TOKENS = 6400
 MODEL_ID = "eu.anthropic.claude-haiku-4-5-20251001-v1:0"
-MAX_CONTEXT_TOKENS = 3000
+MAX_CONTEXT_TOKENS = 9000
 CHARS_PER_TOKEN = 4
 
 
