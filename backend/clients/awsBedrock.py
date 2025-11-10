@@ -10,11 +10,65 @@ from constants import (
     PLAYER_COMPARISON_SYSTEM_PROMPT,
 )
 import traceback
+import time
+from functools import wraps
 
 import decimal
 import json
 import os
 import boto3
+
+
+def retry_on_throttle(max_retries=3, base_delay=2):
+    """
+    Decorator to retry a function if it encounters throttling errors.
+    
+    Args:
+        max_retries: Maximum number of retry attempts
+        base_delay: Base delay in seconds (will use exponential backoff)
+    """
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            last_exception = None
+            
+            for attempt in range(max_retries + 1):
+                try:
+                    return func(*args, **kwargs)
+                except ClientError as err:
+                    error_code = err.response.get('Error', {}).get('Code', '')
+                    error_message = err.response.get('Error', {}).get('Message', '')
+                    
+                    # Check for throttling errors
+                    is_throttle = any([
+                        error_code == 'ThrottlingException',
+                        error_code == 'TooManyRequestsException',
+                        'too many requests' in error_message.lower(),
+                        'throttl' in error_message.lower(),
+                    ])
+                    
+                    if is_throttle and attempt < max_retries:
+                        # Calculate exponential backoff delay
+                        delay = base_delay * (2 ** attempt)
+                        print(f"⚠️  Throttling detected (attempt {attempt + 1}/{max_retries + 1})")
+                        print(f"   Error: {error_message}")
+                        print(f"   Retrying in {delay} seconds...")
+                        time.sleep(delay)
+                        last_exception = err
+                        continue
+                    else:
+                        # Either not a throttle error, or we've exhausted retries
+                        raise
+                except Exception as e:
+                    # Non-ClientError exceptions are raised immediately
+                    raise
+            
+            # If we get here, we've exhausted all retries
+            if last_exception:
+                raise last_exception
+                
+        return wrapper
+    return decorator
 
 
 def convert_floats_to_decimals(obj):
@@ -109,6 +163,7 @@ def store_wrapped_in_dynamodb(json_for_db: dict):
         return False
 
 
+@retry_on_throttle(max_retries=3, base_delay=5)
 def find_and_generate_descriptions_of_interesting_matches(
     timeline_data: list,
     system_prompt=INTERESTING_MATCHES_SYSTEM_PROMPT,
@@ -214,15 +269,31 @@ Match Data:
             return []
 
     except ClientError as err:
-        message = err.response["Error"]["Message"]
-        print(f"A client error occurred: {message}")
-        return []
+        # Let throttling errors propagate to the retry decorator
+        error_code = err.response.get('Error', {}).get('Code', '')
+        error_message = err.response.get('Error', {}).get('Message', '')
+        
+        is_throttle = any([
+            error_code == 'ThrottlingException',
+            error_code == 'TooManyRequestsException',
+            'too many requests' in error_message.lower(),
+            'throttl' in error_message.lower(),
+        ])
+        
+        if is_throttle:
+            # Re-raise to let the decorator handle it
+            raise
+        else:
+            # Handle other client errors normally
+            print(f"A client error occurred: {error_message}")
+            return []
     except Exception as e:
         print(f"An error occurred: {e}")
         traceback.print_exc()
         return []
 
 
+@retry_on_throttle(max_retries=3, base_delay=5)
 def generate_player_wrapped_json(
     player_data,
     name: str,
@@ -340,9 +411,24 @@ def generate_player_wrapped_json(
             return None
 
     except ClientError as err:
-        message = err.response["Error"]["Message"]
-        print(f"A client error occurred: {message}")
-        return None
+        # Let throttling errors propagate to the retry decorator
+        error_code = err.response.get('Error', {}).get('Code', '')
+        error_message = err.response.get('Error', {}).get('Message', '')
+        
+        is_throttle = any([
+            error_code == 'ThrottlingException',
+            error_code == 'TooManyRequestsException',
+            'too many requests' in error_message.lower(),
+            'throttl' in error_message.lower(),
+        ])
+        
+        if is_throttle:
+            # Re-raise to let the decorator handle it
+            raise
+        else:
+            # Handle other client errors normally
+            print(f"A client error occurred: {error_message}")
+            return None
     except Exception as e:
         print(f"An error occurred: {e}")
 
@@ -367,6 +453,7 @@ def check_aws_setup():
         return False
 
 
+@retry_on_throttle(max_retries=3, base_delay=5)
 def generate_player_comparison(
     player1_data: dict,
     player2_data: dict,
@@ -479,9 +566,24 @@ Player 2: {player2_name}
             return None
 
     except ClientError as err:
-        message = err.response["Error"]["Message"]
-        print(f"A client error occurred: {message}")
-        return None
+        # Let throttling errors propagate to the retry decorator
+        error_code = err.response.get('Error', {}).get('Code', '')
+        error_message = err.response.get('Error', {}).get('Message', '')
+        
+        is_throttle = any([
+            error_code == 'ThrottlingException',
+            error_code == 'TooManyRequestsException',
+            'too many requests' in error_message.lower(),
+            'throttl' in error_message.lower(),
+        ])
+        
+        if is_throttle:
+            # Re-raise to let the decorator handle it
+            raise
+        else:
+            # Handle other client errors normally
+            print(f"A client error occurred: {error_message}")
+            return None
     except Exception as e:
         print(f"An error occurred: {e}")
         traceback.print_exc()

@@ -102,7 +102,7 @@ const Index = () => {
         preload="auto"
         className="absolute inset-0 w-full h-full object-cover filter"
       >
-        <source src="https://ask-them-out.s3.ap-south-1.amazonaws.com/tmpt2lr5oe6.mp4" type="video/mp4" />
+        <source src="intro.webm" type="video/webm" />
       </video>
 
       {/* Overlay - slightly darker with subtle blur */}
