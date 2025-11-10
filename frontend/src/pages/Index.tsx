@@ -158,19 +158,10 @@ const Index = () => {
                       <SelectValue placeholder="Region" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="NA1">NA</SelectItem>
-                      <SelectItem value="EUW1">EUW</SelectItem>
-                      <SelectItem value="EUN1">EUNE</SelectItem>
-                      <SelectItem value="BR1">BR</SelectItem>
-                      <SelectItem value="KR">KR</SelectItem>
-                      <SelectItem value="PBE1">PBE</SelectItem>
-                      <SelectItem value="LA1">LAN</SelectItem>
-                      <SelectItem value="LA2">LAS</SelectItem>
-                      <SelectItem value="OC1">OCE</SelectItem>
-                      <SelectItem value="TR1">TR</SelectItem>
-                      <SelectItem value="RU">RU</SelectItem>
-                      <SelectItem value="JP1">JP</SelectItem>
-                      <SelectItem value="asia">Asia</SelectItem>
+                        <SelectItem value="asia">Asia</SelectItem>
+                        <SelectItem value="europe">Europe</SelectItem>
+                        <SelectItem value="americas">Americas</SelectItem>
+                        <SelectItem value="sea">SEA</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -199,19 +190,10 @@ const Index = () => {
                         <SelectValue placeholder="Region" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="NA1">NA</SelectItem>
-                        <SelectItem value="EUW1">EUW</SelectItem>
-                        <SelectItem value="EUN1">EUNE</SelectItem>
-                        <SelectItem value="BR1">BR</SelectItem>
-                        <SelectItem value="KR">KR</SelectItem>
-                        <SelectItem value="PBE1">PBE</SelectItem>
-                        <SelectItem value="LA1">LAN</SelectItem>
-                        <SelectItem value="LA2">LAS</SelectItem>
-                        <SelectItem value="OC1">OCE</SelectItem>
-                        <SelectItem value="TR1">TR</SelectItem>
-                        <SelectItem value="RU">RU</SelectItem>
-                        <SelectItem value="JP1">JP</SelectItem>
                         <SelectItem value="asia">Asia</SelectItem>
+                        <SelectItem value="europe">Europe</SelectItem>
+                        <SelectItem value="americas">Americas</SelectItem>
+                        <SelectItem value="sea">SEA</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -242,19 +224,10 @@ const Index = () => {
                         <SelectValue placeholder="Region" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="NA1">NA</SelectItem>
-                        <SelectItem value="EUW1">EUW</SelectItem>
-                        <SelectItem value="EUN1">EUNE</SelectItem>
-                        <SelectItem value="BR1">BR</SelectItem>
-                        <SelectItem value="KR">KR</SelectItem>
-                        <SelectItem value="PBE1">PBE</SelectItem>
-                        <SelectItem value="LA1">LAN</SelectItem>
-                        <SelectItem value="LA2">LAS</SelectItem>
-                        <SelectItem value="OC1">OCE</SelectItem>
-                        <SelectItem value="TR1">TR</SelectItem>
-                        <SelectItem value="RU">RU</SelectItem>
-                        <SelectItem value="JP1">JP</SelectItem>
                         <SelectItem value="asia">Asia</SelectItem>
+                        <SelectItem value="europe">Europe</SelectItem>
+                        <SelectItem value="americas">Americas</SelectItem>
+                        <SelectItem value="sea">SEA</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
