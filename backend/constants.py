@@ -132,7 +132,7 @@ IGNORE_KEYS = {
     "unrealKills",
     "turretKills",
     "totalUnitsHealed",
-    "totalMinionsKilled",
+    # "totalMinionsKilled",
     "totalHealsOnTeammates",
     "summoner2Casts",
     "summoner1Casts",
