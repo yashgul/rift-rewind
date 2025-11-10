@@ -1058,7 +1058,10 @@ export default function Recap() {
                 <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#785a28] text-[9px] font-bold text-white sm:h-5 sm:w-5 sm:text-[10px]">
                   {index + 1}
                 </span>
-                <span className="pt-0.5 leading-tight sm:leading-snug">{fact}</span>
+                <div className="flex-1">
+                  <div className="text-sm font-semibold text-white">{fact.title}</div>
+                  <div className="text-xs text-[#d1c6ac] leading-tight">{fact.description}</div>
+                </div>
               </li>
             ))}
           </ul>
