@@ -164,8 +164,6 @@ def matchData(name: str, tag: str, region: str):
         logger.info(f"PUUID for {name}#{tag}: {puuid}")
 
         recent_match_ids = riot_api_client.get_match_ids_by_puuid(puuid=puuid, region=region)
-        # TEMPORARY: Limit to 90 matches for faster processing during development
-        # TODO: Remove this limit when ready for full production use
 
         if not recent_match_ids:
             raise HTTPException(
@@ -330,13 +328,10 @@ def compareData(
     name2: str,
     tag2: str,
     region2: str,
-    test_mode: bool = False,
 ):
     """
     Compare two players' wrapped data and generate AI comparison.
-    test_mode: If True, limits to 30 matches per player for faster testing
     """
-    test_mode = True
     try:
         logger.info(f"Comparison request: {name1}#{tag1} vs {name2}#{tag2}")
 
@@ -377,25 +372,15 @@ def compareData(
 
             logger.info(f"PUUID for {name}#{tag}: {puuid}")
 
-            # Get match IDs - respect test_mode for match count
-            match_count = 30 if test_mode else 100
+            # Get match IDs
             recent_match_ids = riot_api_client.get_match_ids_by_puuid(
-                puuid=puuid, region=region, count=match_count
+                puuid=puuid, region=region, count=100
             )
-
-            # TEMPORARY: Limit to 90 matches for faster processing during development
-            # TODO: Remove this limit when ready for full production use
-            recent_match_ids = recent_match_ids[:70]
 
             if not recent_match_ids:
                 raise HTTPException(
                     status_code=404, detail=f"No match history found for player {name}#{tag}"
                 )
-
-            # Limit to 30 matches in test mode
-            if test_mode:
-                recent_match_ids = recent_match_ids[:30]
-                logger.info(f"Test mode: Limited to {len(recent_match_ids)} matches")
 
             match_stats_aggregator = MatchStatsAggregator()
             timeline_data = []
