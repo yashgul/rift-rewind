@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 
 const Index = () => {
   const [mode, setMode] = useState<"solo" | "compare">("solo");
@@ -26,7 +27,7 @@ const Index = () => {
   const [isMuted, setIsMuted] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
-
+  const intervalRef = useRef(null);
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -91,6 +92,40 @@ const Index = () => {
     }
   };
 
+  useEffect(() => {
+  const logo = document.getElementById("rift-logo");
+
+  if (logo) {
+    // 1) First vibration after 1 second
+    const initialTimeout = setTimeout(() => {
+      logo.classList.add("vibrate");
+
+      setTimeout(() => {
+        logo.classList.remove("vibrate");
+      }, 5500); // 5.5s duration
+
+      // 2) Subsequent vibrations every 8 seconds
+      const interval = setInterval(() => {
+        logo.classList.add("vibrate");
+
+        setTimeout(() => {
+          logo.classList.remove("vibrate");
+        }, 5800);
+      }, 8000);
+
+      // Save interval ref for cleanup
+      intervalRef.current = interval;
+    }, 1000);
+
+    // Cleanup on unmount
+    return () => {
+      clearTimeout(initialTimeout);
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }
+}, []);
+
+
   return (
     <div className="relative min-h-screen overflow-hidden group">
       {/* Video Background */}
@@ -117,6 +152,7 @@ const Index = () => {
             <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-64 h-64 bg-lol-gold/10 rounded-full blur-3xl animate-pulse-gold" />
             <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-96 h-96 bg-lol-blue/5 rounded-full blur-3xl animate-pulse-gold" style={{ animationDelay: '1s' }} />
             <img
+              id="rift-logo"
               src="/rift_logo1.png"
               alt="League of Legends"
               className="
