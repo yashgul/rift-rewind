@@ -92,40 +92,6 @@ const Index = () => {
     }
   };
 
-  useEffect(() => {
-  const logo = document.getElementById("rift-logo");
-
-  if (logo) {
-    // 1) First vibration after 1 second
-    const initialTimeout = setTimeout(() => {
-      logo.classList.add("vibrate");
-
-      setTimeout(() => {
-        logo.classList.remove("vibrate");
-      }, 5500); // 5.5s duration
-
-      // 2) Subsequent vibrations every 8 seconds
-      const interval = setInterval(() => {
-        logo.classList.add("vibrate");
-
-        setTimeout(() => {
-          logo.classList.remove("vibrate");
-        }, 5800);
-      }, 8000);
-
-      // Save interval ref for cleanup
-      intervalRef.current = interval;
-    }, 1000);
-
-    // Cleanup on unmount
-    return () => {
-      clearTimeout(initialTimeout);
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
-  }
-}, []);
-
-
   return (
     <div className="relative min-h-screen overflow-hidden group">
       {/* Video Background */}
