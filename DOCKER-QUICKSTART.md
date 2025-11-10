@@ -77,5 +77,5 @@ See [DEPLOYMENT.md](./DEPLOYMENT.md) for comprehensive documentation.
 
 ---
 
-**Happy Gaming! 🎮**
+**Happy Rewinding**
 

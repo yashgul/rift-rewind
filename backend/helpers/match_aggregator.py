@@ -23,6 +23,11 @@ class MatchStatsAggregator:
         # Track only current month stats and best month
         self.current_month_stats = {}  # {month_key: {wins, losses, games}}
         self.best_month = None  # Stores the best month info
+        
+        # Track win streaks
+        self.current_streak = 0  # Current win streak (positive) or loss streak (negative)
+        self.best_win_streak = 0  # Longest winning streak
+        self.match_results = []  # List of match results for streak calculation
 
     def add_match(self, match_data: Dict[str, Any]) -> None:
         """
@@ -51,6 +56,11 @@ class MatchStatsAggregator:
                     logger.debug(f"Adding game duration: {game_duration} seconds ({game_duration/60:.1f} minutes)")
                 
                 self.total_time_played_seconds += game_duration
+
+            # Track win/loss for streaks
+            is_win = match_data.get("win", False)
+            self.match_results.append(is_win)
+            self._update_win_streak(is_win)
 
             # Aggregate to all three views
             self._aggregate_stats(self.overall_stats, match_data)
@@ -154,6 +164,29 @@ class MatchStatsAggregator:
                     "games": current["games"],
                     "win_loss_difference": current_diff,
                 }
+
+    def _update_win_streak(self, is_win: bool) -> None:
+        """
+        Updates the current streak and best win streak.
+        """
+        if is_win:
+            # If we were on a win streak, increment it
+            if self.current_streak >= 0:
+                self.current_streak += 1
+            else:
+                # We were on a loss streak, reset to 1
+                self.current_streak = 1
+            
+            # Update best streak if current is better
+            if self.current_streak > self.best_win_streak:
+                self.best_win_streak = self.current_streak
+        else:
+            # Loss - reset streak to negative or decrement
+            if self.current_streak <= 0:
+                self.current_streak -= 1
+            else:
+                # We were on a win streak, reset to -1
+                self.current_streak = -1
 
     def _aggregate_stats(self, stats_dict: Dict, match_data: Dict[str, Any]) -> None:
         """
@@ -301,6 +334,7 @@ class MatchStatsAggregator:
         # Log the calculation for debugging
         logger.info(f"Total time played: {self.total_time_played_seconds} seconds = {self.total_time_played_seconds/3600:.2f} hours (rounded to {total_hours}h)")
         logger.info(f"Average game duration: {self.total_time_played_seconds/games_played:.1f} seconds ({self.total_time_played_seconds/games_played/60:.1f} minutes)")
+        logger.info(f"Best win streak: {self.best_win_streak} consecutive wins")
 
         summary = {
             "total_games": games_played,
@@ -308,6 +342,7 @@ class MatchStatsAggregator:
             "losses": games_played - wins,
             "win_rate_percent": round(wins / games_played * 100, 2) if games_played > 0 else 0,
             "total_hours_played": total_hours,
+            "best_win_streak": self.best_win_streak,
             "avg_kills_per_game": overall.get("kills_avg_per_game", 0),
             "avg_deaths_per_game": overall.get("deaths_avg_per_game", 0),
             "avg_assists_per_game": overall.get("assists_avg_per_game", 0),
@@ -437,6 +472,19 @@ class MatchStatsAggregator:
             "losses": data.get("losses", 0),
             "win_rate_percent": data.get("win_rate_percent", 0),
             "total_hours_played": data.get("total_hours_played", 0),
+            "best_win_streak": data.get("best_win_streak", 0),
+            "avg_kills_per_game": data.get("avg_kills_per_game", 0),
+            "avg_deaths_per_game": data.get("avg_deaths_per_game", 0),
+            "avg_assists_per_game": data.get("avg_assists_per_game", 0),
+            "avg_kda": data.get("avg_kda", 0),
+            "avg_damage_to_champions_per_game": data.get("avg_damage_to_champions_per_game", 0),
+            "avg_cs_per_game": data.get("avg_cs_per_game", 0),
+            "avg_vision_score_per_game": data.get("avg_vision_score_per_game", 0),
+            "avg_multikills_per_game": data.get("avg_multikills_per_game", 0),
+            "total_pentakills": data.get("total_pentakills", 0),
+            "most_played_champion": data.get("most_played_champion", {}),
+            "best_champion_by_winrate": data.get("best_champion_by_winrate", {}),
+            "favorite_role": data.get("favorite_role", {}),
             "all_stats_avg_per_game": data.get("all_stats_avg_per_game", {}),
             "champion_stats": filtered_champions,
             "role_stats": filtered_roles,

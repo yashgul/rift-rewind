@@ -549,6 +549,9 @@ CRITICAL STATS RULES:
 - NEVER calculate or estimate hours played - use the exact value provided
 - The "games" field MUST be the exact "total_games" value from the data
 - The "winrate" field MUST be the exact "win_rate_percent" value from the data
+- The "bestStreak" field in memorable MUST be taken directly from the "best_win_streak" value in the provided data
+- NEVER calculate or estimate the best win streak - use the exact value provided
+- The "bestMonth" field in memorable MUST be derived from the "best_month" object in the data
 - DO NOT make up or estimate any numerical stats - use only what's provided in the data
 
 INSTRUCTIONS:
