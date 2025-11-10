@@ -25,10 +25,10 @@ export const RoastsCard = ({ roasts }: RoastsCardProps) => {
             <Flame className="relative w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-red-500" />
           </div>
           <div>
-            <h3 className="text-xl sm:text-2xl lg:text-3xl font-bebas tracking-wide text-foreground group-hover:text-red-400 transition-colors duration-300">
+            <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-wide text-foreground group-hover:text-red-400 transition-colors duration-300">
               The Harsh Truth
             </h3>
-            <p className="text-[10px] sm:text-xs font-rajdhani text-muted-foreground">
+            <p className="text-[10px] sm:text-xs text-muted-foreground">
               Friendly fire incoming... 🔥
             </p>
           </div>
@@ -47,10 +47,10 @@ export const RoastsCard = ({ roasts }: RoastsCardProps) => {
               <div className="flex items-start gap-1.5 sm:gap-2">
                 <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4 text-red-400 flex-shrink-0 mt-0.5 group-hover/item:animate-pulse" />
                 <div className="space-y-0.5 flex-1 min-w-0">
-                  <h4 className="font-bebas text-sm sm:text-base tracking-wide text-red-400 group-hover/item:text-red-300 transition-colors">
+                  <h4 className="text-sm sm:text-base font-bold tracking-wide text-red-400 group-hover/item:text-red-300 transition-colors">
                     {roast.title}
                   </h4>
-                  <p className="text-[10px] sm:text-xs leading-snug text-foreground/80 font-rajdhani line-clamp-2">
+                  <p className="text-[10px] sm:text-xs lg:text-sm leading-snug text-foreground/90">
                     {roast.description}
                   </p>
                 </div>
@@ -61,7 +61,7 @@ export const RoastsCard = ({ roasts }: RoastsCardProps) => {
 
         {/* Footer note */}
         <div className="pt-1 sm:pt-1.5 border-t border-red-500/20">
-          <p className="text-[9px] sm:text-[10px] text-center text-muted-foreground font-rajdhani italic">
+          <p className="text-[9px] sm:text-[10px] text-center text-muted-foreground italic">
             All in good fun! Everyone has room to improve. 😄
           </p>
         </div>

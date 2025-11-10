@@ -100,9 +100,9 @@ const Index = () => {
         muted
         playsInline
         preload="auto"
-        className="absolute inset-0 w-full h-full object-cover filter"
+        className="absolute inset-0 w-full h-full object-fill filter"
       >
-        <source src="intro.webm" type="video/webm" />
+        <source src="goatintro.mp4" type="video/mp4" />
       </video>
 
       {/* Overlay - slightly darker with subtle blur */}

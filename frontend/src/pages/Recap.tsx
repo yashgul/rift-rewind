@@ -615,11 +615,17 @@ export default function Recap() {
     <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-4 sm:gap-6 py-4 lg:py-0">
       {/* Header with logo and name */}
       <div className="flex items-center gap-4 sm:gap-6">
-        <div
-          className="h-20 w-20 shrink-0 rounded-sm border-2 border-[#c89b3c] bg-cover bg-center shadow-xl sm:h-28 sm:w-28 sm:border-4"
-          style={{ backgroundImage: `url('${summonerIconUrl || '/rift_logo.png'}')` }}
-          aria-label={summonerIconUrl ? "Summoner profile icon" : "Rift Rewind logo"}
-        />
+        <div className="h-20 w-20 shrink-0 rounded-sm border-2 border-[#c89b3c] shadow-xl sm:h-28 sm:w-28 sm:border-4 bg-[#0a1428] overflow-hidden">
+          <img
+            src={summonerIconUrl && summonerIconUrl.trim() !== '' ? summonerIconUrl : '/favicon.png'}
+            alt={summonerIconUrl ? "Summoner profile icon" : "Rift Rewind logo"}
+            className="h-full w-full object-cover"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.src = '/favicon.png';
+            }}
+          />
+        </div>
         <div>
           <p className="text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">{recapData.message.wrapped.unique_id || 'Player'}</p>
           <p className="mt-1 text-sm uppercase tracking-[0.3em] text-[#c89b3c] sm:mt-2 sm:text-base">Season {year}</p>
@@ -642,7 +648,7 @@ export default function Recap() {
               className="flex items-center justify-between border-b-2 border-[#273241] bg-[#0a1428]/60 p-3"
             >
               <p className="text-xs font-medium uppercase tracking-[0.15em] text-[#a09b8c] sm:text-sm">{stat.label}</p>
-              <p className="text-xl font-bold text-white sm:text-2xl">{stat.value}</p>
+              <p className="text-sm font-bold text-white sm:text-base text-right">{stat.value}</p>
             </div>
           ))}
         </div>
@@ -924,7 +930,7 @@ export default function Recap() {
         </div>
       </div>
 
-      {/* Bottom Row: AI Personality Radar & Fun Facts */}
+      {/* Bottom Row: AI Personality Radar & Pro Player Comparison */}
       <div className="grid gap-2 lg:gap-3 lg:grid-cols-[1.3fr,0.7fr]">
         {/* AI Personality Radar Chart */}
         <div className="group relative overflow-hidden rounded-sm border border-[#785a28] bg-[#0b1426]/90 p-2.5 sm:p-3 lg:p-4 hover:border-[#c89b3c] transition-all duration-500">
@@ -979,26 +985,11 @@ export default function Recap() {
           </div>
         </div>
 
-        {/* Fun Facts */}
-        <div className="group relative overflow-hidden rounded-sm border border-[#785a28] bg-[#0b1426]/90 p-2.5 sm:p-3 lg:p-4 hover:border-[#c89b3c] transition-all duration-500">
-          {/* Animated background gradient */}
-          <div className="absolute inset-0 bg-gradient-to-br from-[#c89b3c]/5 via-transparent to-[#2196f3]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-          
-          {/* Glow effect */}
-          <div className="absolute -inset-1 bg-gradient-to-r from-[#c89b3c] to-[#d8ac4d] opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500" />
-          
-          <p className="relative text-[10px] uppercase tracking-[0.15em] text-[#c89b3c] sm:text-xs">Fun Facts</p>
-          <ul className="relative mt-1.5 space-y-1.5 text-[10px] text-[#f0e6d2] sm:mt-2 sm:space-y-2 sm:text-xs lg:space-y-2.5">
-            {funFacts.slice(0, 4).map((fact, index) => (
-              <li key={index} className="flex items-start gap-1.5">
-                <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#785a28] text-[9px] font-bold text-white sm:h-5 sm:w-5 sm:text-[10px]">
-                  {index + 1}
-                </span>
-                <span className="pt-0.5 leading-tight sm:leading-snug">{fact}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
+        {/* Pro Player Comparison */}
+        <ProPlayerCard
+          playerName={proPlayerComparison.playerName}
+          reasoning={proPlayerComparison.reasoning}
+        />
       </div>
     </div>
   );
@@ -1490,11 +1481,68 @@ export default function Recap() {
 
       {/* Two Column Layout */}
       <div className="grid gap-2 sm:gap-3 lg:gap-4 lg:grid-cols-2">
-        {/* Pro Player Comparison */}
-        <ProPlayerCard
-          playerName={proPlayerComparison.playerName}
-          reasoning={proPlayerComparison.reasoning}
-        />
+        {/* Fun Facts */}
+        <div className="group relative overflow-hidden rounded-sm border border-[#2196f3]/40 bg-gradient-to-br from-[#0b1426]/95 via-[#0b1426]/90 to-[#0b1426]/95 backdrop-blur-xl hover:border-[#2196f3]/60 transition-all duration-500">
+          {/* Animated background gradient */}
+          <div className="absolute inset-0 bg-gradient-to-br from-[#2196f3]/5 via-transparent to-[#00bcd4]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          
+          {/* Glow effect */}
+          <div className="absolute -inset-1 bg-gradient-to-r from-[#2196f3]/20 to-[#00bcd4]/20 opacity-0 group-hover:opacity-30 blur-xl transition-opacity duration-500" />
+          
+          <div className="relative p-3 sm:p-4 lg:p-6 space-y-2 sm:space-y-3 lg:space-y-4">
+            {/* Header */}
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <div className="relative">
+                <div className="absolute inset-0 bg-[#2196f3]/20 blur-xl animate-pulse" />
+                <svg className="relative w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-[#2196f3]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-wide text-white group-hover:text-[#2196f3] transition-colors duration-300">
+                  Fun Facts
+                </h3>
+                <p className="text-[10px] sm:text-xs text-[#a09b8c]">
+                  The numbers don't lie... ✨
+                </p>
+              </div>
+            </div>
+
+            {/* Divider */}
+            <div className="h-px bg-gradient-to-r from-transparent via-[#2196f3]/40 to-transparent" />
+
+            {/* Facts */}
+            <div className="space-y-1.5 sm:space-y-2 lg:space-y-3">
+              {funFacts.slice(0, 4).map((fact, index) => (
+                <div
+                  key={index}
+                  className="group/item p-2 sm:p-2.5 lg:p-3 rounded-lg bg-gradient-to-r from-[#2196f3]/5 to-[#00bcd4]/5 border border-[#2196f3]/20 hover:border-[#2196f3]/40 hover:from-[#2196f3]/10 hover:to-[#00bcd4]/10 transition-all duration-300"
+                >
+                  <div className="flex items-start gap-1.5 sm:gap-2">
+                    <span className="flex h-5 w-5 sm:h-6 sm:w-6 shrink-0 items-center justify-center rounded-full bg-[#2196f3]/20 border border-[#2196f3]/40 text-[10px] sm:text-xs font-bold text-[#2196f3] group-hover/item:bg-[#2196f3]/30 transition-colors">
+                      {index + 1}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[10px] sm:text-xs lg:text-sm leading-snug text-[#f0e6d2]/90">
+                        {fact}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Footer note */}
+            <div className="pt-1 sm:pt-1.5 border-t border-[#2196f3]/20">
+              <p className="text-[9px] sm:text-[10px] text-center text-[#a09b8c] italic">
+                Every match tells a story. 📊
+              </p>
+            </div>
+
+            {/* Bottom accent line */}
+            <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#2196f3]/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          </div>
+        </div>
 
         {/* Roasts */}
         <RoastsCard roasts={roasts} />
@@ -1524,11 +1572,17 @@ export default function Recap() {
         
         {/* Player Header */}
         <div className="relative mb-3 flex items-center gap-2 border-b border-[#785a28] pb-2 sm:mb-4 sm:gap-3 sm:pb-3 lg:gap-4 lg:pb-4">
-          <div
-            className="h-12 w-12 shrink-0 rounded-sm border border-[#c89b3c] bg-cover bg-center sm:h-14 sm:w-14 lg:h-16 lg:w-16"
-            style={{ backgroundImage: `url('${summonerIconUrl || '/rift_logo.png'}')` }}
-            aria-label={summonerIconUrl ? "Summoner profile icon" : "Player avatar"}
-          />
+          <div className="h-12 w-12 shrink-0 rounded-sm border border-[#c89b3c] sm:h-14 sm:w-14 lg:h-16 lg:w-16 bg-[#0a1428] overflow-hidden">
+            <img
+              src={summonerIconUrl && summonerIconUrl.trim() !== '' ? summonerIconUrl : '/favicon.png'}
+              alt={summonerIconUrl ? "Summoner profile icon" : "Player avatar"}
+              className="h-full w-full object-cover"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = '/favicon.png';
+              }}
+            />
+          </div>
           <div>
             <p className="text-lg font-bold text-white sm:text-xl lg:text-2xl">{recapData.message.wrapped.unique_id}</p>
             <p className="text-xs uppercase tracking-[0.15em] text-[#c89b3c] sm:text-sm">{archetype}</p>
