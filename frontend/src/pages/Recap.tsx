@@ -5,6 +5,8 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/
 import { convertPeakTimeToRegion } from "@/lib/timeUtils";
 import { ProPlayerCard } from "@/components/recap/ProPlayerCard";
 import { RoastsCard } from "@/components/recap/RoastsCard";
+import { FunFactsCard } from "@/components/recap/FunFactsCard";
+import { ItemIcon } from "@/components/recap/ItemIcon";
 
 interface RecapData {
   message: {
@@ -66,7 +68,10 @@ interface RecapData {
           clutchestComeback: string;
           bestMonth: string;
         };
-        funFacts: string[];
+        funFacts: Array<{
+          title: string;
+          description: string;
+        }>;
         proPlayerComparison: {
           playerName: string;
           reasoning: string;
@@ -103,6 +108,21 @@ interface RecapData {
     doubleKills?: number;
     killParticipation?: number;
     teamPosition?: string;
+    // Item fields
+    item0?: number;
+    item1?: number;
+    item2?: number;
+    item3?: number;
+    item4?: number;
+    item5?: number;
+    item6?: number;
+    item0_name?: string | null;
+    item1_name?: string | null;
+    item2_name?: string | null;
+    item3_name?: string | null;
+    item4_name?: string | null;
+    item5_name?: string | null;
+    item6_name?: string | null;
   }>;
   };
 }
@@ -1233,6 +1253,31 @@ export default function Recap() {
                           </div>
                         </div>
 
+                        {/* Items Build - Final Items */}
+                        {(() => {
+                          const items = [0, 1, 2, 3, 4, 5, 6]
+                            .map(i => ({
+                              id: match[`item${i}` as keyof typeof match] as number,
+                              name: match[`item${i}_name` as keyof typeof match] as string | null
+                            }))
+                            .filter(item => item.id && item.id !== 0);
+                          
+                          return items.length > 0 ? (
+                            <div className="border-t-2 border-[#785a28]/40 bg-[#0a1428]/95 backdrop-blur-sm px-5 py-4">
+                              <p className="text-xs font-medium uppercase tracking-wider text-[#a09b8c] mb-3">Final Build</p>
+                              <div className="flex gap-2 flex-wrap">
+                                {items.map((item, idx) => (
+                                  <ItemIcon
+                                    key={`${match.id}-item-${idx}`}
+                                    itemId={item.id}
+                                    itemName={item.name}
+                                  />
+                                ))}
+                              </div>
+                            </div>
+                          ) : null;
+                        })()}
+
                         {/* Match Summary */}
                         <div className="border-t-2 border-[#785a28]/40 bg-[#0a1428]/80 backdrop-blur-sm p-5">
                           <p className="text-base leading-relaxed text-[#d1c6ac] line-clamp-3">
@@ -1472,77 +1517,17 @@ export default function Recap() {
       {/* Header */}
       <div className="text-center mb-0 sm:mb-1">
         <h2 className="text-xl font-bold uppercase tracking-[0.12em] text-[#c89b3c] sm:text-2xl lg:text-3xl lg:tracking-[0.15em]">
-          Insights
+          Player Quirks
         </h2>
         <p className="mt-0.5 text-[10px] text-[#d1c6ac] sm:text-xs lg:text-sm">
-          The good, the bad, and the LEGENDARY
+          Your unique habits, strengths, and... opportunities for growth
         </p>
       </div>
 
       {/* Two Column Layout */}
       <div className="grid gap-2 sm:gap-3 lg:gap-4 lg:grid-cols-2">
         {/* Fun Facts */}
-        <div className="group relative overflow-hidden rounded-sm border border-[#2196f3]/40 bg-gradient-to-br from-[#0b1426]/95 via-[#0b1426]/90 to-[#0b1426]/95 backdrop-blur-xl hover:border-[#2196f3]/60 transition-all duration-500">
-          {/* Animated background gradient */}
-          <div className="absolute inset-0 bg-gradient-to-br from-[#2196f3]/5 via-transparent to-[#00bcd4]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-          
-          {/* Glow effect */}
-          <div className="absolute -inset-1 bg-gradient-to-r from-[#2196f3]/20 to-[#00bcd4]/20 opacity-0 group-hover:opacity-30 blur-xl transition-opacity duration-500" />
-          
-          <div className="relative p-3 sm:p-4 lg:p-6 space-y-2 sm:space-y-3 lg:space-y-4">
-            {/* Header */}
-            <div className="flex items-center gap-1.5 sm:gap-2">
-              <div className="relative">
-                <div className="absolute inset-0 bg-[#2196f3]/20 blur-xl animate-pulse" />
-                <svg className="relative w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-[#2196f3]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                </svg>
-              </div>
-              <div>
-                <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-wide text-white group-hover:text-[#2196f3] transition-colors duration-300">
-                  Fun Facts
-                </h3>
-                <p className="text-[10px] sm:text-xs text-[#a09b8c]">
-                  The numbers don't lie... ✨
-                </p>
-              </div>
-            </div>
-
-            {/* Divider */}
-            <div className="h-px bg-gradient-to-r from-transparent via-[#2196f3]/40 to-transparent" />
-
-            {/* Facts */}
-            <div className="space-y-1.5 sm:space-y-2 lg:space-y-3">
-              {funFacts.slice(0, 4).map((fact, index) => (
-                <div
-                  key={index}
-                  className="group/item p-2 sm:p-2.5 lg:p-3 rounded-lg bg-gradient-to-r from-[#2196f3]/5 to-[#00bcd4]/5 border border-[#2196f3]/20 hover:border-[#2196f3]/40 hover:from-[#2196f3]/10 hover:to-[#00bcd4]/10 transition-all duration-300"
-                >
-                  <div className="flex items-start gap-1.5 sm:gap-2">
-                    <span className="flex h-5 w-5 sm:h-6 sm:w-6 shrink-0 items-center justify-center rounded-full bg-[#2196f3]/20 border border-[#2196f3]/40 text-[10px] sm:text-xs font-bold text-[#2196f3] group-hover/item:bg-[#2196f3]/30 transition-colors">
-                      {index + 1}
-                    </span>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[10px] sm:text-xs lg:text-sm leading-snug text-[#f0e6d2]/90">
-                        {fact}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Footer note */}
-            <div className="pt-1 sm:pt-1.5 border-t border-[#2196f3]/20">
-              <p className="text-[9px] sm:text-[10px] text-center text-[#a09b8c] italic">
-                Every match tells a story. 📊
-              </p>
-            </div>
-
-            {/* Bottom accent line */}
-            <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#2196f3]/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-          </div>
-        </div>
+        <FunFactsCard funFacts={funFacts} />
 
         {/* Roasts */}
         <RoastsCard roasts={roasts} />
@@ -1780,7 +1765,7 @@ export default function Recap() {
     },
     {
       id: "insights",
-      label: "'Key' Insights",
+      label: "Player Quirks",
       background: "bg-gradient-to-br from-[#0a1428] via-[#1a2336] to-[#0f1b2e]",
       video: "/aura.webm",
       content: insightsSlide,

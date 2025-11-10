@@ -18,6 +18,7 @@ from clients.awsBedrock import (
 from clients.chatBot import get_chatbot_response
 from helpers.match_parser import parse_match_for_player
 from helpers.match_aggregator import MatchStatsAggregator
+from helpers.item_data import get_item_name
 
 # --- Load environment variables ---
 load_dotenv(verbose=True)
@@ -169,7 +170,7 @@ def matchData(name: str, tag: str, region: str):
         
         # TEMPORARY: Limit to 90 matches for faster processing during development
         # TODO: Remove this limit when ready for full production use
-        recent_match_ids = recent_match_ids[:90]
+        recent_match_ids = recent_match_ids[:70]
 
         if not recent_match_ids:
             raise HTTPException(
@@ -248,7 +249,7 @@ def matchData(name: str, tag: str, region: str):
                     "doubleKills": flattened_match_data.get("doubleKills"),
                     "killParticipation": flattened_match_data.get("killParticipation"),
                     "teamPosition": flattened_match_data.get("teamPosition"),
-                    # Add item fields
+                    # Add item fields (IDs and names)
                     "item0": flattened_match_data.get("item0"),
                     "item1": flattened_match_data.get("item1"),
                     "item2": flattened_match_data.get("item2"),
@@ -256,6 +257,13 @@ def matchData(name: str, tag: str, region: str):
                     "item4": flattened_match_data.get("item4"),
                     "item5": flattened_match_data.get("item5"),
                     "item6": flattened_match_data.get("item6"),
+                    "item0_name": get_item_name(flattened_match_data.get("item0", 0)),
+                    "item1_name": get_item_name(flattened_match_data.get("item1", 0)),
+                    "item2_name": get_item_name(flattened_match_data.get("item2", 0)),
+                    "item3_name": get_item_name(flattened_match_data.get("item3", 0)),
+                    "item4_name": get_item_name(flattened_match_data.get("item4", 0)),
+                    "item5_name": get_item_name(flattened_match_data.get("item5", 0)),
+                    "item6_name": get_item_name(flattened_match_data.get("item6", 0)),
                 }
                 enriched_timeline.append(enriched_match)
 
@@ -365,7 +373,7 @@ def compareData(
             
             # TEMPORARY: Limit to 90 matches for faster processing during development
             # TODO: Remove this limit when ready for full production use
-            recent_match_ids = recent_match_ids[:90]
+            recent_match_ids = recent_match_ids[:70]
 
             if not recent_match_ids:
                 raise HTTPException(
@@ -443,7 +451,7 @@ def compareData(
                         "doubleKills": flattened_match_data.get("doubleKills"),
                         "killParticipation": flattened_match_data.get("killParticipation"),
                         "teamPosition": flattened_match_data.get("teamPosition"),
-                        # Add item fields
+                        # Add item fields (IDs and names)
                         "item0": flattened_match_data.get("item0"),
                         "item1": flattened_match_data.get("item1"),
                         "item2": flattened_match_data.get("item2"),
@@ -451,6 +459,13 @@ def compareData(
                         "item4": flattened_match_data.get("item4"),
                         "item5": flattened_match_data.get("item5"),
                         "item6": flattened_match_data.get("item6"),
+                        "item0_name": get_item_name(flattened_match_data.get("item0", 0)),
+                        "item1_name": get_item_name(flattened_match_data.get("item1", 0)),
+                        "item2_name": get_item_name(flattened_match_data.get("item2", 0)),
+                        "item3_name": get_item_name(flattened_match_data.get("item3", 0)),
+                        "item4_name": get_item_name(flattened_match_data.get("item4", 0)),
+                        "item5_name": get_item_name(flattened_match_data.get("item5", 0)),
+                        "item6_name": get_item_name(flattened_match_data.get("item6", 0)),
                     }
                     enriched_timeline.append(enriched_match)
 

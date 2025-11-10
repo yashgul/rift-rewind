@@ -449,8 +449,21 @@ PLAYER_WRAPPED_SCHEMA = {
                             },
                             "funFacts": {
                                 "type": "array",
-                                "description": "Exactly 4 fun facts",
-                                "items": {"type": "string"},
+                                "description": "Exactly 4 fun facts with titles and descriptions",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "title": {
+                                            "type": "string",
+                                            "description": "Catchy, fun title for the fact",
+                                        },
+                                        "description": {
+                                            "type": "string",
+                                            "description": "Surprising or amusing observation from the data, 1-2 sentences",
+                                        },
+                                    },
+                                    "required": ["title", "description"],
+                                },
                                 "minItems": 4,
                                 "maxItems": 4,
                             },
@@ -471,7 +484,7 @@ PLAYER_WRAPPED_SCHEMA = {
                             },
                             "roasts": {
                                 "type": "array",
-                                "description": "Exactly 3 funny/quirky/constructive criticisms about the player",
+                                "description": "Exactly 4 funny/quirky/constructive criticisms about the player",
                                 "items": {
                                     "type": "object",
                                     "properties": {
@@ -486,8 +499,8 @@ PLAYER_WRAPPED_SCHEMA = {
                                     },
                                     "required": ["title", "description"],
                                 },
-                                "minItems": 3,
-                                "maxItems": 3,
+                                "minItems": 4,
+                                "maxItems": 4,
                             },
                             "closing": {
                                 "type": "object",
@@ -557,7 +570,18 @@ INSTRUCTIONS:
 4. Tone: Positive and celebratory like Spotify Wrapped. Acknowledge quirks warmly, not harshly.
 5. hiddenGem should be null or omitted if no champion has <20 games AND >50% WR
 6. For traits, score based on the data: high CS/min = high "Farming", baron steals = high "Objective Control", etc.
-7. funFacts should be surprising or amusing observations from the data
+7. funFacts should be surprising or amusing observations from the data - each with a catchy title and detailed description
+
+FUN FACTS (Surprising Observations):
+- Identify 4 interesting, surprising, or amusing patterns from the data
+- Tone: Light-hearted, positive, and celebratory
+- Each fact needs a catchy title and a 1-2 sentence description
+- Focus on: unique patterns, impressive streaks, funny coincidences, unexpected statistics
+- Examples: 
+  - Title: "Night Owl Syndrome", Description: "You played 67% of your games between midnight and 4 AM. The Rift never sleeps, and neither do you."
+  - Title: "Flash Master", Description: "You used Flash 1,234 times this year. That's enough to teleport from New York to Los Angeles... twice."
+- Make it feel like discovering cool insights about yourself
+- Base it on REAL data patterns (play times, champion preferences, item builds, performance metrics, etc.)
 
 PRO PLAYER COMPARISON:
 - Analyze the player's playstyle, champion pool, statistics, and performance patterns
@@ -568,22 +592,26 @@ PRO PLAYER COMPARISON:
 - Examples of diverse pro players to consider: Faker, Chovy, Caps, Jojopyun, Ruler, Gumayusi, Keria, Bin, Knight, Inspired, Impact, CoreJJ, Perkz, etc.
 
 ROASTS (Funny Constructive Criticism):
-- Identify 3 quirky, negative, or improvable aspects from the data
+- Identify 4 quirky, negative, or improvable aspects from the data (changed from 3 to match funFacts)
 - Tone: Funny and playful, like friendly banter - NOT toxic or mean
+- Each roast needs a catchy title and a 1-2 sentence description
 - Focus on: questionable decisions, concerning patterns, or amusing habits
-- Examples: "You flash into walls more than a moth to a lamp", "Your death timer screen time could qualify you for a documentary", "Ward? Never heard of her."
+- Examples: 
+  - Title: "Flash Into Walls Enthusiast", Description: "You flashed into walls more than a moth to a lamp. Maybe check your keyboard placement?"
+  - Title: "Death Timer Documentary", Description: "Your death timer screen time could qualify you for a documentary. At least you're committed to the gray screen aesthetic."
 - Make it feel like a friend roasting you, not an enemy flaming you
 - Base it on REAL data patterns (high deaths, low vision score, late-night losses, etc.)
 
 CRITICAL RULES:
-- ALL array lengths must match exactly (5 highlights, 3 top3, 4 funFacts, 3 roasts)
+- ALL array lengths must match exactly (5 highlights, 3 top3, 4 funFacts, 4 roasts)
 - All numbers must be actual numbers, not strings (except percentiles and year)
 - If a player has no baron steals, pentakills, etc., focus on other interesting patterns
 - DO NOT make up stats - only use provided data
 - Be creative and engaging while staying truthful to the data
 - CHAMPION NAMES MUST BE REAL: Use only actual League of Legends champion names from the provided player statistics data
 - NEVER use lane/role names (Middle Lane, Top Lane, Support, etc.) as champion names
-- If insufficient champion data exists, only populate what you can verify from the actual data"""
+- If insufficient champion data exists, only populate what you can verify from the actual data
+- Both funFacts and roasts must have title + description format for uniform display"""
     }
 ]
 
