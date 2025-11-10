@@ -628,9 +628,15 @@ export default function Recap() {
       </div>
 
       {/* Season Snapshot - Table style */}
-      <div className="rounded-sm border-2 border-[#785a28] bg-[#0b1426]/90 p-4 shadow-2xl sm:p-6">
-        <h3 className="mb-4 text-lg font-bold uppercase tracking-[0.2em] text-[#c89b3c] sm:text-xl">Season Snapshot</h3>
-        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="group relative overflow-hidden rounded-sm border-2 border-[#785a28] bg-[#0b1426]/90 p-4 shadow-2xl sm:p-6 hover:border-[#c89b3c] transition-all duration-500">
+        {/* Animated background gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#c89b3c]/5 via-transparent to-[#2196f3]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+        
+        {/* Glow effect */}
+        <div className="absolute -inset-1 bg-gradient-to-r from-[#c89b3c] to-[#d8ac4d] opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500" />
+        
+        <h3 className="relative mb-4 text-lg font-bold uppercase tracking-[0.2em] text-[#c89b3c] sm:text-xl">Season Snapshot</h3>
+        <div className="relative grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {statSummary.map((stat) => (
             <div
               key={stat.label}
@@ -665,6 +671,12 @@ export default function Recap() {
                 key={champion.name}
                 className="group relative flex h-full flex-col overflow-hidden rounded-sm border border-[#c89b3c]/50 bg-[#0b1426]/95 transition-all duration-300 hover:border-[#c89b3c] hover:shadow-[#c89b3c]/10"
               >
+                {/* Animated background gradient */}
+                <div className="absolute inset-0 bg-gradient-to-br from-[#c89b3c]/5 via-transparent to-[#2196f3]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                
+                {/* Glow effect */}
+                <div className="absolute -inset-1 bg-gradient-to-r from-[#c89b3c] to-[#d8ac4d] opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500" />
+                
                 {/* Rank Badge - Top Left */}
                 <div className="absolute left-4 top-4 z-10">
                   <div className="flex h-7 w-7 items-center justify-center rounded border border-[#c89b3c]/60 bg-[#0a1428]/80">
@@ -708,9 +720,15 @@ export default function Recap() {
         <div className="flex h-full flex-col justify-center gap-4 sm:gap-6 lg:w-[380px]">
           {/* MAIN CHAMPION Section (if available) */}
           {mainChampion && (
-            <div className="rounded-sm border border-[#c89b3c]/50 bg-[#0b1426]/95 p-4 sm:p-5">
-              <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-[#c89b3c]/70 sm:text-xs">MAIN</p>
-              <div className="mt-3">
+            <div className="group relative overflow-hidden rounded-sm border border-[#c89b3c]/50 bg-[#0b1426]/95 p-4 sm:p-5 hover:border-[#c89b3c] transition-all duration-500">
+              {/* Animated background gradient */}
+              <div className="absolute inset-0 bg-gradient-to-br from-[#c89b3c]/5 via-transparent to-[#2196f3]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              
+              {/* Glow effect */}
+              <div className="absolute -inset-1 bg-gradient-to-r from-[#c89b3c] to-[#d8ac4d] opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500" />
+              
+              <p className="relative text-[10px] font-medium uppercase tracking-[0.2em] text-[#c89b3c]/70 sm:text-xs">MAIN</p>
+              <div className="relative mt-3">
                 <div className="flex items-center gap-3">
                   {/* Champion Portrait */}
                   <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-sm bg-[#050b16] sm:h-16 sm:w-16">
@@ -749,9 +767,15 @@ export default function Recap() {
 
           {/* HIDDEN GEM Section */}
           {hiddenGem && (
-            <div className="rounded-sm border border-[#c89b3c]/50 bg-[#0b1426]/95 p-4 sm:p-5">
-              <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-[#c89b3c]/70 sm:text-xs">HIDDEN GEM</p>
-              <div className="mt-3">
+            <div className="group relative overflow-hidden rounded-sm border border-[#c89b3c]/50 bg-[#0b1426]/95 p-4 sm:p-5 hover:border-[#c89b3c] transition-all duration-500">
+              {/* Animated background gradient */}
+              <div className="absolute inset-0 bg-gradient-to-br from-[#c89b3c]/5 via-transparent to-[#2196f3]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              
+              {/* Glow effect */}
+              <div className="absolute -inset-1 bg-gradient-to-r from-[#c89b3c] to-[#d8ac4d] opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500" />
+              
+              <p className="relative text-[10px] font-medium uppercase tracking-[0.2em] text-[#c89b3c]/70 sm:text-xs">HIDDEN GEM</p>
+              <div className="relative mt-3">
                 <div className="flex items-center gap-3">
                   {/* Champion Portrait */}
                   <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-sm bg-[#050b16] sm:h-16 sm:w-16">
@@ -787,9 +811,15 @@ export default function Recap() {
           )}
 
           {/* MEMORABLE STATS Section */}
-          <div className="rounded-sm border border-[#c89b3c]/50 bg-[#0b1426]/95 p-4 sm:p-5">
-            <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-[#c89b3c]/70 sm:text-xs">MEMORABLE</p>
-            <div className="mt-3 space-y-3">
+          <div className="group relative overflow-hidden rounded-sm border border-[#c89b3c]/50 bg-[#0b1426]/95 p-4 sm:p-5 hover:border-[#c89b3c] transition-all duration-500">
+            {/* Animated background gradient */}
+            <div className="absolute inset-0 bg-gradient-to-br from-[#c89b3c]/5 via-transparent to-[#2196f3]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            
+            {/* Glow effect */}
+            <div className="absolute -inset-1 bg-gradient-to-r from-[#c89b3c] to-[#d8ac4d] opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500" />
+            
+            <p className="relative text-[10px] font-medium uppercase tracking-[0.2em] text-[#c89b3c]/70 sm:text-xs">MEMORABLE</p>
+            <div className="relative mt-3 space-y-3">
               <div className="flex items-center justify-between border-b border-[#273241] pb-2">
                 <span className="text-xs text-[#a09b8c]">Best Streak</span>
                 <span className="text-2xl font-bold text-[#4caf50]">{safeGet(wrappedData, 'memorable.bestStreak', 0)}</span>
@@ -812,9 +842,15 @@ export default function Recap() {
   const personalitySlide: ReactNode = (
     <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-2 lg:gap-3">
       {/* Top Row: Season Highlights - Show 2 on medium, 4 on large */}
-      <div className="rounded-sm border border-[#785a28] bg-[#0b1426]/90 p-2.5 sm:p-3 lg:p-4">
-        <p className="text-[10px] uppercase tracking-[0.15em] text-[#c89b3c] sm:text-xs">Season Highlights</p>
-        <div className="mt-1.5 grid gap-1.5 sm:mt-2 sm:gap-2 lg:gap-3 lg:grid-cols-2">
+      <div className="group relative overflow-hidden rounded-sm border border-[#785a28] bg-[#0b1426]/90 p-2.5 sm:p-3 lg:p-4 hover:border-[#c89b3c] transition-all duration-500">
+        {/* Animated background gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#c89b3c]/5 via-transparent to-[#2196f3]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+        
+        {/* Glow effect */}
+        <div className="absolute -inset-1 bg-gradient-to-r from-[#c89b3c] to-[#d8ac4d] opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500" />
+        
+        <p className="relative text-[10px] uppercase tracking-[0.15em] text-[#c89b3c] sm:text-xs">Season Highlights</p>
+        <div className="relative mt-1.5 grid gap-1.5 sm:mt-2 sm:gap-2 lg:gap-3 lg:grid-cols-2">
           {highlights.slice(0, 2).map((highlight, index) => (
             <div
               key={index}
@@ -892,12 +928,18 @@ export default function Recap() {
       {/* Bottom Row: AI Personality Radar & Fun Facts */}
       <div className="grid gap-2 lg:gap-3 lg:grid-cols-[1.3fr,0.7fr]">
         {/* AI Personality Radar Chart */}
-        <div className="rounded-sm border border-[#785a28] bg-[#0b1426]/90 p-2.5 sm:p-3 lg:p-4">
-          <p className="text-[10px] uppercase tracking-[0.15em] text-[#c89b3c] sm:text-xs">Playstyle Analysis</p>
-          <p className="mt-0.5 text-base font-bold text-white sm:text-lg lg:text-xl">{archetype}</p>
-          <p className="mt-0.5 text-[9px] leading-tight text-[#d1c6ac] line-clamp-1 sm:text-[10px] lg:text-xs">{primaryTagline}</p>
+        <div className="group relative overflow-hidden rounded-sm border border-[#785a28] bg-[#0b1426]/90 p-2.5 sm:p-3 lg:p-4 hover:border-[#c89b3c] transition-all duration-500">
+          {/* Animated background gradient */}
+          <div className="absolute inset-0 bg-gradient-to-br from-[#c89b3c]/5 via-transparent to-[#2196f3]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           
-          <div className="mt-1 flex items-center justify-center sm:mt-1.5 lg:mt-2">
+          {/* Glow effect */}
+          <div className="absolute -inset-1 bg-gradient-to-r from-[#c89b3c] to-[#d8ac4d] opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500" />
+          
+          <p className="relative text-[10px] uppercase tracking-[0.15em] text-[#c89b3c] sm:text-xs">Playstyle Analysis</p>
+          <p className="relative mt-0.5 text-base font-bold text-white sm:text-lg lg:text-xl">{archetype}</p>
+          <p className="relative mt-0.5 text-[9px] leading-tight text-[#d1c6ac] line-clamp-1 sm:text-[10px] lg:text-xs">{primaryTagline}</p>
+          
+          <div className="relative mt-1 flex items-center justify-center sm:mt-1.5 lg:mt-2">
             <ChartContainer
               config={{
                 value: {
@@ -939,9 +981,15 @@ export default function Recap() {
         </div>
 
         {/* Fun Facts */}
-        <div className="rounded-sm border border-[#785a28] bg-[#0b1426]/90 p-2.5 sm:p-3 lg:p-4">
-          <p className="text-[10px] uppercase tracking-[0.15em] text-[#c89b3c] sm:text-xs">Fun Facts</p>
-          <ul className="mt-1.5 space-y-1.5 text-[10px] text-[#f0e6d2] sm:mt-2 sm:space-y-2 sm:text-xs lg:space-y-2.5">
+        <div className="group relative overflow-hidden rounded-sm border border-[#785a28] bg-[#0b1426]/90 p-2.5 sm:p-3 lg:p-4 hover:border-[#c89b3c] transition-all duration-500">
+          {/* Animated background gradient */}
+          <div className="absolute inset-0 bg-gradient-to-br from-[#c89b3c]/5 via-transparent to-[#2196f3]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          
+          {/* Glow effect */}
+          <div className="absolute -inset-1 bg-gradient-to-r from-[#c89b3c] to-[#d8ac4d] opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500" />
+          
+          <p className="relative text-[10px] uppercase tracking-[0.15em] text-[#c89b3c] sm:text-xs">Fun Facts</p>
+          <ul className="relative mt-1.5 space-y-1.5 text-[10px] text-[#f0e6d2] sm:mt-2 sm:space-y-2 sm:text-xs lg:space-y-2.5">
             {funFacts.slice(0, 4).map((fact, index) => (
               <li key={index} className="flex items-start gap-1.5">
                 <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#785a28] text-[9px] font-bold text-white sm:h-5 sm:w-5 sm:text-[10px]">
@@ -988,13 +1036,19 @@ export default function Recap() {
                 {timelineMatches[activeMatchIndex] && (
                   <div className="space-y-4">
                     {/* Combat Stats Card */}
-                    <div className="rounded-lg border border-[#785a28]/40 bg-[#0b1426]/80 p-6">
-                      <div className="mb-6">
+                    <div className="group relative overflow-hidden rounded-lg border border-[#785a28]/40 bg-[#0b1426]/80 p-6 hover:border-[#c89b3c] transition-all duration-500">
+                      {/* Animated background gradient */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-[#c89b3c]/5 via-transparent to-[#2196f3]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                      
+                      {/* Glow effect */}
+                      <div className="absolute -inset-1 bg-gradient-to-r from-[#c89b3c] to-[#d8ac4d] opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500" />
+                      
+                      <div className="relative mb-6">
                         <p className="text-xs font-medium uppercase tracking-wider text-[#a09b8c] mb-1">Combat Performance</p>
                         <div className="h-px bg-[#785a28]/30 mt-2"></div>
                       </div>
                       
-                      <div className="space-y-6">
+                      <div className="relative space-y-6">
                         {/* KDA - Hero stat */}
                         <div className="text-center">
                           <p className="text-xs uppercase tracking-wider text-[#a09b8c]/70 mb-3">KDA</p>
@@ -1044,12 +1098,18 @@ export default function Recap() {
                       timelineMatches[activeMatchIndex].quadraKills || 
                       timelineMatches[activeMatchIndex].tripleKills || 
                       timelineMatches[activeMatchIndex].doubleKills) && (
-                      <div className="rounded-lg border border-[#785a28]/40 bg-[#0b1426]/80 p-6">
-                        <div className="mb-4">
+                      <div className="group relative overflow-hidden rounded-lg border border-[#785a28]/40 bg-[#0b1426]/80 p-6 hover:border-[#c89b3c] transition-all duration-500">
+                        {/* Animated background gradient */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-[#c89b3c]/5 via-transparent to-[#2196f3]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                        
+                        {/* Glow effect */}
+                        <div className="absolute -inset-1 bg-gradient-to-r from-[#c89b3c] to-[#d8ac4d] opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500" />
+                        
+                        <div className="relative mb-4">
                           <p className="text-xs font-medium uppercase tracking-wider text-[#a09b8c] mb-1">Multi-Kills</p>
                           <div className="h-px bg-[#785a28]/30 mt-2"></div>
                         </div>
-                        <div className="space-y-3">
+                        <div className="relative space-y-3">
                           {timelineMatches[activeMatchIndex].pentaKills !== undefined && timelineMatches[activeMatchIndex].pentaKills! > 0 && (
                             <div className="flex items-center justify-between py-2">
                               <span className="text-sm text-[#d1c6ac]">Pentakill</span>
@@ -1110,7 +1170,7 @@ export default function Recap() {
                       <div
                         key={match.id}
                         onClick={() => setActiveMatchIndex(index)}
-                        className={`absolute left-1/2 top-1/2 w-full cursor-pointer overflow-hidden rounded-xl transition-all duration-700 ease-out shadow-2xl ${
+                        className={`group absolute left-1/2 top-1/2 w-full cursor-pointer overflow-hidden rounded-xl transition-all duration-700 ease-out shadow-2xl ${
                           match.win 
                             ? 'border-4 border-[#4caf50]/60 bg-gradient-to-br from-[#0b1426]/98 to-[#0a1020]/98' 
                             : 'border-4 border-[#f44336]/60 bg-gradient-to-br from-[#1a0b0e]/98 to-[#0a1020]/98'
@@ -1122,6 +1182,12 @@ export default function Recap() {
                           pointerEvents: isVisible ? 'auto' : 'none',
                         }}
                       >
+                        {/* Animated background gradient */}
+                        {isActive && <div className="absolute inset-0 bg-gradient-to-br from-[#c89b3c]/5 via-transparent to-[#2196f3]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />}
+                        
+                        {/* Glow effect */}
+                        {isActive && <div className="absolute -inset-1 bg-gradient-to-r from-[#c89b3c] to-[#d8ac4d] opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500" />}
+                        
                         {/* Date Label - Timeline Style */}
                         <div className="absolute -left-3 top-6 z-10">
                           <div className="flex items-center gap-2">
@@ -1194,13 +1260,19 @@ export default function Recap() {
                 {timelineMatches[activeMatchIndex] && (
                   <div className="space-y-4">
                     {/* Performance Card */}
-                    <div className="rounded-lg border border-[#785a28]/40 bg-[#0b1426]/80 p-6">
-                      <div className="mb-6">
+                    <div className="group relative overflow-hidden rounded-lg border border-[#785a28]/40 bg-[#0b1426]/80 p-6 hover:border-[#c89b3c] transition-all duration-500">
+                      {/* Animated background gradient */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-[#c89b3c]/5 via-transparent to-[#2196f3]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                      
+                      {/* Glow effect */}
+                      <div className="absolute -inset-1 bg-gradient-to-r from-[#c89b3c] to-[#d8ac4d] opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500" />
+                      
+                      <div className="relative mb-6">
                         <p className="text-xs font-medium uppercase tracking-wider text-[#a09b8c] mb-1">Performance</p>
                         <div className="h-px bg-[#785a28]/30 mt-2"></div>
                       </div>
                       
-                      <div className="space-y-5">
+                      <div className="relative space-y-5">
                         {/* Damage */}
                         {timelineMatches[activeMatchIndex].totalDamageDealtToChampions !== undefined && (
                           <div>
@@ -1248,13 +1320,19 @@ export default function Recap() {
                     </div>
 
                     {/* Match Info Card */}
-                    <div className="rounded-lg border border-[#785a28]/40 bg-[#0b1426]/80 p-6">
-                      <div className="mb-6">
+                    <div className="group relative overflow-hidden rounded-lg border border-[#785a28]/40 bg-[#0b1426]/80 p-6 hover:border-[#c89b3c] transition-all duration-500">
+                      {/* Animated background gradient */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-[#c89b3c]/5 via-transparent to-[#2196f3]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                      
+                      {/* Glow effect */}
+                      <div className="absolute -inset-1 bg-gradient-to-r from-[#c89b3c] to-[#d8ac4d] opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500" />
+                      
+                      <div className="relative mb-6">
                         <p className="text-xs font-medium uppercase tracking-wider text-[#a09b8c] mb-1">Match Info</p>
                         <div className="h-px bg-[#785a28]/30 mt-2"></div>
                       </div>
                       
-                      <div className="space-y-4">
+                      <div className="relative space-y-4">
                         {/* Duration */}
                         {timelineMatches[activeMatchIndex].gameDuration !== undefined && (
                           <div className="flex items-center justify-between">
@@ -1439,9 +1517,15 @@ export default function Recap() {
       </div>
 
       {/* Compact Stats Card */}
-      <div className="rounded-sm border border-[#785a28] bg-[#0b1426]/95 p-3 shadow-2xl sm:p-4 lg:p-6">
+      <div className="group relative overflow-hidden rounded-sm border border-[#785a28] bg-[#0b1426]/95 p-3 shadow-2xl sm:p-4 lg:p-6 hover:border-[#c89b3c] transition-all duration-500">
+        {/* Animated background gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#c89b3c]/5 via-transparent to-[#2196f3]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+        
+        {/* Glow effect */}
+        <div className="absolute -inset-1 bg-gradient-to-r from-[#c89b3c] to-[#d8ac4d] opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500" />
+        
         {/* Player Header */}
-        <div className="mb-3 flex items-center gap-2 border-b border-[#785a28] pb-2 sm:mb-4 sm:gap-3 sm:pb-3 lg:gap-4 lg:pb-4">
+        <div className="relative mb-3 flex items-center gap-2 border-b border-[#785a28] pb-2 sm:mb-4 sm:gap-3 sm:pb-3 lg:gap-4 lg:pb-4">
           <div
             className="h-12 w-12 shrink-0 rounded-sm border border-[#c89b3c] bg-cover bg-center sm:h-14 sm:w-14 lg:h-16 lg:w-16"
             style={{ backgroundImage: `url('${summonerIconUrl || '/rift_logo.png'}')` }}
@@ -1454,7 +1538,7 @@ export default function Recap() {
         </div>
 
         {/* Stats Grid - Compact */}
-        <div className="grid gap-2 sm:grid-cols-3 sm:gap-2.5 lg:gap-3">
+        <div className="relative grid gap-2 sm:grid-cols-3 sm:gap-2.5 lg:gap-3">
           {/* Games & Winrate */}
           <div className="rounded-sm bg-[#091222]/80 p-2.5 sm:p-3 lg:p-4">
             <p className="text-[10px] uppercase tracking-[0.15em] text-[#a09b8c] sm:text-xs">Performance</p>
@@ -1504,8 +1588,14 @@ export default function Recap() {
 
         {/* Main Champion Showcase */}
         {mainChampion && (
-          <div className="mt-2 rounded-sm border border-[#c89b3c]/30 bg-[#0a1428]/60 p-2.5 sm:mt-3 sm:p-3 lg:mt-4 lg:p-4">
-            <div className="flex items-center gap-2 sm:gap-3 lg:gap-4">
+          <div className="group relative overflow-hidden mt-2 rounded-sm border border-[#c89b3c]/30 bg-[#0a1428]/60 p-2.5 sm:mt-3 sm:p-3 lg:mt-4 lg:p-4 hover:border-[#c89b3c] transition-all duration-500">
+            {/* Animated background gradient */}
+            <div className="absolute inset-0 bg-gradient-to-br from-[#c89b3c]/5 via-transparent to-[#2196f3]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            
+            {/* Glow effect */}
+            <div className="absolute -inset-1 bg-gradient-to-r from-[#c89b3c] to-[#d8ac4d] opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500" />
+            
+            <div className="relative flex items-center gap-2 sm:gap-3 lg:gap-4">
               <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-sm bg-[#050b16] sm:h-14 sm:w-14 lg:h-16 lg:w-16">
                 {getChampionImage(mainChampion.name) ? (
                   <img

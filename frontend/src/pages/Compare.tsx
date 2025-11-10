@@ -329,8 +329,14 @@ export default function Compare() {
         {/* Player Cards Side by Side */}
         <div className="grid md:grid-cols-2 gap-6">
           {/* Player 1 */}
-          <div className="bg-[#0b1426]/90 border-2 border-[#785a28] rounded-lg p-6 space-y-4">
-            <div className="flex items-center justify-between">
+          <div className="group relative overflow-hidden bg-[#0b1426]/90 border-2 border-[#785a28] rounded-lg p-6 space-y-4 hover:border-[#c89b3c] transition-all duration-500">
+            {/* Animated background gradient */}
+            <div className="absolute inset-0 bg-gradient-to-br from-[#c89b3c]/5 via-transparent to-[#2196f3]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            
+            {/* Glow effect */}
+            <div className="absolute -inset-1 bg-gradient-to-r from-[#c89b3c] to-[#d8ac4d] opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500" />
+            
+            <div className="relative flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div
                   className="h-12 w-12 shrink-0 rounded-sm border-2 border-[#c89b3c] bg-cover bg-center shadow-lg"
@@ -346,11 +352,11 @@ export default function Compare() {
                 View Full Recap
               </button>
             </div>
-            <p className="text-sm uppercase tracking-wider text-[#a09b8c]">{p1Data.wrapped.archetype}</p>
-            <p className="text-sm text-[#d1c6ac]">{p1Data.wrapped.tagline}</p>
+            <p className="relative text-sm uppercase tracking-wider text-[#a09b8c]">{p1Data.wrapped.archetype}</p>
+            <p className="relative text-sm text-[#d1c6ac]">{p1Data.wrapped.tagline}</p>
             
             {/* Stats Grid */}
-            <div className="grid grid-cols-2 gap-3 pt-4">
+            <div className="relative grid grid-cols-2 gap-3 pt-4">
               <div className="bg-[#0a1428]/60 p-3 rounded">
                 <p className="text-xs text-[#a09b8c]">Games</p>
                 <p className="text-xl font-bold text-white">{p1Data.stats.games}</p>
@@ -370,7 +376,7 @@ export default function Compare() {
             </div>
 
             {/* Strengths */}
-            <div className="pt-4 border-t border-[#785a28]/30">
+            <div className="relative pt-4 border-t border-[#785a28]/30">
               <p className="text-xs uppercase tracking-wider text-[#c89b3c] mb-2">Strengths</p>
               <ul className="space-y-1">
                 {comparison.playstyle_comparison.player1_strengths.map((strength, idx) => (
@@ -384,8 +390,14 @@ export default function Compare() {
           </div>
 
           {/* Player 2 */}
-          <div className="bg-[#0b1426]/90 border-2 border-[#785a28] rounded-lg p-6 space-y-4">
-            <div className="flex items-center justify-between">
+          <div className="group relative overflow-hidden bg-[#0b1426]/90 border-2 border-[#785a28] rounded-lg p-6 space-y-4 hover:border-[#c89b3c] transition-all duration-500">
+            {/* Animated background gradient */}
+            <div className="absolute inset-0 bg-gradient-to-br from-[#c89b3c]/5 via-transparent to-[#2196f3]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            
+            {/* Glow effect */}
+            <div className="absolute -inset-1 bg-gradient-to-r from-[#c89b3c] to-[#d8ac4d] opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500" />
+            
+            <div className="relative flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div
                   className="h-12 w-12 shrink-0 rounded-sm border-2 border-[#c89b3c] bg-cover bg-center shadow-lg"
@@ -401,11 +413,11 @@ export default function Compare() {
                 View Full Recap
               </button>
             </div>
-            <p className="text-sm uppercase tracking-wider text-[#a09b8c]">{p2Data.wrapped.archetype}</p>
-            <p className="text-sm text-[#d1c6ac]">{p2Data.wrapped.tagline}</p>
+            <p className="relative text-sm uppercase tracking-wider text-[#a09b8c]">{p2Data.wrapped.archetype}</p>
+            <p className="relative text-sm text-[#d1c6ac]">{p2Data.wrapped.tagline}</p>
             
             {/* Stats Grid */}
-            <div className="grid grid-cols-2 gap-3 pt-4">
+            <div className="relative grid grid-cols-2 gap-3 pt-4">
               <div className="bg-[#0a1428]/60 p-3 rounded">
                 <p className="text-xs text-[#a09b8c]">Games</p>
                 <p className="text-xl font-bold text-white">{p2Data.stats.games}</p>
@@ -425,7 +437,7 @@ export default function Compare() {
             </div>
 
             {/* Strengths */}
-            <div className="pt-4 border-t border-[#785a28]/30">
+            <div className="relative pt-4 border-t border-[#785a28]/30">
               <p className="text-xs uppercase tracking-wider text-[#c89b3c] mb-2">Strengths</p>
               <ul className="space-y-1">
                 {comparison.playstyle_comparison.player2_strengths.map((strength, idx) => (
@@ -440,9 +452,15 @@ export default function Compare() {
         </div>
 
         {/* Statistical Comparison */}
-        <div className="bg-[#0b1426]/90 border-2 border-[#785a28] rounded-lg p-6 space-y-4">
-          <h3 className="text-2xl font-bold text-[#c89b3c] mb-4">Head-to-Head Stats</h3>
-          <div className="space-y-3">
+        <div className="group relative overflow-hidden bg-[#0b1426]/90 border-2 border-[#785a28] rounded-lg p-6 space-y-4 hover:border-[#c89b3c] transition-all duration-500">
+          {/* Animated background gradient */}
+          <div className="absolute inset-0 bg-gradient-to-br from-[#c89b3c]/5 via-transparent to-[#2196f3]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          
+          {/* Glow effect */}
+          <div className="absolute -inset-1 bg-gradient-to-r from-[#c89b3c] to-[#d8ac4d] opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500" />
+          
+          <h3 className="relative text-2xl font-bold text-[#c89b3c] mb-4">Head-to-Head Stats</h3>
+          <div className="relative space-y-3">
             {comparison.statistical_comparison.map((stat, idx) => (
               <div key={idx} className="bg-[#0a1428]/60 p-4 rounded-lg">
                 <div className="flex items-center justify-between mb-2">
@@ -464,18 +482,30 @@ export default function Compare() {
         </div>
 
         {/* Playstyle Comparison */}
-        <div className="bg-[#0b1426]/90 border-2 border-[#785a28] rounded-lg p-6 space-y-4">
-          <h3 className="text-2xl font-bold text-[#c89b3c]">Playstyle Analysis</h3>
-          <p className="text-[#d1c6ac]">{comparison.playstyle_comparison.summary}</p>
+        <div className="group relative overflow-hidden bg-[#0b1426]/90 border-2 border-[#785a28] rounded-lg p-6 space-y-4 hover:border-[#c89b3c] transition-all duration-500">
+          {/* Animated background gradient */}
+          <div className="absolute inset-0 bg-gradient-to-br from-[#c89b3c]/5 via-transparent to-[#2196f3]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          
+          {/* Glow effect */}
+          <div className="absolute -inset-1 bg-gradient-to-r from-[#c89b3c] to-[#d8ac4d] opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500" />
+          
+          <h3 className="relative text-2xl font-bold text-[#c89b3c]">Playstyle Analysis</h3>
+          <p className="relative text-[#d1c6ac]">{comparison.playstyle_comparison.summary}</p>
         </div>
 
         {/* Champion Comparison */}
-        <div className="bg-[#0b1426]/90 border-2 border-[#785a28] rounded-lg p-6 space-y-4">
-          <h3 className="text-2xl font-bold text-[#c89b3c]">Champion Pools</h3>
-          <p className="text-[#d1c6ac]">{comparison.champion_comparison.summary}</p>
+        <div className="group relative overflow-hidden bg-[#0b1426]/90 border-2 border-[#785a28] rounded-lg p-6 space-y-4 hover:border-[#c89b3c] transition-all duration-500">
+          {/* Animated background gradient */}
+          <div className="absolute inset-0 bg-gradient-to-br from-[#c89b3c]/5 via-transparent to-[#2196f3]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          
+          {/* Glow effect */}
+          <div className="absolute -inset-1 bg-gradient-to-r from-[#c89b3c] to-[#d8ac4d] opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500" />
+          
+          <h3 className="relative text-2xl font-bold text-[#c89b3c]">Champion Pools</h3>
+          <p className="relative text-[#d1c6ac]">{comparison.champion_comparison.summary}</p>
           
           {comparison.champion_comparison.common_picks && comparison.champion_comparison.common_picks.length > 0 && (
-            <div>
+            <div className="relative">
               <p className="text-sm text-[#a09b8c] mb-2">Common Picks:</p>
               <div className="flex flex-wrap gap-2">
                 {comparison.champion_comparison.common_picks.map((champ, idx) => (
@@ -489,9 +519,15 @@ export default function Compare() {
         </div>
 
         {/* Key Differences */}
-        <div className="bg-[#0b1426]/90 border-2 border-[#785a28] rounded-lg p-6 space-y-4">
-          <h3 className="text-2xl font-bold text-[#c89b3c]">Key Differences</h3>
-          <ul className="space-y-2">
+        <div className="group relative overflow-hidden bg-[#0b1426]/90 border-2 border-[#785a28] rounded-lg p-6 space-y-4 hover:border-[#c89b3c] transition-all duration-500">
+          {/* Animated background gradient */}
+          <div className="absolute inset-0 bg-gradient-to-br from-[#c89b3c]/5 via-transparent to-[#2196f3]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          
+          {/* Glow effect */}
+          <div className="absolute -inset-1 bg-gradient-to-r from-[#c89b3c] to-[#d8ac4d] opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500" />
+          
+          <h3 className="relative text-2xl font-bold text-[#c89b3c]">Key Differences</h3>
+          <ul className="relative space-y-2">
             {comparison.key_differences.map((diff, idx) => (
               <li key={idx} className="text-[#d1c6ac] flex items-start">
                 <span className="text-[#c89b3c] mr-2 mt-1">▸</span>
@@ -502,10 +538,16 @@ export default function Compare() {
         </div>
 
         {/* Verdict */}
-        <div className="bg-gradient-to-r from-[#785a28]/20 to-[#c89b3c]/20 border-2 border-[#c89b3c] rounded-lg p-8 text-center space-y-4">
-          <h3 className="text-3xl font-bold text-[#c89b3c]">The Verdict</h3>
-          <p className="text-lg text-white">{comparison.verdict.reasoning}</p>
-          <p className="text-xl font-semibold text-[#c89b3c] italic">
+        <div className="group relative overflow-hidden bg-gradient-to-r from-[#785a28]/20 to-[#c89b3c]/20 border-2 border-[#c89b3c] rounded-lg p-8 text-center space-y-4 hover:border-[#d8ac4d] transition-all duration-500">
+          {/* Animated background gradient */}
+          <div className="absolute inset-0 bg-gradient-to-br from-[#c89b3c]/5 via-transparent to-[#2196f3]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          
+          {/* Glow effect */}
+          <div className="absolute -inset-1 bg-gradient-to-r from-[#c89b3c] to-[#d8ac4d] opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500" />
+          
+          <h3 className="relative text-3xl font-bold text-[#c89b3c]">The Verdict</h3>
+          <p className="relative text-lg text-white">{comparison.verdict.reasoning}</p>
+          <p className="relative text-xl font-semibold text-[#c89b3c] italic">
             {comparison.verdict.closing_statement}
           </p>
         </div>
