@@ -30,8 +30,7 @@ export function ChatSidebar({ recapData, isOpen, onClose }: ChatSidebarProps) {
         setLoading(true);
 
         try {
-            const backend =
-                (import.meta as any).env?.VITE_BACKEND_URL || "http://localhost:9000";
+            const backend = import.meta.env.VITE_BACKEND_URL || "https://riftwrapped.ishaan812.com";
             const url = backend.replace(/\/$/, "") + "/api/chatbot/sendMessage";
 
             // Build the request body with the detailed stats structure
