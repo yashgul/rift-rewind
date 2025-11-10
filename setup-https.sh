@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ###############################################################################
-# Rift Rewind - HTTPS Setup Script with Let's Encrypt
+# Rift Wrapped - HTTPS Setup Script with Let's Encrypt
 # This script will:
 # 1. Install Certbot for Let's Encrypt
 # 2. Obtain SSL certificates for your domain
@@ -35,11 +35,11 @@ print_error() {
 }
 
 # Configuration
-DOMAIN="riftrewind.ishaan812.com"
+DOMAIN="riftwrapped.ishaan812.com"
 EMAIL="your-email@example.com"  # Change this to your email
 
 echo "=================================================="
-print_info "Rift Rewind - HTTPS Setup with Let's Encrypt"
+print_info "Rift Wrapped - HTTPS Setup with Let's Encrypt"
 echo "=================================================="
 echo ""
 
@@ -132,7 +132,7 @@ cat > nginx-ssl.conf << 'EOF'
 # HTTP - Redirect to HTTPS
 server {
     listen 80;
-    server_name riftrewind.ishaan812.com;
+    server_name riftwrapped.ishaan812.com;
     
     # Allow Let's Encrypt validation
     location /.well-known/acme-challenge/ {
@@ -148,11 +148,11 @@ server {
 # HTTPS
 server {
     listen 443 ssl http2;
-    server_name riftrewind.ishaan812.com;
+    server_name riftwrapped.ishaan812.com;
     
     # SSL Certificates
-    ssl_certificate /etc/letsencrypt/live/riftrewind.ishaan812.com/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/riftrewind.ishaan812.com/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/riftwrapped.ishaan812.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/riftwrapped.ishaan812.com/privkey.pem;
     
     # SSL Configuration
     ssl_protocols TLSv1.2 TLSv1.3;
@@ -237,7 +237,7 @@ print_info "Step 5/5: Setting up automatic certificate renewal..."
 cat > /usr/local/bin/renew-ssl-riftrewind.sh << 'RENEWAL_SCRIPT'
 #!/bin/bash
 
-# Rift Rewind - SSL Certificate Renewal Script
+# Rift Wrapped - SSL Certificate Renewal Script
 COMPOSE_DIR="/path/to/rift-rewind"  # Update this path
 
 echo "[$(date)] Starting SSL certificate renewal..."
@@ -292,7 +292,7 @@ echo "=================================================="
 echo ""
 print_success "Your application is now accessible at:"
 echo ""
-echo -e "${GREEN}   🔒 https://riftrewind.ishaan812.com${NC}"
+echo -e "${GREEN}   🔒 https://riftwrapped.ishaan812.com${NC}"
 echo ""
 echo "=================================================="
 print_info "Certificate Information:"
@@ -314,5 +314,5 @@ echo "  2. Ensure port 443 is open in your EC2 security group"
 echo "  3. Certificates will auto-renew - no manual action needed"
 echo "  4. Keep your server and Docker images updated"
 echo ""
-print_success "Enjoy your secure Rift Rewind application! 🎮🔒"
+print_success "Enjoy your secure Rift Wrapped application! 🎮🔒"
 

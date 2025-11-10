@@ -1,6 +1,6 @@
-# Rift Rewind - Docker Deployment Guide
+# Rift Wrapped - Docker Deployment Guide
 
-This guide will help you deploy Rift Rewind on an Amazon EC2 instance using Docker and Docker Compose.
+This guide will help you deploy Rift Wrapped on an Amazon EC2 instance using Docker and Docker Compose.
 
 ## 📋 Prerequisites
 

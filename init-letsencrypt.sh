@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ###############################################################################
-# Rift Rewind - Let's Encrypt Initialization Script
+# Rift Wrapped - Let's Encrypt Initialization Script
 # This script obtains the initial SSL certificate using Certbot
 ###############################################################################
 
@@ -11,7 +11,7 @@ if ! [ -x "$(command -v docker-compose)" ]; then
 fi
 
 # Configuration
-domains=(riftrewind.ishaan812.com)
+domains=(riftwrapped.ishaan812.com)
 rsa_key_size=4096
 data_path="./certbot"
 email="ishaan.shah@gmail.com" # Adding a valid email is strongly recommended
@@ -145,7 +145,7 @@ echo -e "${GREEN}🎉 HTTPS Setup Complete!${NC}"
 echo "=================================================="
 echo ""
 echo -e "${GREEN}Your site is now accessible at:${NC}"
-echo "  https://riftrewind.ishaan812.com"
+echo "  https://riftwrapped.ishaan812.com"
 echo ""
 echo -e "${BLUE}Certificate will auto-renew via the certbot container${NC}"
 echo ""

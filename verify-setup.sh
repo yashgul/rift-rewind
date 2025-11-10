@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ###############################################################################
-# Rift Rewind - Setup Verification Script
+# Rift Wrapped - Setup Verification Script
 # Verifies that all required files for Docker deployment are present
 ###############################################################################
 
@@ -21,7 +21,7 @@ print_check() {
 }
 
 echo "=================================================="
-echo "    Rift Rewind - Setup Verification"
+echo "    Rift Wrapped - Setup Verification"
 echo "=================================================="
 echo ""
 

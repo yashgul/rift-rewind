@@ -1,4 +1,4 @@
-# 🎮 Rift Rewind
+# 🎮 Rift Wrapped
 
 Your League of Legends year wrapped - an AI-powered gaming recap experience.
 

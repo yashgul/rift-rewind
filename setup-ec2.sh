@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ###############################################################################
-# Rift Rewind EC2 Deployment Script
+# Rift Wrapped EC2 Deployment Script
 # This script will:
 # 1. Update the system
 # 2. Install Docker and Docker Compose
@@ -62,7 +62,7 @@ if [[ $EUID -eq 0 ]]; then
    print_warning "This script should not be run as root. Run as a regular user with sudo privileges."
 fi
 
-print_info "Starting Rift Rewind EC2 Deployment Setup..."
+print_info "Starting Rift Wrapped EC2 Deployment Setup..."
 echo "=================================================="
 
 # Step 1: Update system packages
@@ -238,5 +238,5 @@ echo "  2. Consider setting up HTTPS with Let's Encrypt for production"
 echo "  3. Keep your .env file secure and never commit it to git"
 echo ""
 
-print_success "Setup complete! Enjoy your Rift Rewind application! 🎮"
+print_success "Setup complete! Enjoy your Rift Wrapped application! 🎮"
 
