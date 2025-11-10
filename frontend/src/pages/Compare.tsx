@@ -430,18 +430,21 @@ export default function Compare() {
 
       {/* Player Cards Side by Side */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
-          {/* Player 1 */}
-          <div className="relative overflow-hidden bg-[#0b1426]/90 border border-[#785a28] rounded-lg hover:border-[#c89b3c] transition-colors">
+          {/* Player 1 - RED */}
+          <div className="relative overflow-hidden bg-[#0b1426]/90 border-2 border-[#ef4444]/50 rounded-lg hover:border-[#ef4444] transition-colors">
+            {/* Red accent bar */}
+            <div className="absolute top-0 left-0 w-1 h-full bg-[#ef4444]" />
+            
             <div className="p-4 sm:p-5">
               <div className="flex items-center gap-3 mb-4">
                 <div
-                  className="h-16 w-16 sm:h-20 sm:w-20 shrink-0 rounded border-2 border-[#c89b3c] bg-cover bg-center shadow-lg"
+                  className="h-16 w-16 sm:h-20 sm:w-20 shrink-0 rounded border-2 border-[#ef4444] bg-cover bg-center shadow-lg shadow-[#ef4444]/20"
                   style={{ backgroundImage: `url('${summonerIcon1 || '/rift_logo.png'}')` }}
                   aria-label={summonerIcon1 ? "Player 1 summoner icon" : "Default icon"}
                 />
                 <div className="flex-1 min-w-0">
                   <h2 className="text-xl sm:text-2xl font-bold text-white mb-1">{player1.name}</h2>
-                  <p className="text-xs sm:text-sm uppercase tracking-wider text-[#c89b3c]">{p1Data.wrapped.archetype}</p>
+                  <p className="text-xs sm:text-sm uppercase tracking-wider text-[#ef4444]">{p1Data.wrapped.archetype}</p>
                 </div>
               </div>
               
@@ -449,31 +452,31 @@ export default function Compare() {
               
               {/* Stats Grid */}
               <div className="grid grid-cols-2 gap-3 mb-4">
-                <div className="bg-[#0a1428]/60 p-3 rounded border-l-2 border-[#c89b3c]">
+                <div className="bg-[#0a1428]/60 p-3 rounded border-l-2 border-[#ef4444]">
                   <p className="text-xs text-[#a09b8c] mb-1">Games Played</p>
                   <p className="text-2xl font-bold text-white">{p1Data.stats.games}</p>
                 </div>
-                <div className="bg-[#0a1428]/60 p-3 rounded border-l-2 border-[#4caf50]">
+                <div className="bg-[#0a1428]/60 p-3 rounded border-l-2 border-[#ef4444]">
                   <p className="text-xs text-[#a09b8c] mb-1">Win Rate</p>
-                  <p className="text-2xl font-bold text-[#4caf50]">{p1Data.stats.winrate.toFixed(1)}%</p>
+                  <p className="text-2xl font-bold text-[#ef4444]">{p1Data.stats.winrate.toFixed(1)}%</p>
                 </div>
-                <div className="bg-[#0a1428]/60 p-3 rounded border-l-2 border-[#2196f3]">
+                <div className="bg-[#0a1428]/60 p-3 rounded border-l-2 border-[#ef4444]">
                   <p className="text-xs text-[#a09b8c] mb-1">Time Played</p>
                   <p className="text-xl font-bold text-white">{p1Data.stats.hours}h</p>
                 </div>
-                <div className="bg-[#0a1428]/60 p-3 rounded border-l-2 border-[#ff9800]">
+                <div className="bg-[#0a1428]/60 p-3 rounded border-l-2 border-[#ef4444]">
                   <p className="text-xs text-[#a09b8c] mb-1">Peak Time</p>
                   <p className="text-base font-bold text-white">{p1Data.stats.peakTime}</p>
                 </div>
               </div>
 
               {/* Strengths */}
-              <div className="pt-3 border-t border-[#785a28]/30">
-                <p className="text-xs uppercase tracking-wider text-[#c89b3c] mb-2 font-semibold">Strengths</p>
+              <div className="pt-3 border-t border-[#ef4444]/30">
+                <p className="text-xs uppercase tracking-wider text-[#ef4444] mb-2 font-semibold">Strengths</p>
                 <div className="space-y-2">
                   {comparison.playstyle_comparison.player1_strengths.map((strength, idx) => (
                     <div key={idx} className="flex items-start gap-2">
-                      <span className="text-[#c89b3c] text-lg leading-none">✦</span>
+                      <span className="text-[#ef4444] text-lg leading-none">✦</span>
                       <span className="text-xs sm:text-sm text-[#d1c6ac] flex-1">{strength}</span>
                     </div>
                   ))}
@@ -482,18 +485,21 @@ export default function Compare() {
             </div>
           </div>
 
-          {/* Player 2 */}
-          <div className="relative overflow-hidden bg-[#0b1426]/90 border border-[#785a28] rounded-lg hover:border-[#c89b3c] transition-colors">
+          {/* Player 2 - BLUE */}
+          <div className="relative overflow-hidden bg-[#0b1426]/90 border-2 border-[#3b82f6]/50 rounded-lg hover:border-[#3b82f6] transition-colors">
+            {/* Blue accent bar */}
+            <div className="absolute top-0 left-0 w-1 h-full bg-[#3b82f6]" />
+            
             <div className="p-4 sm:p-5">
               <div className="flex items-center gap-3 mb-4">
                 <div
-                  className="h-16 w-16 sm:h-20 sm:w-20 shrink-0 rounded border-2 border-[#c89b3c] bg-cover bg-center shadow-lg"
+                  className="h-16 w-16 sm:h-20 sm:w-20 shrink-0 rounded border-2 border-[#3b82f6] bg-cover bg-center shadow-lg shadow-[#3b82f6]/20"
                   style={{ backgroundImage: `url('${summonerIcon2 || '/rift_logo.png'}')` }}
                   aria-label={summonerIcon2 ? "Player 2 summoner icon" : "Default icon"}
                 />
                 <div className="flex-1 min-w-0">
                   <h2 className="text-xl sm:text-2xl font-bold text-white mb-1">{player2.name}</h2>
-                  <p className="text-xs sm:text-sm uppercase tracking-wider text-[#c89b3c]">{p2Data.wrapped.archetype}</p>
+                  <p className="text-xs sm:text-sm uppercase tracking-wider text-[#3b82f6]">{p2Data.wrapped.archetype}</p>
                 </div>
               </div>
               
@@ -501,31 +507,31 @@ export default function Compare() {
               
               {/* Stats Grid */}
               <div className="grid grid-cols-2 gap-3 mb-4">
-                <div className="bg-[#0a1428]/60 p-3 rounded border-l-2 border-[#c89b3c]">
+                <div className="bg-[#0a1428]/60 p-3 rounded border-l-2 border-[#3b82f6]">
                   <p className="text-xs text-[#a09b8c] mb-1">Games Played</p>
                   <p className="text-2xl font-bold text-white">{p2Data.stats.games}</p>
                 </div>
-                <div className="bg-[#0a1428]/60 p-3 rounded border-l-2 border-[#4caf50]">
+                <div className="bg-[#0a1428]/60 p-3 rounded border-l-2 border-[#3b82f6]">
                   <p className="text-xs text-[#a09b8c] mb-1">Win Rate</p>
-                  <p className="text-2xl font-bold text-[#4caf50]">{p2Data.stats.winrate.toFixed(1)}%</p>
+                  <p className="text-2xl font-bold text-[#3b82f6]">{p2Data.stats.winrate.toFixed(1)}%</p>
                 </div>
-                <div className="bg-[#0a1428]/60 p-3 rounded border-l-2 border-[#2196f3]">
+                <div className="bg-[#0a1428]/60 p-3 rounded border-l-2 border-[#3b82f6]">
                   <p className="text-xs text-[#a09b8c] mb-1">Time Played</p>
                   <p className="text-xl font-bold text-white">{p2Data.stats.hours}h</p>
                 </div>
-                <div className="bg-[#0a1428]/60 p-3 rounded border-l-2 border-[#ff9800]">
+                <div className="bg-[#0a1428]/60 p-3 rounded border-l-2 border-[#3b82f6]">
                   <p className="text-xs text-[#a09b8c] mb-1">Peak Time</p>
                   <p className="text-base font-bold text-white">{p2Data.stats.peakTime}</p>
                 </div>
               </div>
 
               {/* Strengths */}
-              <div className="pt-3 border-t border-[#785a28]/30">
-                <p className="text-xs uppercase tracking-wider text-[#c89b3c] mb-2 font-semibold">Strengths</p>
+              <div className="pt-3 border-t border-[#3b82f6]/30">
+                <p className="text-xs uppercase tracking-wider text-[#3b82f6] mb-2 font-semibold">Strengths</p>
                 <div className="space-y-2">
                   {comparison.playstyle_comparison.player2_strengths.map((strength, idx) => (
                     <div key={idx} className="flex items-start gap-2">
-                      <span className="text-[#c89b3c] text-lg leading-none">✦</span>
+                      <span className="text-[#3b82f6] text-lg leading-none">✦</span>
                       <span className="text-xs sm:text-sm text-[#d1c6ac] flex-1">{strength}</span>
                     </div>
                   ))}
@@ -707,28 +713,28 @@ export default function Compare() {
       id: "overview",
       label: "Player Overview",
       background: "bg-gradient-to-br from-[#0a1428] via-[#111c32] to-[#1a2336]",
-      video: "/aurelionsol.mp4",
+      video: "/a1.webm",
       content: overviewSlide,
     },
     {
       id: "stats",
       label: "Statistical Breakdown",
       background: "bg-gradient-to-br from-[#0a1428] via-[#1b2a3a] to-[#132238]",
-      video: "/aura.webm",
+      video: "/a2.webm",
       content: statsSlide,
     },
     {
       id: "analysis",
       label: "Analysis & Insights",
       background: "bg-gradient-to-br from-[#0a1428] via-[#161f33] to-[#1c2a3f]",
-      video: "/dark.mp4",
+      video: "/a3.webm",
       content: analysisSlide,
     },
     {
       id: "verdict",
       label: "The Verdict",
       background: "bg-gradient-to-br from-[#0a1428] via-[#1a1f32] to-[#1e2a3d]",
-      video: "/sru.webm",
+      video: "/a4.webm",
       content: verdictSlide,
     },
   ];
