@@ -1189,50 +1189,58 @@ export default function Recap() {
                       </div>
                     </div>
 
-                    {/* Multi-kills Card */}
-                    {(timelineMatches[activeMatchIndex].pentaKills || 
-                      timelineMatches[activeMatchIndex].quadraKills || 
-                      timelineMatches[activeMatchIndex].tripleKills || 
-                      timelineMatches[activeMatchIndex].doubleKills) && (
-                      <div className="group relative overflow-hidden rounded-lg border border-[#785a28]/40 bg-[#0b1426]/80 p-6 hover:border-[#c89b3c] transition-all duration-500">
-                        {/* Animated background gradient */}
-                        <div className="absolute inset-0 bg-gradient-to-br from-[#c89b3c]/5 via-transparent to-[#2196f3]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                        
-                        {/* Glow effect */}
-                        <div className="absolute -inset-1 bg-gradient-to-r from-[#c89b3c] to-[#d8ac4d] opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500" />
-                        
-                        <div className="relative mb-4">
-                          <p className="text-xs font-medium uppercase tracking-wider text-[#a09b8c] mb-1">Multi-Kills</p>
-                          <div className="h-px bg-[#785a28]/30 mt-2"></div>
+                    {(() => {
+                      const match = timelineMatches[activeMatchIndex];
+                      const hasMultiKills = 
+                        (match.pentaKills && match.pentaKills > 0) ||
+                        (match.quadraKills && match.quadraKills > 0) ||
+                        (match.tripleKills && match.tripleKills > 0) ||
+                        (match.doubleKills && match.doubleKills > 0);
+
+                      return (
+                        <div
+                          className="group relative overflow-hidden rounded-lg border border-[#785a28]/40 bg-[#0b1426]/80 p-6 hover:border-[#c89b3c] transition-all duration-500"
+                          style={{ display: hasMultiKills ? undefined : "none" }}
+                        >
+                          {/* Animated background gradient */}
+                          <div className="absolute inset-0 bg-gradient-to-br from-[#c89b3c]/5 via-transparent to-[#2196f3]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                          
+                          {/* Glow effect */}
+                          <div className="absolute -inset-1 bg-gradient-to-r from-[#c89b3c] to-[#d8ac4d] opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500" />
+                          
+                          <div className="relative mb-4">
+                            <p className="text-xs font-medium uppercase tracking-wider text-[#a09b8c] mb-1">Multi-Kills</p>
+                            <div className="h-px bg-[#785a28]/30 mt-2"></div>
+                          </div>
+                          <div className="relative space-y-3">
+                            {match.pentaKills !== undefined && match.pentaKills > 0 && (
+                              <div className="flex items-center justify-between py-2">
+                                <span className="text-sm text-[#d1c6ac]">Pentakill</span>
+                                <span className="text-xl font-semibold text-[#ff4444] tabular-nums">{match.pentaKills}</span>
+                              </div>
+                            )}
+                            {match.quadraKills !== undefined && match.quadraKills > 0 && (
+                              <div className="flex items-center justify-between py-2">
+                                <span className="text-sm text-[#d1c6ac]">Quadrakill</span>
+                                <span className="text-xl font-semibold text-[#ff8844] tabular-nums">{match.quadraKills}</span>
+                              </div>
+                            )}
+                            {match.tripleKills !== undefined && match.tripleKills > 0 && (
+                              <div className="flex items-center justify-between py-2">
+                                <span className="text-sm text-[#d1c6ac]">Triple Kill</span>
+                                <span className="text-xl font-semibold text-[#ffc107] tabular-nums">{match.tripleKills}</span>
+                              </div>
+                            )}
+                            {match.doubleKills !== undefined && match.doubleKills > 0 && (
+                              <div className="flex items-center justify-between py-2">
+                                <span className="text-sm text-[#d1c6ac]">Double Kill</span>
+                                <span className="text-xl font-semibold text-white tabular-nums">{match.doubleKills}</span>
+                              </div>
+                            )}
+                          </div>
                         </div>
-                        <div className="relative space-y-3">
-                          {timelineMatches[activeMatchIndex].pentaKills !== undefined && timelineMatches[activeMatchIndex].pentaKills! > 0 && (
-                            <div className="flex items-center justify-between py-2">
-                              <span className="text-sm text-[#d1c6ac]">Pentakill</span>
-                              <span className="text-xl font-semibold text-[#ff4444] tabular-nums">{timelineMatches[activeMatchIndex].pentaKills}</span>
-                            </div>
-                          )}
-                          {timelineMatches[activeMatchIndex].quadraKills !== undefined && timelineMatches[activeMatchIndex].quadraKills! > 0 && (
-                            <div className="flex items-center justify-between py-2">
-                              <span className="text-sm text-[#d1c6ac]">Quadrakill</span>
-                              <span className="text-xl font-semibold text-[#ff8844] tabular-nums">{timelineMatches[activeMatchIndex].quadraKills}</span>
-                            </div>
-                          )}
-                          {timelineMatches[activeMatchIndex].tripleKills !== undefined && timelineMatches[activeMatchIndex].tripleKills! > 0 && (
-                            <div className="flex items-center justify-between py-2">
-                              <span className="text-sm text-[#d1c6ac]">Triple Kill</span>
-                              <span className="text-xl font-semibold text-[#ffc107] tabular-nums">{timelineMatches[activeMatchIndex].tripleKills}</span>
-                            </div>
-                          )}
-                          {timelineMatches[activeMatchIndex].doubleKills !== undefined && timelineMatches[activeMatchIndex].doubleKills! > 0 && (
-                            <div className="flex items-center justify-between py-2">
-                              <span className="text-sm text-[#d1c6ac]">Double Kill</span>
-                              <span className="text-xl font-semibold text-white tabular-nums">{timelineMatches[activeMatchIndex].doubleKills}</span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    )}
+                      );
+                    })()}
                   </div>
                 )}
               </div>
