@@ -166,6 +166,10 @@ def matchData(name: str, tag: str, region: str):
         logger.info(f"PUUID for {name}#{tag}: {puuid}")
 
         recent_match_ids = riot_api_client.get_match_ids_by_puuid(puuid=puuid, region=region)
+        
+        # TEMPORARY: Limit to 90 matches for faster processing during development
+        # TODO: Remove this limit when ready for full production use
+        recent_match_ids = recent_match_ids[:90]
 
         if not recent_match_ids:
             raise HTTPException(
@@ -244,6 +248,14 @@ def matchData(name: str, tag: str, region: str):
                     "doubleKills": flattened_match_data.get("doubleKills"),
                     "killParticipation": flattened_match_data.get("killParticipation"),
                     "teamPosition": flattened_match_data.get("teamPosition"),
+                    # Add item fields
+                    "item0": flattened_match_data.get("item0"),
+                    "item1": flattened_match_data.get("item1"),
+                    "item2": flattened_match_data.get("item2"),
+                    "item3": flattened_match_data.get("item3"),
+                    "item4": flattened_match_data.get("item4"),
+                    "item5": flattened_match_data.get("item5"),
+                    "item6": flattened_match_data.get("item6"),
                 }
                 enriched_timeline.append(enriched_match)
 
@@ -350,6 +362,10 @@ def compareData(
             recent_match_ids = riot_api_client.get_match_ids_by_puuid(
                 puuid=puuid, region=region, count=match_count
             )
+            
+            # TEMPORARY: Limit to 90 matches for faster processing during development
+            # TODO: Remove this limit when ready for full production use
+            recent_match_ids = recent_match_ids[:90]
 
             if not recent_match_ids:
                 raise HTTPException(
@@ -427,6 +443,14 @@ def compareData(
                         "doubleKills": flattened_match_data.get("doubleKills"),
                         "killParticipation": flattened_match_data.get("killParticipation"),
                         "teamPosition": flattened_match_data.get("teamPosition"),
+                        # Add item fields
+                        "item0": flattened_match_data.get("item0"),
+                        "item1": flattened_match_data.get("item1"),
+                        "item2": flattened_match_data.get("item2"),
+                        "item3": flattened_match_data.get("item3"),
+                        "item4": flattened_match_data.get("item4"),
+                        "item5": flattened_match_data.get("item5"),
+                        "item6": flattened_match_data.get("item6"),
                     }
                     enriched_timeline.append(enriched_match)
 
