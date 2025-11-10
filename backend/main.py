@@ -141,13 +141,17 @@ def matchData(name: str, tag: str, region: str):
         existing_data = get_wrapped_from_dynamodb(unique_id)
         if existing_data:
             logger.info(f"Found existing wrapped data for {unique_id}")
-            # existing_data has: {"unique_id": "...", "wrapped_data": {...}, "timeline": [...]}
-            # We need to return: {"message": {"wrapped": {"unique_id": ..., "wrapped_data": ...}, "timeline": [...]}}
+            # existing_data has: {"unique_id": "...", "wrapped_data": {...}, "timeline": [...], "parsed_stats": {...}}
+            # We need to return: {"message": {"wrapped": {"unique_id": ..., "wrapped_data": ...}, "timeline": [...], "player_data": {...}}}
             wrapped_obj = {
                 "unique_id": existing_data.get("unique_id"),
                 "wrapped_data": existing_data.get("wrapped_data"),
             }
-            result = {"wrapped": wrapped_obj, "timeline": existing_data.get("timeline", [])}
+            result = {
+                "wrapped": wrapped_obj,
+                "timeline": existing_data.get("timeline", []),
+                "player_data": existing_data.get("parsed_stats", {}),
+            }
             return {"message": result}
 
         # If not found in DynamoDB, generate new wrapped data
@@ -256,13 +260,14 @@ def matchData(name: str, tag: str, region: str):
             "player_data": parsed_stats,
         }
 
-        # Store the complete data in DynamoDB (merge player_wrapped with timeline)
+        # Store the complete data in DynamoDB (merge player_wrapped with timeline and parsed_stats)
         # player_wrapped = {"unique_id": "...", "wrapped_data": {...}}
-        # We need to store: {"unique_id": "...", "wrapped_data": {...}, "timeline": [...]}
+        # We need to store: {"unique_id": "...", "wrapped_data": {...}, "timeline": [...], "parsed_stats": {...}}
         if player_wrapped:
             db_data = {
                 **player_wrapped,  # Spreads unique_id and wrapped_data
                 "timeline": enriched_timeline,
+                "parsed_stats": parsed_stats,
             }
             store_wrapped_in_dynamodb(db_data)
             logger.info(f"Stored new wrapped data for {unique_id}")
@@ -321,14 +326,15 @@ def compareData(
         def fetch_player_data(name: str, tag: str, region: str):
             unique_id = f"{name.lower()}_{tag.lower()}_{region.lower()}"
 
-            # Check if wrapped data exists in DynamoDB (skip for test accounts)
-            if tag not in ["KR1"] and not test_mode:
-                existing_data = get_wrapped_from_dynamodb(unique_id)
-                if existing_data:
-                    logger.info(f"Found existing wrapped data for {unique_id}")
-                    return existing_data
+            # ALWAYS check if wrapped data exists in DynamoDB first (no exceptions)
+            existing_data = get_wrapped_from_dynamodb(unique_id)
+            if existing_data:
+                logger.info(f"Found existing wrapped data for {unique_id} in compare mode")
+                # Return the complete cached data
+                return existing_data
 
             # If not found, generate new wrapped data
+            logger.info(f"No cache found for {unique_id}, generating new data")
             riot_api_client = RiotAPIClient(default_region=region)
             puuid = riot_api_client.get_puuid_from_name_and_tag(name, tag, region=region)
 
@@ -339,7 +345,7 @@ def compareData(
 
             logger.info(f"PUUID for {name}#{tag}: {puuid}")
 
-            # Get match IDs
+            # Get match IDs - respect test_mode for match count
             match_count = 30 if test_mode else 100
             recent_match_ids = riot_api_client.get_match_ids_by_puuid(
                 puuid=puuid, region=region, count=match_count
@@ -356,7 +362,10 @@ def compareData(
                 logger.info(f"Test mode: Limited to {len(recent_match_ids)} matches")
 
             match_stats_aggregator = MatchStatsAggregator()
+            timeline_data = []
+            match_data_cache = {}
 
+            # Process all matches
             for match_id in recent_match_ids:
                 match_data = riot_api_client.get_match_metadata_by_match_id(
                     match_id=match_id, region=region
@@ -370,19 +379,82 @@ def compareData(
                     if required_keys.issubset(flattened_match_data):
                         match_stats_aggregator.add_match(flattened_match_data)
 
-            player_wrapped = generate_player_wrapped_json(
-                player_data=match_stats_aggregator.get_summary(), name=name, tag=tag, region=region
+                        # Store match data for later enrichment
+                        match_data_cache[match_id] = {
+                            "match_data": match_data,
+                            "flattened_data": flattened_match_data,
+                        }
+
+                        timeline_data.append(
+                            {
+                                "id": match_id,
+                                "kda": flattened_match_data["kda"],
+                                "champ": flattened_match_data["championName"],
+                                "win": flattened_match_data["win"],
+                            }
+                        )
+
+            # Generate interesting matches with LLM
+            interesting_matches = find_and_generate_descriptions_of_interesting_matches(
+                timeline_data
             )
 
-            result = {"wrapped": player_wrapped}
+            # Enrich timeline matches with additional details
+            enriched_timeline = []
+            for match in interesting_matches:
+                match_id = match["id"]
+                if match_id in match_data_cache:
+                    cached = match_data_cache[match_id]
+                    match_data = cached["match_data"]
+                    flattened_match_data = cached["flattened_data"]
 
-            # Store in DynamoDB (only if not in test mode)
-            # player_wrapped has the structure: {"unique_id": ..., "wrapped_data": {...}}
-            if not test_mode and player_wrapped:
-                store_wrapped_in_dynamodb(player_wrapped)
-                logger.info(f"Stored new wrapped data for {unique_id}")
+                    enriched_match = {
+                        **match,
+                        "date": match_data.get("info", {}).get("gameCreation"),
+                        "gameDuration": flattened_match_data.get("gameDuration"),
+                        "gameMode": match_data.get("info", {}).get("gameMode"),
+                        "kills": flattened_match_data.get("kills"),
+                        "deaths": flattened_match_data.get("deaths"),
+                        "assists": flattened_match_data.get("assists"),
+                        "totalDamageDealtToChampions": flattened_match_data.get(
+                            "totalDamageDealtToChampions"
+                        ),
+                        "goldEarned": flattened_match_data.get("goldEarned"),
+                        "visionScore": flattened_match_data.get("visionScore"),
+                        "pentaKills": flattened_match_data.get("pentaKills"),
+                        "quadraKills": flattened_match_data.get("quadraKills"),
+                        "tripleKills": flattened_match_data.get("tripleKills"),
+                        "doubleKills": flattened_match_data.get("doubleKills"),
+                        "killParticipation": flattened_match_data.get("killParticipation"),
+                        "teamPosition": flattened_match_data.get("teamPosition"),
+                    }
+                    enriched_timeline.append(enriched_match)
 
-            return result
+            # Get parsed stats and generate wrapped data
+            parsed_stats = match_stats_aggregator.get_summary()
+            player_wrapped = generate_player_wrapped_json(
+                player_data=parsed_stats, name=name, tag=tag, region=region
+            )
+
+            if not player_wrapped:
+                raise HTTPException(
+                    status_code=500,
+                    detail=f"Failed to generate wrapped data for {name}#{tag}"
+                )
+
+            # Create complete data structure
+            db_data = {
+                **player_wrapped,  # Spreads unique_id and wrapped_data
+                "timeline": enriched_timeline,
+                "parsed_stats": parsed_stats,
+            }
+
+            # ALWAYS store complete data in DynamoDB
+            store_wrapped_in_dynamodb(db_data)
+            logger.info(f"Stored new wrapped data for {unique_id} from compare endpoint")
+
+            # Return the complete data structure (same as what we store)
+            return db_data
 
         # Fetch both players' data
         logger.info("Fetching data for player 1...")
@@ -414,10 +486,39 @@ def compareData(
         if not comparison_data:
             raise HTTPException(status_code=500, detail="Failed to generate comparison analysis")
 
+        # Format response to match frontend expectations
+        # player1_result has: {unique_id, wrapped_data, timeline, parsed_stats}
+        # Frontend expects: {wrapped: {unique_id, wrapped_data}, timeline, player_data}
+        player1_formatted = {
+            "wrapped": {
+                "unique_id": player1_result.get("unique_id"),
+                "wrapped_data": player1_result.get("wrapped_data"),
+            },
+            "timeline": player1_result.get("timeline", []),
+            "player_data": player1_result.get("parsed_stats", {}),
+        }
+
+        player2_formatted = {
+            "wrapped": {
+                "unique_id": player2_result.get("unique_id"),
+                "wrapped_data": player2_result.get("wrapped_data"),
+            },
+            "timeline": player2_result.get("timeline", []),
+            "player_data": player2_result.get("parsed_stats", {}),
+        }
+
         # Return complete comparison result
         result = {
-            "player1": {"name": player1_display, "region": region1, "wrapped": player1_result},
-            "player2": {"name": player2_display, "region": region2, "wrapped": player2_result},
+            "player1": {
+                "name": player1_display,
+                "region": region1,
+                "wrapped": player1_formatted,
+            },
+            "player2": {
+                "name": player2_display,
+                "region": region2,
+                "wrapped": player2_formatted,
+            },
             "comparison": comparison_data,
         }
 
