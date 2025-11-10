@@ -606,6 +606,12 @@ export default function Recap() {
   const region = searchParams.get("region") || "americas";
   const peakTime = convertPeakTimeToRegion(rawPeakTime, region);
 
+  // Parse summoner name for display (name#tag format)
+  const summonerName = searchParams.get("name") || "Player";
+  const summonerTag = searchParams.get("tag") || "";
+  const displayName = summonerTag ? `${summonerName}#${summonerTag}` : summonerName;
+  const displayRegion = region.toUpperCase();
+
   const tagline = safeGet(wrappedData, 'wrapped.tagline', 'Your Season Recap');
   const summary = safeGet(wrappedData, 'wrapped.summary', 'Here\'s your performance summary.');
   const archetype = safeGet(wrappedData, 'wrapped.archetype', 'League Player');
@@ -688,8 +694,11 @@ export default function Recap() {
           />
         </div>
         <div>
-          <p className="text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">{recapData.message.wrapped.unique_id || 'Player'}</p>
-          <p className="mt-1 text-sm uppercase tracking-[0.3em] text-[#c89b3c] sm:mt-2 sm:text-base">Season {year}</p>
+          <p className="text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">{displayName}</p>
+          <p className="mt-1 text-sm uppercase tracking-[0.3em] text-[#c89b3c] sm:mt-2 sm:text-base">
+            <span className="text-[#a09b8c] text-xs sm:text-sm mr-2">{displayRegion}</span>
+            Season {year}
+          </p>
         </div>
       </div>
 
@@ -1655,8 +1664,11 @@ export default function Recap() {
             />
           </div>
           <div>
-            <p className="text-lg font-bold text-white sm:text-xl lg:text-2xl">{recapData.message.wrapped.unique_id}</p>
-            <p className="text-xs uppercase tracking-[0.15em] text-[#c89b3c] sm:text-sm">{archetype}</p>
+            <p className="text-lg font-bold text-white sm:text-xl lg:text-2xl">{displayName}</p>
+            <p className="text-xs uppercase tracking-[0.15em] text-[#c89b3c] sm:text-sm">
+              <span className="text-[#a09b8c] text-[10px] sm:text-xs mr-1.5">{displayRegion}</span>
+              {archetype}
+            </p>
           </div>
         </div>
 
