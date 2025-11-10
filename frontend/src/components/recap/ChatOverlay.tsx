@@ -25,7 +25,12 @@ const ChatOverlay: React.FC<Props> = ({ recapData = null, isOpen = true, onClose
     }, [messages]);
 
     const sendMessage = async () => {
-        if (!input || !recapData) return;
+        // Try to use recapData prop, otherwise fall back to any global recap data
+        const stats = recapData ?? (window as any).__RECAP_DATA__ ?? null;
+        if (!input || !stats) {
+            // nothing to send or no stats available
+            return;
+        }
         const userText = input.trim();
         if (!userText) return;
 
@@ -36,7 +41,7 @@ const ChatOverlay: React.FC<Props> = ({ recapData = null, isOpen = true, onClose
 
         try {
             const body = {
-                stats: recapData,
+                stats,
                 conversation: [
                     {
                         role: "user",
@@ -235,7 +240,7 @@ const ChatOverlay: React.FC<Props> = ({ recapData = null, isOpen = true, onClose
                                 />
                                 <button
                                     onClick={sendMessage}
-                                    disabled={loading || !input}
+                                    disabled={loading || !input || !(recapData ?? (window as any).__RECAP_DATA__)}
                                     className={`px-4 py-2 rounded-sm text-sm font-semibold transition-colors ${loading || !input
                                         ? 'bg-[#273241] text-[#8892a6]'
                                         : 'bg-[#c89b3c] text-[#0a1428] hover:bg-[#d8ac4d]'

@@ -207,6 +207,18 @@ export default function Recap() {
     fetchRecapData();
   }, [navigate, searchParams]);
 
+  // Expose recap data to global window so a globally-mounted ChatOverlay can access it
+  useEffect(() => {
+    try {
+      (window as any).__RECAP_DATA__ = recapData ?? null;
+    } catch (e) {
+      // ignore
+    }
+    return () => {
+      try { (window as any).__RECAP_DATA__ = null; } catch { }
+    };
+  }, [recapData]);
+
   // Load hero images
   useEffect(() => {
     fetch("/hero_images.json")
