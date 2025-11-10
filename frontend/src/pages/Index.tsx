@@ -100,17 +100,13 @@ const Index = () => {
         muted
         playsInline
         preload="auto"
-        className="absolute inset-0 w-full h-full object-cover filter brightness-115 contrast-120 saturate-110"
+        className="absolute inset-0 w-full h-full object-cover filter"
       >
         <source src="https://ask-them-out.s3.ap-south-1.amazonaws.com/tmpt2lr5oe6.mp4" type="video/mp4" />
       </video>
 
       {/* Overlay - slightly darker with subtle blur */}
-      <div className="absolute inset-0 bg-lol-dark/15 backdrop-blur-[0.5px]" />
-
-      {/* Decorative rings removed */}
-
-      {/* Removed floating background squares/particles */}
+      <div className="absolute inset-0 contrast-200 brightness-200" />
 
       {/* Content */}
       <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4">

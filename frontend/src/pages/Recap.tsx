@@ -1666,16 +1666,8 @@ export default function Recap() {
       <div className="relative flex h-screen flex-col">
         <header className="flex shrink-0 items-center justify-between border-b border-[#785a28] px-4 py-3 sm:px-6 sm:py-3 lg:px-10">
           <div className="flex items-center gap-3 text-[#c89b3c]">
-            <div className="h-6 w-6 sm:h-8 sm:w-8">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 16 16"
-                fill="currentColor"
-                className="h-full w-full"
-              >
-                <path d="M8.526 1.115 8 0 0 7.298l.526.474L8 1.589l7.474 6.183.526-.474L8.526 1.115Z" />
-                <path d="M1.383 8.513 8 14.41l6.617-5.897L8 2.587 1.383 8.513ZM8 16l8-7.103V6.93l-8 7.103L0 6.93v1.964L8 16Z" />
-              </svg>
+            <div className="h-10 w-10 sm:h-7 sm:w-8">
+              <img src="favicon.png" />
             </div>
             <div>
               <p className="text-[10px] font-semibold uppercase tracking-[0.25em] sm:text-xs">Rift Rewind</p>
