@@ -259,6 +259,9 @@ def matchData(name: str, tag: str, region: str):
                     "item4_name": get_item_name(flattened_match_data.get("item4", 0)),
                     "item5_name": get_item_name(flattened_match_data.get("item5", 0)),
                     "item6_name": get_item_name(flattened_match_data.get("item6", 0)),
+                    # Add summoner spell casts
+                    "summoner1Casts": flattened_match_data.get("summoner1Casts"),
+                    "summoner2Casts": flattened_match_data.get("summoner2Casts"),
                 }
                 enriched_timeline.append(enriched_match)
 
@@ -336,6 +339,20 @@ def compareData(
     test_mode = True
     try:
         logger.info(f"Comparison request: {name1}#{tag1} vs {name2}#{tag2}")
+
+        # Create unique comparison ID from both players
+        player1_unique_id = f"{name1.lower()}_{tag1.lower()}_{region1.lower()}"
+        player2_unique_id = f"{name2.lower()}_{tag2.lower()}_{region2.lower()}"
+        comparison_unique_id = f"comparison_{player1_unique_id}_{player2_unique_id}"
+
+        # Check if comparison already exists in DynamoDB
+        existing_comparison = get_wrapped_from_dynamodb(comparison_unique_id)
+        if existing_comparison:
+            logger.info(f"Found existing comparison data for {comparison_unique_id}")
+            # Return the cached comparison directly
+            return {"message": existing_comparison.get("comparison_result")}
+
+        logger.info(f"No cached comparison found, generating new comparison")
 
         # Helper function to fetch player data
         def fetch_player_data(name: str, tag: str, region: str):
@@ -554,6 +571,16 @@ def compareData(
             },
             "comparison": comparison_data,
         }
+
+        # Store the comparison result in DynamoDB for future use
+        comparison_cache_data = {
+            "unique_id": comparison_unique_id,
+            "comparison_result": result,
+            "player1_id": player1_unique_id,
+            "player2_id": player2_unique_id,
+        }
+        store_wrapped_in_dynamodb(comparison_cache_data)
+        logger.info(f"Stored comparison data for {comparison_unique_id}")
 
         return {"message": result}
 
