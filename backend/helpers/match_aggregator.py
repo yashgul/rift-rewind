@@ -23,7 +23,7 @@ class MatchStatsAggregator:
         # Track only current month stats and best month
         self.current_month_stats = {}  # {month_key: {wins, losses, games}}
         self.best_month = None  # Stores the best month info
-        
+
         # Track win streaks
         self.current_streak = 0  # Current win streak (positive) or loss streak (negative)
         self.best_win_streak = 0  # Longest winning streak
@@ -51,10 +51,14 @@ class MatchStatsAggregator:
                 # Typical game is 1200-2400 seconds (20-40 min), so anything > 10000 is probably milliseconds
                 if game_duration > 10000:
                     game_duration = game_duration / 1000  # Convert milliseconds to seconds
-                    logger.debug(f"Converted gameDuration from milliseconds: {game_duration:.1f} seconds ({game_duration/60:.1f} minutes)")
+                    logger.debug(
+                        f"Converted gameDuration from milliseconds: {game_duration:.1f} seconds ({game_duration/60:.1f} minutes)"
+                    )
                 else:
-                    logger.debug(f"Adding game duration: {game_duration} seconds ({game_duration/60:.1f} minutes)")
-                
+                    logger.debug(
+                        f"Adding game duration: {game_duration} seconds ({game_duration/60:.1f} minutes)"
+                    )
+
                 self.total_time_played_seconds += game_duration
 
             # Track win/loss for streaks
@@ -176,7 +180,7 @@ class MatchStatsAggregator:
             else:
                 # We were on a loss streak, reset to 1
                 self.current_streak = 1
-            
+
             # Update best streak if current is better
             if self.current_streak > self.best_win_streak:
                 self.best_win_streak = self.current_streak
@@ -329,11 +333,19 @@ class MatchStatsAggregator:
         wins = self.overall_stats.get("win", 0)
 
         # Calculate total hours played (convert seconds to hours, round to nearest integer)
-        total_hours = round(self.total_time_played_seconds / 3600) if self.total_time_played_seconds > 0 else 0
-        
+        total_hours = (
+            round(self.total_time_played_seconds / 3600)
+            if self.total_time_played_seconds > 0
+            else 0
+        )
+
         # Log the calculation for debugging
-        logger.info(f"Total time played: {self.total_time_played_seconds} seconds = {self.total_time_played_seconds/3600:.2f} hours (rounded to {total_hours}h)")
-        logger.info(f"Average game duration: {self.total_time_played_seconds/games_played:.1f} seconds ({self.total_time_played_seconds/games_played/60:.1f} minutes)")
+        logger.info(
+            f"Total time played: {self.total_time_played_seconds} seconds = {self.total_time_played_seconds/3600:.2f} hours (rounded to {total_hours}h)"
+        )
+        logger.info(
+            f"Average game duration: {self.total_time_played_seconds/games_played:.1f} seconds ({self.total_time_played_seconds/games_played/60:.1f} minutes)"
+        )
         logger.info(f"Best win streak: {self.best_win_streak} consecutive wins")
 
         summary = {
@@ -354,7 +366,6 @@ class MatchStatsAggregator:
             "avg_damage_to_champions_per_game": overall.get(
                 "totalDamageDealtToChampions_avg_per_game", 0
             ),
-            "avg_cs_per_game": overall.get("totalMinionsKilled_avg_per_game", 0),
             "avg_vision_score_per_game": overall.get("visionScore_avg_per_game", 0),
             "avg_multikills_per_game": overall.get("multikills_avg_per_game", 0),
             "total_pentakills": self.overall_stats.get("pentaKills", 0),
@@ -478,7 +489,6 @@ class MatchStatsAggregator:
             "avg_assists_per_game": data.get("avg_assists_per_game", 0),
             "avg_kda": data.get("avg_kda", 0),
             "avg_damage_to_champions_per_game": data.get("avg_damage_to_champions_per_game", 0),
-            "avg_cs_per_game": data.get("avg_cs_per_game", 0),
             "avg_vision_score_per_game": data.get("avg_vision_score_per_game", 0),
             "avg_multikills_per_game": data.get("avg_multikills_per_game", 0),
             "total_pentakills": data.get("total_pentakills", 0),

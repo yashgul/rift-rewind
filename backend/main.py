@@ -78,20 +78,19 @@ def get_summoner_icon(name: str, tag: str, region: str):
     """
     try:
         riot_api_client = RiotAPIClient(default_region=region)
-        
+
         # Get PUUID first
         puuid = riot_api_client.get_puuid_from_name_and_tag(name, tag, region=region)
-        
+
         if not puuid:
             raise HTTPException(
-                status_code=404, 
-                detail=f"Could not find player {name}#{tag} in region {region}"
+                status_code=404, detail=f"Could not find player {name}#{tag} in region {region}"
             )
-        
+
         # Map region to platform and get summoner info
         platform = get_platform_from_region(region)
         summoner_data = riot_api_client.get_summoner_by_puuid(puuid, platform=platform)
-        
+
         # Try alternative platforms if first attempt fails
         if not summoner_data or "profileIconId" not in summoner_data:
             for alt_platform in get_alternative_platforms(region):
@@ -100,35 +99,32 @@ def get_summoner_icon(name: str, tag: str, region: str):
                 summoner_data = riot_api_client.get_summoner_by_puuid(puuid, platform=alt_platform)
                 if summoner_data and "profileIconId" in summoner_data:
                     break
-            
+
             if not summoner_data or "profileIconId" not in summoner_data:
-                raise HTTPException(
-                    status_code=404, 
-                    detail="Could not retrieve summoner icon"
-                )
-        
+                raise HTTPException(status_code=404, detail="Could not retrieve summoner icon")
+
         profile_icon_id = summoner_data["profileIconId"]
-        icon_url = f"https://ddragon.leagueoflegends.com/cdn/14.1.1/img/profileicon/{profile_icon_id}.png"
-        
+        icon_url = (
+            f"https://ddragon.leagueoflegends.com/cdn/14.1.1/img/profileicon/{profile_icon_id}.png"
+        )
+
         return {
             "profileIconId": profile_icon_id,
             "iconUrl": icon_url,
-            "summonerLevel": summoner_data.get("summonerLevel", 0)
+            "summonerLevel": summoner_data.get("summonerLevel", 0),
         }
-        
+
     except HTTPException:
         raise
     except RiotAPIError as e:
         logger.error(f"Riot API error in summonerIcon endpoint: {str(e)}")
         raise HTTPException(
-            status_code=503,
-            detail="Riot API is currently unavailable. Please try again later."
+            status_code=503, detail="Riot API is currently unavailable. Please try again later."
         ) from e
     except Exception as e:
         logger.error(f"Error in summonerIcon endpoint: {str(e)}")
         raise HTTPException(
-            status_code=500,
-            detail=f"An error occurred while fetching summoner icon: {str(e)}"
+            status_code=500, detail=f"An error occurred while fetching summoner icon: {str(e)}"
         ) from e
 
 
@@ -140,6 +136,7 @@ def matchData(name: str, tag: str, region: str):
 
         # Check if wrapped data exists in DynamoDB
         existing_data = get_wrapped_from_dynamodb(unique_id)
+
         if existing_data:
             logger.info(f"Found existing wrapped data for {unique_id}")
             # existing_data has: {"unique_id": "...", "wrapped_data": {...}, "timeline": [...], "parsed_stats": {...}}
@@ -167,10 +164,8 @@ def matchData(name: str, tag: str, region: str):
         logger.info(f"PUUID for {name}#{tag}: {puuid}")
 
         recent_match_ids = riot_api_client.get_match_ids_by_puuid(puuid=puuid, region=region)
-        
         # TEMPORARY: Limit to 90 matches for faster processing during development
         # TODO: Remove this limit when ready for full production use
-        recent_match_ids = recent_match_ids[:70]
 
         if not recent_match_ids:
             raise HTTPException(
@@ -370,7 +365,7 @@ def compareData(
             recent_match_ids = riot_api_client.get_match_ids_by_puuid(
                 puuid=puuid, region=region, count=match_count
             )
-            
+
             # TEMPORARY: Limit to 90 matches for faster processing during development
             # TODO: Remove this limit when ready for full production use
             recent_match_ids = recent_match_ids[:70]
@@ -477,8 +472,7 @@ def compareData(
 
             if not player_wrapped:
                 raise HTTPException(
-                    status_code=500,
-                    detail=f"Failed to generate wrapped data for {name}#{tag}"
+                    status_code=500, detail=f"Failed to generate wrapped data for {name}#{tag}"
                 )
 
             # Create complete data structure

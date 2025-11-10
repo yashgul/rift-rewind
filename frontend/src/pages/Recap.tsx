@@ -8,6 +8,8 @@ import { RoastsCard } from "@/components/recap/RoastsCard";
 import { FunFactsCard } from "@/components/recap/FunFactsCard";
 import { ItemIcon } from "@/components/recap/ItemIcon";
 import { Trophy, Target, Zap, Star, Award, TrendingUp, Sparkles, Crown } from "lucide-react";
+import ChatOverlay from "@/components/recap/ChatOverlay";
+import { MessageCircle } from "lucide-react";
 
 interface RecapData {
   message: {
@@ -36,22 +38,22 @@ interface RecapData {
         }>;
         champions: {
           main: {
-      name: string;
-      games: number;
-      winrate: number;
-      kda: number;
-      insight: string;
-    } | null;
+            name: string;
+            games: number;
+            winrate: number;
+            kda: number;
+            insight: string;
+          } | null;
           top3: Array<{
-      name: string;
-      games: number;
-      wr: number;
-    }>;
+            name: string;
+            games: number;
+            wr: number;
+          }>;
           hiddenGem: {
-      name: string;
-      games: number;
-      winrate: number;
-      insight: string;
+            name: string;
+            games: number;
+            winrate: number;
+            insight: string;
           } | null;
         };
         playstyle: {
@@ -86,45 +88,30 @@ interface RecapData {
           year: string;
         };
       };
-  };
-  timeline: Array<{
-    id: string;
-    kda: number;
-    champ: string;
-    win: boolean;
-    description: string;
-    // Enriched fields from backend
-    date?: number;
-    gameDuration?: number;
-    gameMode?: string;
-    kills?: number;
-    deaths?: number;
-    assists?: number;
-    totalDamageDealtToChampions?: number;
-    goldEarned?: number;
-    visionScore?: number;
-    pentaKills?: number;
-    quadraKills?: number;
-    tripleKills?: number;
-    doubleKills?: number;
-    killParticipation?: number;
-    teamPosition?: string;
-    // Item fields
-    item0?: number;
-    item1?: number;
-    item2?: number;
-    item3?: number;
-    item4?: number;
-    item5?: number;
-    item6?: number;
-    item0_name?: string | null;
-    item1_name?: string | null;
-    item2_name?: string | null;
-    item3_name?: string | null;
-    item4_name?: string | null;
-    item5_name?: string | null;
-    item6_name?: string | null;
-  }>;
+    };
+    timeline: Array<{
+      id: string;
+      kda: number;
+      champ: string;
+      win: boolean;
+      description: string;
+      // Enriched fields from backend
+      date?: number;
+      gameDuration?: number;
+      gameMode?: string;
+      kills?: number;
+      deaths?: number;
+      assists?: number;
+      totalDamageDealtToChampions?: number;
+      goldEarned?: number;
+      visionScore?: number;
+      pentaKills?: number;
+      quadraKills?: number;
+      tripleKills?: number;
+      doubleKills?: number;
+      killParticipation?: number;
+      teamPosition?: string;
+    }>;
   };
 }
 
@@ -165,13 +152,14 @@ export default function Recap() {
   const [recapData, setRecapData] = useState<RecapData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   // All state declarations at the top
   const [currentSlide, setCurrentSlide] = useState(0);
   const [heroImages, setHeroImages] = useState<Array<{ name: string; image: string }>>([]);
   const [linkCopied, setLinkCopied] = useState(false);
   const [activeMatchIndex, setActiveMatchIndex] = useState(0);
   const [summonerIconUrl, setSummonerIconUrl] = useState<string | null>(null);
+  const [isChatOpen, setIsChatOpen] = useState(false);
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
 
   // Fetch data from API on mount
@@ -179,7 +167,7 @@ export default function Recap() {
     const name = searchParams.get("name");
     const tag = searchParams.get("tag");
     const region = searchParams.get("region") || "americas"; // Default to americas if not provided
-    
+
     if (!name || !tag) {
       navigate("/");
       return;
@@ -190,18 +178,18 @@ export default function Recap() {
         // Empty string means use relative URL (for production with nginx proxy)
         const backendUrl = import.meta.env.VITE_BACKEND_URL === undefined ? 'http://localhost:9000' : import.meta.env.VITE_BACKEND_URL;
         const apiUrl = `${backendUrl}/api/matchData?tag=${encodeURIComponent(tag)}&name=${encodeURIComponent(name)}&region=${encodeURIComponent(region)}`;
-        
+
         console.log("Fetching recap data from:", apiUrl);
-        
+
         const response = await fetch(apiUrl);
         if (!response.ok) {
           const errorText = await response.text();
           throw new Error(`API Error ${response.status}: ${errorText}`);
         }
-        
+
         const data = await response.json();
         console.log("API Response:", data);
-        
+
         // Validate and set the data
         if (data && data.message && data.message.wrapped) {
           setRecapData(data as RecapData);
@@ -232,7 +220,7 @@ export default function Recap() {
     const name = searchParams.get("name");
     const tag = searchParams.get("tag");
     const region = searchParams.get("region") || "americas";
-    
+
     if (!name || !tag) {
       return;
     }
@@ -242,13 +230,13 @@ export default function Recap() {
         // Empty string means use relative URL (for production with nginx proxy)
         const backendUrl = import.meta.env.VITE_BACKEND_URL === undefined ? 'http://localhost:9000' : import.meta.env.VITE_BACKEND_URL;
         const apiUrl = `${backendUrl}/api/summonerIcon?name=${encodeURIComponent(name)}&tag=${encodeURIComponent(tag)}&region=${encodeURIComponent(region)}`;
-        
+
         const response = await fetch(apiUrl);
         if (!response.ok) {
           console.warn("Failed to fetch summoner icon");
           return;
         }
-        
+
         const data = await response.json();
         if (data && data.iconUrl) {
           setSummonerIconUrl(data.iconUrl);
@@ -264,7 +252,7 @@ export default function Recap() {
   // Helper function to get champion image
   const getChampionImage = useCallback((championName: string): string | undefined => {
     const champion = heroImages.find(
-      (hero) => 
+      (hero) =>
         hero.name.toLowerCase() === championName.toLowerCase().replace(/['\s]/g, '')
     );
     return champion?.image;
@@ -373,15 +361,15 @@ export default function Recap() {
     const handleWheel = (event: WheelEvent) => {
       // Prevent default scroll behavior
       event.preventDefault();
-      
+
       // Debounce scroll events to prevent too rapid navigation
       if (isScrolling) return;
-      
+
       isScrolling = true;
-      
+
       // Clear any existing timeout
       clearTimeout(scrollTimeout);
-      
+
       // Determine scroll direction and navigate
       if (event.deltaY > 0) {
         // Scrolling down - go to next slide
@@ -390,7 +378,7 @@ export default function Recap() {
         // Scrolling up - go to previous slide
         goPrev();
       }
-      
+
       // Reset scrolling flag after delay
       scrollTimeout = setTimeout(() => {
         isScrolling = false;
@@ -398,7 +386,7 @@ export default function Recap() {
     };
 
     window.addEventListener("wheel", handleWheel, { passive: false });
-    
+
     return () => {
       window.removeEventListener("wheel", handleWheel);
       clearTimeout(scrollTimeout);
@@ -448,7 +436,7 @@ export default function Recap() {
   if (isLoading) {
     const name = searchParams.get("name") || "Player";
     const tag = searchParams.get("tag") || "";
-    
+
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#0a1428] via-[#111c32] to-[#1a2336] flex items-center justify-center relative overflow-hidden">
         {/* Animated background elements */}
@@ -601,7 +589,7 @@ export default function Recap() {
   const hours = safeGet(wrappedData, 'stats.hours', 0);
   const rawPeakTime = safeGet(wrappedData, 'stats.peakTime', 'N/A');
   const bestMonth = safeGet(wrappedData, 'stats.bestMonth', 'N/A');
-  
+
   // Get region from URL params and convert peak time to local timezone
   const region = searchParams.get("region") || "americas";
   const peakTime = convertPeakTimeToRegion(rawPeakTime, region);
@@ -616,7 +604,7 @@ export default function Recap() {
   const summary = safeGet(wrappedData, 'wrapped.summary', 'Here\'s your performance summary.');
   const archetype = safeGet(wrappedData, 'wrapped.archetype', 'League Player');
   const year = safeGet(wrappedData, 'closing.year', new Date().getFullYear().toString());
-  
+
   const wins = Math.round((winrate / 100) * totalGames);
   const losses = totalGames - wins;
 
@@ -631,32 +619,32 @@ export default function Recap() {
 
   // Champions data with safe defaults
   const championsData = wrappedData.champions || { main: null, top3: [], hiddenGem: null };
-  const topChampions = (championsData.top3 || []).map(champ => ({ 
-    name: champ.name || 'Unknown', 
-    games: champ.games || 0, 
-    winrate: champ.wr || 0, 
-    kda: 0 
+  const topChampions = (championsData.top3 || []).map(champ => ({
+    name: champ.name || 'Unknown',
+    games: champ.games || 0,
+    winrate: champ.wr || 0,
+    kda: 0
   }));
-  
-  const hiddenGem = championsData.hiddenGem 
+
+  const hiddenGem = championsData.hiddenGem
     ? {
-        champion: championsData.hiddenGem.name || 'Unknown',
-        yourWinrate: championsData.hiddenGem.winrate || 0,
-        games: championsData.hiddenGem.games || 0,
-        insight: championsData.hiddenGem.insight || '',
-      }
+      champion: championsData.hiddenGem.name || 'Unknown',
+      yourWinrate: championsData.hiddenGem.winrate || 0,
+      games: championsData.hiddenGem.games || 0,
+      insight: championsData.hiddenGem.insight || '',
+    }
     : null;
 
   const mainChampion = championsData.main;
 
   // Timeline data - sort by date (oldest first, starting from January)
-  const timelineMatches = (recapData.message.timeline || []).length > 0 
+  const timelineMatches = (recapData.message.timeline || []).length > 0
     ? [...recapData.message.timeline].sort((a, b) => {
-        // Sort by date field (ascending order - oldest first)
-        const aDate = a.date || 0;
-        const bDate = b.date || 0;
-        return aDate - bDate; // Ascending order (January first)
-      })
+      // Sort by date field (ascending order - oldest first)
+      const aDate = a.date || 0;
+      const bDate = b.date || 0;
+      return aDate - bDate; // Ascending order (January first)
+    })
     : [];
 
   const funFacts = wrappedData.funFacts || [];
@@ -667,7 +655,7 @@ export default function Recap() {
     reasoning: "Not enough data to compare.",
   };
   const roasts = wrappedData.roasts || [];
-  
+
   const playstyleTraits = wrappedData.playstyle?.traits || {
     aggression: 0,
     teamwork: 0,
@@ -706,10 +694,10 @@ export default function Recap() {
       <div className="group relative overflow-hidden rounded-sm border-2 border-[#785a28] bg-[#0b1426]/90 p-4 shadow-2xl sm:p-6 hover:border-[#c89b3c] transition-all duration-500">
         {/* Animated background gradient */}
         <div className="absolute inset-0 bg-gradient-to-br from-[#c89b3c]/5 via-transparent to-[#2196f3]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-        
+
         {/* Glow effect */}
         <div className="absolute -inset-1 bg-gradient-to-r from-[#c89b3c] to-[#d8ac4d] opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500" />
-        
+
         <h3 className="relative mb-4 text-lg font-bold uppercase tracking-[0.2em] text-[#c89b3c] sm:text-xl">Season Snapshot</h3>
         <div className="relative grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {statSummary.map((stat) => (
@@ -740,7 +728,7 @@ export default function Recap() {
         <div className="grid h-full gap-4 sm:gap-6 lg:grid-cols-3">
           {topChampions.slice(0, 3).map((champion, index) => {
             const championImage = getChampionImage(champion.name);
-            
+
             return (
               <div
                 key={champion.name}
@@ -748,10 +736,10 @@ export default function Recap() {
               >
                 {/* Animated background gradient */}
                 <div className="absolute inset-0 bg-gradient-to-br from-[#c89b3c]/5 via-transparent to-[#2196f3]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                
+
                 {/* Glow effect */}
                 <div className="absolute -inset-1 bg-gradient-to-r from-[#c89b3c] to-[#d8ac4d] opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500" />
-                
+
                 {/* Rank Badge - Top Left */}
                 <div className="absolute left-4 top-4 z-10">
                   <div className="flex h-7 w-7 items-center justify-center rounded border border-[#c89b3c]/60 bg-[#0a1428]/80">
@@ -798,10 +786,10 @@ export default function Recap() {
             <div className="group relative overflow-hidden rounded-sm border border-[#c89b3c]/50 bg-[#0b1426]/95 p-4 sm:p-5 hover:border-[#c89b3c] transition-all duration-500">
               {/* Animated background gradient */}
               <div className="absolute inset-0 bg-gradient-to-br from-[#c89b3c]/5 via-transparent to-[#2196f3]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              
+
               {/* Glow effect */}
               <div className="absolute -inset-1 bg-gradient-to-r from-[#c89b3c] to-[#d8ac4d] opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500" />
-              
+
               <p className="relative text-[10px] font-medium uppercase tracking-[0.2em] text-[#c89b3c]/70 sm:text-xs">MAIN</p>
               <div className="relative mt-3">
                 <div className="flex items-center gap-3">
@@ -845,10 +833,10 @@ export default function Recap() {
             <div className="group relative overflow-hidden rounded-sm border border-[#c89b3c]/50 bg-[#0b1426]/95 p-4 sm:p-5 hover:border-[#c89b3c] transition-all duration-500">
               {/* Animated background gradient */}
               <div className="absolute inset-0 bg-gradient-to-br from-[#c89b3c]/5 via-transparent to-[#2196f3]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              
+
               {/* Glow effect */}
               <div className="absolute -inset-1 bg-gradient-to-r from-[#c89b3c] to-[#d8ac4d] opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500" />
-              
+
               <p className="relative text-[10px] font-medium uppercase tracking-[0.2em] text-[#c89b3c]/70 sm:text-xs">HIDDEN GEM</p>
               <div className="relative mt-3">
                 <div className="flex items-center gap-3">
@@ -889,10 +877,10 @@ export default function Recap() {
           <div className="group relative overflow-hidden rounded-sm border border-[#c89b3c]/50 bg-[#0b1426]/95 p-4 sm:p-5 hover:border-[#c89b3c] transition-all duration-500">
             {/* Animated background gradient */}
             <div className="absolute inset-0 bg-gradient-to-br from-[#c89b3c]/5 via-transparent to-[#2196f3]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            
+
             {/* Glow effect */}
             <div className="absolute -inset-1 bg-gradient-to-r from-[#c89b3c] to-[#d8ac4d] opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500" />
-            
+
             <p className="relative text-[10px] font-medium uppercase tracking-[0.2em] text-[#c89b3c]/70 sm:text-xs">MEMORABLE</p>
             <div className="relative mt-3 space-y-3">
               <div className="flex items-center justify-between border-b border-[#273241] pb-2">
@@ -920,30 +908,56 @@ export default function Recap() {
       <div className="group relative overflow-hidden rounded-sm border border-[#785a28] bg-[#0b1426]/90 p-2.5 sm:p-3 lg:p-4 hover:border-[#c89b3c] transition-all duration-500">
         {/* Animated background gradient */}
         <div className="absolute inset-0 bg-gradient-to-br from-[#c89b3c]/5 via-transparent to-[#2196f3]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-        
+
         {/* Glow effect */}
         <div className="absolute -inset-1 bg-gradient-to-r from-[#c89b3c] to-[#d8ac4d] opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500" />
-        
-        <div className="relative flex items-center gap-2 mb-2">
-          <Trophy className="h-4 w-4 text-[#c89b3c]" />
-          <p className="text-[10px] uppercase tracking-[0.15em] text-[#c89b3c] sm:text-xs font-bold">Season Highlights</p>
-        </div>
+
+        <p className="relative text-[10px] uppercase tracking-[0.15em] text-[#c89b3c] sm:text-xs">Season Highlights</p>
         <div className="relative mt-1.5 grid gap-1.5 sm:mt-2 sm:gap-2 lg:gap-3 lg:grid-cols-2">
-          {highlights.slice(0, 2).map((highlight, index) => {
-            const iconMap = [Trophy, Target, Zap, Star, Award, TrendingUp, Sparkles, Crown];
-            const IconComponent = iconMap[index % iconMap.length];
-            
-            return (
+          {highlights.slice(0, 2).map((highlight, index) => (
+            <div
+              key={index}
+              className="rounded-sm border-l-2 border-[#c89b3c] bg-[#091222]/80 p-2 sm:p-2.5 lg:p-3"
+            >
+              <div className="flex items-start gap-2">
+                {highlight.icon && (
+                  <div className="relative h-8 w-8 sm:h-10 sm:w-10 shrink-0 overflow-hidden rounded-sm bg-[#050b16]">
+                    {getChampionImage(highlight.icon) ? (
+                      <img
+                        src={getChampionImage(highlight.icon)}
+                        alt={highlight.icon}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#1a2336] to-[#0a1428]">
+                        <span className="text-xs sm:text-sm font-bold text-[#c89b3c]">{highlight.icon.charAt(0)}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-bold text-white sm:text-sm">{highlight.title}</p>
+                  {highlight.percentile && (
+                    <p className="mt-0.5 text-[9px] uppercase tracking-[0.1em] text-[#c89b3c]">
+                      {highlight.percentile}
+                    </p>
+                  )}
+                  <p className="mt-0.5 text-[10px] leading-snug text-[#d1c6ac] line-clamp-2 sm:text-xs">{highlight.description}</p>
+                  <p className="mt-0.5 text-[9px] italic text-[#a09b8c] line-clamp-1 sm:text-[10px]">"{highlight.flavor}"</p>
+                </div>
+              </div>
+            </div>
+          ))}
+          {/* Show additional 2 highlights on larger screens */}
+          <div className="hidden lg:contents">
+            {highlights.slice(2, 4).map((highlight, index) => (
               <div
-                key={index}
-                className="group/card relative rounded-sm border-l-2 border-[#c89b3c] bg-gradient-to-br from-[#091222]/80 to-[#0a1020]/80 p-2 sm:p-2.5 lg:p-3 hover:border-[#d8ac4d] transition-all duration-300"
+                key={index + 2}
+                className="rounded-sm border-l-2 border-[#c89b3c] bg-[#091222]/80 p-3"
               >
-                {/* Card glow on hover */}
-                <div className="absolute inset-0 bg-gradient-to-br from-[#c89b3c]/10 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-300" />
-                
-                <div className="relative flex items-start gap-2">
+                <div className="flex items-start gap-2">
                   {highlight.icon && (
-                    <div className="relative h-8 w-8 sm:h-10 sm:w-10 shrink-0 overflow-hidden rounded-sm bg-[#050b16] border border-[#785a28]/40">
+                    <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-sm bg-[#050b16]">
                       {getChampionImage(highlight.icon) ? (
                         <img
                           src={getChampionImage(highlight.icon)}
@@ -952,89 +966,24 @@ export default function Recap() {
                         />
                       ) : (
                         <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#1a2336] to-[#0a1428]">
-                          <span className="text-xs sm:text-sm font-bold text-[#c89b3c]">{highlight.icon.charAt(0)}</span>
+                          <span className="text-sm font-bold text-[#c89b3c]">{highlight.icon.charAt(0)}</span>
                         </div>
                       )}
-                      {/* Decorative icon badge */}
-                      <div className="absolute -bottom-1 -right-1 rounded-full bg-[#c89b3c] p-0.5">
-                        <IconComponent className="h-2.5 w-2.5 text-[#0a1428]" />
-                      </div>
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-1">
-                      <p className="text-xs font-bold text-white sm:text-sm">{highlight.title}</p>
-                      {!highlight.icon && <IconComponent className="h-4 w-4 text-[#c89b3c] shrink-0" />}
-                    </div>
+                    <p className="text-sm font-bold text-white">{highlight.title}</p>
                     {highlight.percentile && (
-                      <div className="mt-0.5 inline-flex items-center gap-1 rounded bg-[#c89b3c]/20 px-1.5 py-0.5">
-                        <Star className="h-2.5 w-2.5 text-[#c89b3c] fill-[#c89b3c]" />
-                        <p className="text-[9px] uppercase tracking-[0.1em] text-[#c89b3c] font-semibold">
-                          {highlight.percentile}
-                        </p>
-                      </div>
+                      <p className="mt-0.5 text-[9px] uppercase tracking-[0.1em] text-[#c89b3c]">
+                        {highlight.percentile}
+                      </p>
                     )}
-                    <p className="mt-1 text-[10px] leading-snug text-[#d1c6ac] line-clamp-2 sm:text-xs">{highlight.description}</p>
-                    <p className="mt-1 text-[9px] italic text-[#a09b8c]/80 line-clamp-1 sm:text-[10px]">"{highlight.flavor}"</p>
+                    <p className="mt-0.5 text-xs leading-snug text-[#d1c6ac] line-clamp-2">{highlight.description}</p>
+                    <p className="mt-0.5 text-[10px] italic text-[#a09b8c] line-clamp-1">"{highlight.flavor}"</p>
                   </div>
                 </div>
               </div>
-            );
-          })}
-          {/* Show additional 2 highlights on larger screens */}
-          <div className="hidden lg:contents">
-            {highlights.slice(2, 4).map((highlight, index) => {
-              const iconMap = [Trophy, Target, Zap, Star, Award, TrendingUp, Sparkles, Crown];
-              const IconComponent = iconMap[(index + 2) % iconMap.length];
-              
-              return (
-                <div
-                  key={index + 2}
-                  className="group/card relative rounded-sm border-l-2 border-[#c89b3c] bg-gradient-to-br from-[#091222]/80 to-[#0a1020]/80 p-3 hover:border-[#d8ac4d] transition-all duration-300"
-                >
-                  {/* Card glow on hover */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-[#c89b3c]/10 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-300" />
-                  
-                  <div className="relative flex items-start gap-2">
-                    {highlight.icon && (
-                      <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-sm bg-[#050b16] border border-[#785a28]/40">
-                        {getChampionImage(highlight.icon) ? (
-                          <img
-                            src={getChampionImage(highlight.icon)}
-                            alt={highlight.icon}
-                            className="h-full w-full object-cover"
-                          />
-                        ) : (
-                          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#1a2336] to-[#0a1428]">
-                            <span className="text-sm font-bold text-[#c89b3c]">{highlight.icon.charAt(0)}</span>
-                          </div>
-                        )}
-                        {/* Decorative icon badge */}
-                        <div className="absolute -bottom-1 -right-1 rounded-full bg-[#c89b3c] p-0.5">
-                          <IconComponent className="h-2.5 w-2.5 text-[#0a1428]" />
-                        </div>
-                      </div>
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-1">
-                        <p className="text-sm font-bold text-white">{highlight.title}</p>
-                        {!highlight.icon && <IconComponent className="h-4 w-4 text-[#c89b3c] shrink-0" />}
-                      </div>
-                      {highlight.percentile && (
-                        <div className="mt-0.5 inline-flex items-center gap-1 rounded bg-[#c89b3c]/20 px-1.5 py-0.5">
-                          <Star className="h-2.5 w-2.5 text-[#c89b3c] fill-[#c89b3c]" />
-                          <p className="text-[9px] uppercase tracking-[0.1em] text-[#c89b3c] font-semibold">
-                            {highlight.percentile}
-                          </p>
-                        </div>
-                      )}
-                      <p className="mt-1 text-xs leading-snug text-[#d1c6ac] line-clamp-2">{highlight.description}</p>
-                      <p className="mt-1 text-[10px] italic text-[#a09b8c]/80 line-clamp-1">"{highlight.flavor}"</p>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+            ))}
           </div>
         </div>
       </div>
@@ -1045,20 +994,14 @@ export default function Recap() {
         <div className="group relative overflow-hidden rounded-sm border border-[#785a28] bg-[#0b1426]/90 p-2.5 sm:p-3 lg:p-4 hover:border-[#c89b3c] transition-all duration-500">
           {/* Animated background gradient */}
           <div className="absolute inset-0 bg-gradient-to-br from-[#c89b3c]/5 via-transparent to-[#2196f3]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-          
+
           {/* Glow effect */}
           <div className="absolute -inset-1 bg-gradient-to-r from-[#c89b3c] to-[#d8ac4d] opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500" />
-          
-          <div className="relative flex items-center gap-2 mb-1">
-            <Sparkles className="h-4 w-4 text-[#c89b3c]" />
-            <p className="text-[10px] uppercase tracking-[0.15em] text-[#c89b3c] sm:text-xs font-bold">Playstyle Analysis</p>
-          </div>
-          <div className="relative flex items-center gap-2">
-            <Crown className="h-5 w-5 text-[#c89b3c] fill-[#c89b3c]/20" />
-            <p className="text-base font-bold text-white sm:text-lg lg:text-xl">{archetype}</p>
-          </div>
-          <p className="relative mt-0.5 text-[9px] leading-tight text-[#d1c6ac] line-clamp-2 sm:text-[10px] lg:text-xs">{primaryTagline}</p>
-          
+
+          <p className="relative text-[10px] uppercase tracking-[0.15em] text-[#c89b3c] sm:text-xs">Playstyle Analysis</p>
+          <p className="relative mt-0.5 text-base font-bold text-white sm:text-lg lg:text-xl">{archetype}</p>
+          <p className="relative mt-0.5 text-[9px] leading-tight text-[#d1c6ac] line-clamp-1 sm:text-[10px] lg:text-xs">{primaryTagline}</p>
+
           <div className="relative mt-1 flex items-center justify-center sm:mt-1.5 lg:mt-2">
             <ChartContainer
               config={{
@@ -1075,16 +1018,16 @@ export default function Recap() {
                   value: value,
                 }))}
               >
-                <ChartTooltip 
-                  cursor={false} 
-                  content={<ChartTooltipContent hideLabel className="bg-[#0a1428] border-[#785a28]" />} 
+                <ChartTooltip
+                  cursor={false}
+                  content={<ChartTooltipContent hideLabel className="bg-[#0a1428] border-[#785a28]" />}
                 />
-                <PolarAngleAxis 
-                  dataKey="trait" 
+                <PolarAngleAxis
+                  dataKey="trait"
                   tick={{ fill: "#a09b8c", fontSize: 9 }}
                   tickLine={false}
                 />
-                <PolarGrid 
+                <PolarGrid
                   stroke="#3a4658"
                   strokeWidth={1}
                 />
@@ -1100,11 +1043,26 @@ export default function Recap() {
           </div>
         </div>
 
-        {/* Pro Player Comparison */}
-        <ProPlayerCard
-          playerName={proPlayerComparison.playerName}
-          reasoning={proPlayerComparison.reasoning}
-        />
+        {/* Fun Facts */}
+        <div className="group relative overflow-hidden rounded-sm border border-[#785a28] bg-[#0b1426]/90 p-2.5 sm:p-3 lg:p-4 hover:border-[#c89b3c] transition-all duration-500">
+          {/* Animated background gradient */}
+          <div className="absolute inset-0 bg-gradient-to-br from-[#c89b3c]/5 via-transparent to-[#2196f3]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+          {/* Glow effect */}
+          <div className="absolute -inset-1 bg-gradient-to-r from-[#c89b3c] to-[#d8ac4d] opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500" />
+
+          <p className="relative text-[10px] uppercase tracking-[0.15em] text-[#c89b3c] sm:text-xs">Fun Facts</p>
+          <ul className="relative mt-1.5 space-y-1.5 text-[10px] text-[#f0e6d2] sm:mt-2 sm:space-y-2 sm:text-xs lg:space-y-2.5">
+            {funFacts.slice(0, 4).map((fact, index) => (
+              <li key={index} className="flex items-start gap-1.5">
+                <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#785a28] text-[9px] font-bold text-white sm:h-5 sm:w-5 sm:text-[10px]">
+                  {index + 1}
+                </span>
+                <span className="pt-0.5 leading-tight sm:leading-snug">{fact}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     </div>
   );
@@ -1135,7 +1093,7 @@ export default function Recap() {
           {/* Vertical Timeline Container */}
           <div className="relative lg:absolute left-0 top-0 flex w-full items-center justify-center py-8 lg:py-0 lg:h-full">
             <div className="flex w-full max-w-[1600px] items-center justify-center gap-8 px-4 lg:h-full">
-              
+
               {/* Left Stats Panel */}
               <div className="hidden lg:block w-[320px] shrink-0">
                 {timelineMatches[activeMatchIndex] && (
@@ -1144,15 +1102,15 @@ export default function Recap() {
                     <div className="group relative overflow-hidden rounded-lg border border-[#785a28]/40 bg-[#0b1426]/80 p-6 hover:border-[#c89b3c] transition-all duration-500">
                       {/* Animated background gradient */}
                       <div className="absolute inset-0 bg-gradient-to-br from-[#c89b3c]/5 via-transparent to-[#2196f3]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                      
+
                       {/* Glow effect */}
                       <div className="absolute -inset-1 bg-gradient-to-r from-[#c89b3c] to-[#d8ac4d] opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500" />
-                      
+
                       <div className="relative mb-6">
                         <p className="text-xs font-medium uppercase tracking-wider text-[#a09b8c] mb-1">Combat Performance</p>
                         <div className="h-px bg-[#785a28]/30 mt-2"></div>
                       </div>
-                      
+
                       <div className="relative space-y-6">
                         {/* KDA - Hero stat */}
                         <div className="text-center">
@@ -1188,7 +1146,7 @@ export default function Recap() {
                               </span>
                             </div>
                             <div className="w-full bg-[#273241]/50 rounded-full h-1.5 overflow-hidden">
-                              <div 
+                              <div
                                 className="bg-[#c89b3c] h-full transition-all duration-500"
                                 style={{ width: `${(timelineMatches[activeMatchIndex].killParticipation * 100).toFixed(1)}%` }}
                               />
@@ -1198,58 +1156,50 @@ export default function Recap() {
                       </div>
                     </div>
 
-                    {(() => {
-                      const match = timelineMatches[activeMatchIndex];
-                      const hasMultiKills = 
-                        (match.pentaKills && match.pentaKills > 0) ||
-                        (match.quadraKills && match.quadraKills > 0) ||
-                        (match.tripleKills && match.tripleKills > 0) ||
-                        (match.doubleKills && match.doubleKills > 0);
-
-                      return (
-                        <div
-                          className="group relative overflow-hidden rounded-lg border border-[#785a28]/40 bg-[#0b1426]/80 p-6 hover:border-[#c89b3c] transition-all duration-500"
-                          style={{ display: hasMultiKills ? undefined : "none" }}
-                        >
+                    {/* Multi-kills Card */}
+                    {(timelineMatches[activeMatchIndex].pentaKills ||
+                      timelineMatches[activeMatchIndex].quadraKills ||
+                      timelineMatches[activeMatchIndex].tripleKills ||
+                      timelineMatches[activeMatchIndex].doubleKills) && (
+                        <div className="group relative overflow-hidden rounded-lg border border-[#785a28]/40 bg-[#0b1426]/80 p-6 hover:border-[#c89b3c] transition-all duration-500">
                           {/* Animated background gradient */}
                           <div className="absolute inset-0 bg-gradient-to-br from-[#c89b3c]/5 via-transparent to-[#2196f3]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                          
+
                           {/* Glow effect */}
                           <div className="absolute -inset-1 bg-gradient-to-r from-[#c89b3c] to-[#d8ac4d] opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500" />
-                          
+
                           <div className="relative mb-4">
                             <p className="text-xs font-medium uppercase tracking-wider text-[#a09b8c] mb-1">Multi-Kills</p>
                             <div className="h-px bg-[#785a28]/30 mt-2"></div>
                           </div>
                           <div className="relative space-y-3">
-                            {match.pentaKills !== undefined && match.pentaKills > 0 && (
+                            {timelineMatches[activeMatchIndex].pentaKills !== undefined && timelineMatches[activeMatchIndex].pentaKills! > 0 && (
                               <div className="flex items-center justify-between py-2">
                                 <span className="text-sm text-[#d1c6ac]">Pentakill</span>
-                                <span className="text-xl font-semibold text-[#ff4444] tabular-nums">{match.pentaKills}</span>
+                                <span className="text-xl font-semibold text-[#ff4444] tabular-nums">{timelineMatches[activeMatchIndex].pentaKills}</span>
                               </div>
                             )}
-                            {match.quadraKills !== undefined && match.quadraKills > 0 && (
+                            {timelineMatches[activeMatchIndex].quadraKills !== undefined && timelineMatches[activeMatchIndex].quadraKills! > 0 && (
                               <div className="flex items-center justify-between py-2">
                                 <span className="text-sm text-[#d1c6ac]">Quadrakill</span>
-                                <span className="text-xl font-semibold text-[#ff8844] tabular-nums">{match.quadraKills}</span>
+                                <span className="text-xl font-semibold text-[#ff8844] tabular-nums">{timelineMatches[activeMatchIndex].quadraKills}</span>
                               </div>
                             )}
-                            {match.tripleKills !== undefined && match.tripleKills > 0 && (
+                            {timelineMatches[activeMatchIndex].tripleKills !== undefined && timelineMatches[activeMatchIndex].tripleKills! > 0 && (
                               <div className="flex items-center justify-between py-2">
                                 <span className="text-sm text-[#d1c6ac]">Triple Kill</span>
-                                <span className="text-xl font-semibold text-[#ffc107] tabular-nums">{match.tripleKills}</span>
+                                <span className="text-xl font-semibold text-[#ffc107] tabular-nums">{timelineMatches[activeMatchIndex].tripleKills}</span>
                               </div>
                             )}
-                            {match.doubleKills !== undefined && match.doubleKills > 0 && (
+                            {timelineMatches[activeMatchIndex].doubleKills !== undefined && timelineMatches[activeMatchIndex].doubleKills! > 0 && (
                               <div className="flex items-center justify-between py-2">
                                 <span className="text-sm text-[#d1c6ac]">Double Kill</span>
-                                <span className="text-xl font-semibold text-white tabular-nums">{match.doubleKills}</span>
+                                <span className="text-xl font-semibold text-white tabular-nums">{timelineMatches[activeMatchIndex].doubleKills}</span>
                               </div>
                             )}
                           </div>
                         </div>
-                      );
-                    })()}
+                      )}
                   </div>
                 )}
               </div>
@@ -1259,10 +1209,10 @@ export default function Recap() {
                 <div className="relative w-full max-w-[520px] h-[600px] lg:h-full">
                   {timelineMatches.map((match, index) => {
                     const championImage = getChampionImage(match.champ);
-                    
+
                     // Calculate position relative to active card
                     let position = index - activeMatchIndex;
-                    
+
                     // Wrap around for seamless loop
                     if (position > timelineMatches.length / 2) {
                       position -= timelineMatches.length;
@@ -1272,22 +1222,21 @@ export default function Recap() {
 
                     const isActive = position === 0;
                     const isVisible = Math.abs(position) <= 1; // Show only 1 card above/below
-                    
+
                     // Calculate vertical transformations - bigger spacing
                     const translateY = position * 280;
                     const scale = isActive ? 1 : Math.max(0.7, 1 - Math.abs(position) * 0.2);
                     const opacity = isActive ? 1 : Math.max(0.15, 1 - Math.abs(position) * 0.5);
                     const zIndex = isActive ? 50 : 40 - Math.abs(position);
-                    
+
                     return (
                       <div
                         key={match.id}
                         onClick={() => setActiveMatchIndex(index)}
-                        className={`group absolute left-1/2 top-1/2 w-full cursor-pointer overflow-hidden rounded-xl transition-all duration-700 ease-out shadow-2xl ${
-                          match.win 
-                            ? 'border-4 border-[#4caf50]/60 bg-gradient-to-br from-[#0b1426]/98 to-[#0a1020]/98' 
-                            : 'border-4 border-[#f44336]/60 bg-gradient-to-br from-[#1a0b0e]/98 to-[#0a1020]/98'
-                        } ${isActive ? 'hover:border-[#c89b3c]' : ''}`}
+                        className={`group absolute left-1/2 top-1/2 w-full cursor-pointer overflow-hidden rounded-xl transition-all duration-700 ease-out shadow-2xl ${match.win
+                          ? 'border-4 border-[#4caf50]/60 bg-gradient-to-br from-[#0b1426]/98 to-[#0a1020]/98'
+                          : 'border-4 border-[#f44336]/60 bg-gradient-to-br from-[#1a0b0e]/98 to-[#0a1020]/98'
+                          } ${isActive ? 'hover:border-[#c89b3c]' : ''}`}
                         style={{
                           transform: `translate(-50%, -50%) translateY(${translateY}px) scale(${scale})`,
                           opacity: isVisible ? opacity : 0,
@@ -1297,17 +1246,17 @@ export default function Recap() {
                       >
                         {/* Animated background gradient */}
                         {isActive && <div className="absolute inset-0 bg-gradient-to-br from-[#c89b3c]/5 via-transparent to-[#2196f3]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />}
-                        
+
                         {/* Glow effect */}
                         {isActive && <div className="absolute -inset-1 bg-gradient-to-r from-[#c89b3c] to-[#d8ac4d] opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500" />}
-                        
+
                         {/* Date Label - Timeline Style */}
                         <div className="absolute -left-3 top-6 z-10">
                           <div className="flex items-center gap-2">
                             <div className="rounded-lg bg-gradient-to-r from-[#c89b3c] to-[#d8ac4d] px-4 py-2 shadow-xl">
                               <p className="text-sm font-bold text-[#0a1428] whitespace-nowrap">
-                                {match.date && new Date(match.date).toLocaleDateString('en-US', { 
-                                  month: 'short', 
+                                {match.date && new Date(match.date).toLocaleDateString('en-US', {
+                                  month: 'short',
                                   day: 'numeric',
                                   year: 'numeric'
                                 })}
@@ -1317,7 +1266,7 @@ export default function Recap() {
                         </div>
 
                         {/* Win/Loss Badge */}
-                        
+
 
                         {/* Champion Image */}
                         <div className="relative h-[420px] overflow-hidden bg-[#050b16]">
@@ -1336,7 +1285,7 @@ export default function Recap() {
                             </div>
                           )}
                           <div className="absolute inset-0 bg-gradient-to-t from-[#0a1428] via-transparent to-transparent opacity-70" />
-                          
+
                           {/* Champion Name & Position */}
                           <div className="absolute bottom-4 left-4 right-4">
                             <div className="flex items-end justify-between">
@@ -1364,7 +1313,7 @@ export default function Recap() {
                               name: match[`item${i}_name` as keyof typeof match] as string | null
                             }))
                             .filter(item => item.id && item.id !== 0);
-                          
+
                           return items.length > 0 ? (
                             <div className="border-t-2 border-[#785a28]/40 bg-[#0a1428]/95 backdrop-blur-sm px-5 py-4">
                               <p className="text-xs font-medium uppercase tracking-wider text-[#a09b8c] mb-3 text-center">Final Build</p>
@@ -1401,15 +1350,15 @@ export default function Recap() {
                     <div className="group relative overflow-hidden rounded-lg border border-[#785a28]/40 bg-[#0b1426]/80 p-6 hover:border-[#c89b3c] transition-all duration-500">
                       {/* Animated background gradient */}
                       <div className="absolute inset-0 bg-gradient-to-br from-[#c89b3c]/5 via-transparent to-[#2196f3]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                      
+
                       {/* Glow effect */}
                       <div className="absolute -inset-1 bg-gradient-to-r from-[#c89b3c] to-[#d8ac4d] opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500" />
-                      
+
                       <div className="relative mb-6">
                         <p className="text-xs font-bold uppercase tracking-wider text-[#a09b8c] mb-1">Performance</p>
                         <div className="h-px bg-[#785a28]/30 mt-2"></div>
                       </div>
-                      
+
                       <div className="relative space-y-5">
                         {/* Damage */}
                         {timelineMatches[activeMatchIndex].totalDamageDealtToChampions !== undefined && (
@@ -1461,15 +1410,15 @@ export default function Recap() {
                     <div className="group relative overflow-hidden rounded-lg border border-[#785a28]/40 bg-[#0b1426]/80 p-6 hover:border-[#c89b3c] transition-all duration-500">
                       {/* Animated background gradient */}
                       <div className="absolute inset-0 bg-gradient-to-br from-[#c89b3c]/5 via-transparent to-[#2196f3]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                      
+
                       {/* Glow effect */}
                       <div className="absolute -inset-1 bg-gradient-to-r from-[#c89b3c] to-[#d8ac4d] opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500" />
-                      
+
                       <div className="relative mb-6">
                         <p className="text-xs font-bold uppercase tracking-wider text-[#a09b8c] mb-1">Match Info</p>
                         <div className="h-px bg-[#785a28]/30 mt-2"></div>
                       </div>
-                      
+
                       <div className="relative space-y-4">
                         {/* Duration */}
                         {timelineMatches[activeMatchIndex].gameDuration !== undefined && (
@@ -1496,7 +1445,7 @@ export default function Recap() {
                           <div className="flex items-center justify-between">
                             <span className="text-xs text-[#a09b8c]/70">Time</span>
                             <span className="text-sm font-medium text-white tabular-nums">
-                              {new Date(timelineMatches[activeMatchIndex].date!).toLocaleTimeString('en-US', { 
+                              {new Date(timelineMatches[activeMatchIndex].date!).toLocaleTimeString('en-US', {
                                 hour: '2-digit',
                                 minute: '2-digit'
                               })}
@@ -1560,11 +1509,10 @@ export default function Recap() {
               <button
                 key={index}
                 onClick={() => setActiveMatchIndex(index)}
-                className={`rounded-full transition-all ${
-                  index === activeMatchIndex 
-                    ? 'h-3 w-3 bg-[#c89b3c] ring-4 ring-[#c89b3c]/30' 
-                    : 'h-2 w-2 bg-[#2c3542] hover:bg-[#3a4658]'
-                }`}
+                className={`rounded-full transition-all ${index === activeMatchIndex
+                  ? 'h-3 w-3 bg-[#c89b3c] ring-4 ring-[#c89b3c]/30'
+                  : 'h-2 w-2 bg-[#2c3542] hover:bg-[#3a4658]'
+                  }`}
               />
             ))}
           </div>
@@ -1654,10 +1602,10 @@ export default function Recap() {
       <div className="group relative overflow-hidden rounded-sm border border-[#785a28] bg-[#0b1426]/95 p-3 shadow-2xl sm:p-4 lg:p-6 hover:border-[#c89b3c] transition-all duration-500">
         {/* Animated background gradient */}
         <div className="absolute inset-0 bg-gradient-to-br from-[#c89b3c]/5 via-transparent to-[#2196f3]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-        
+
         {/* Glow effect */}
         <div className="absolute -inset-1 bg-gradient-to-r from-[#c89b3c] to-[#d8ac4d] opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500" />
-        
+
         {/* Player Header */}
         <div className="relative mb-3 flex items-center gap-2 border-b border-[#785a28] pb-2 sm:mb-4 sm:gap-3 sm:pb-3 lg:gap-4 lg:pb-4">
           <div className="h-12 w-12 shrink-0 rounded-sm border border-[#c89b3c] sm:h-14 sm:w-14 lg:h-16 lg:w-16 bg-[#0a1428] overflow-hidden">
@@ -1716,11 +1664,11 @@ export default function Recap() {
               <div className="flex items-center justify-between">
                 <span className="text-[10px] text-[#d1c6ac] sm:text-xs">Best Streak</span>
                 <span className="text-base font-bold text-[#4caf50] sm:text-lg">{safeGet(wrappedData, 'memorable.bestStreak', 0)}</span>
-          </div>
+              </div>
               <div className="flex items-center justify-between">
                 <span className="text-[10px] text-[#d1c6ac] sm:text-xs">Hours</span>
                 <span className="text-base font-bold text-[#c89b3c] sm:text-lg">{hours}h</span>
-        </div>
+              </div>
               <div className="flex items-center justify-between">
                 <span className="text-[10px] text-[#d1c6ac] sm:text-xs">Peak Time</span>
                 <span className="text-xs font-semibold text-white sm:text-sm">{peakTime}</span>
@@ -1734,10 +1682,10 @@ export default function Recap() {
           <div className="group relative overflow-hidden mt-2 rounded-sm border border-[#c89b3c]/30 bg-[#0a1428]/60 p-2.5 sm:mt-3 sm:p-3 lg:mt-4 lg:p-4 hover:border-[#c89b3c] transition-all duration-500">
             {/* Animated background gradient */}
             <div className="absolute inset-0 bg-gradient-to-br from-[#c89b3c]/5 via-transparent to-[#2196f3]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            
+
             {/* Glow effect */}
             <div className="absolute -inset-1 bg-gradient-to-r from-[#c89b3c] to-[#d8ac4d] opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500" />
-            
+
             <div className="relative flex items-center gap-2 sm:gap-3 lg:gap-4">
               <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-sm bg-[#050b16] sm:h-14 sm:w-14 lg:h-16 lg:w-16">
                 {getChampionImage(mainChampion.name) ? (
@@ -1791,7 +1739,7 @@ export default function Recap() {
             className="group flex items-center justify-center gap-1.5 rounded-sm border border-[#1877F2]/50 bg-[#1877F2]/10 px-3 py-2 transition-all hover:bg-[#1877F2]/20 hover:border-[#1877F2] sm:gap-2 sm:px-4 sm:py-2.5"
           >
             <svg className="h-4 w-4 sm:h-5 sm:w-5" viewBox="0 0 24 24" fill="#1877F2">
-              <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+              <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
             </svg>
             <span className="text-xs font-semibold text-white sm:text-sm">Facebook</span>
           </button>
@@ -1803,7 +1751,7 @@ export default function Recap() {
             className="group flex items-center justify-center gap-1.5 rounded-sm border border-[#FF4500]/50 bg-[#FF4500]/10 px-3 py-2 transition-all hover:bg-[#FF4500]/20 hover:border-[#FF4500] sm:gap-2 sm:px-4 sm:py-2.5"
           >
             <svg className="h-4 w-4 sm:h-5 sm:w-5" viewBox="0 0 24 24" fill="#FF4500">
-              <path d="M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 0 1 .042.52c0 2.694-3.13 4.87-7.004 4.87-3.874 0-7.004-2.176-7.004-4.87 0-.183.015-.366.043-.534A1.748 1.748 0 0 1 4.028 12c0-.968.786-1.754 1.754-1.754.463 0 .898.196 1.207.49 1.207-.883 2.878-1.43 4.744-1.487l.885-4.182a.342.342 0 0 1 .14-.197.35.35 0 0 1 .238-.042l2.906.617a1.214 1.214 0 0 1 1.108-.701zM9.25 12C8.561 12 8 12.562 8 13.25c0 .687.561 1.248 1.25 1.248.687 0 1.248-.561 1.248-1.249 0-.688-.561-1.249-1.249-1.249zm5.5 0c-.687 0-1.248.561-1.248 1.25 0 .687.561 1.248 1.249 1.248.688 0 1.249-.561 1.249-1.249 0-.687-.562-1.249-1.25-1.249zm-5.466 3.99a.327.327 0 0 0-.231.094.33.33 0 0 0 0 .463c.842.842 2.484.913 2.961.913.477 0 2.105-.056 2.961-.913a.361.361 0 0 0 .029-.463.33.33 0 0 0-.464 0c-.547.533-1.684.73-2.512.73-.828 0-1.979-.196-2.512-.73a.326.326 0 0 0-.232-.095z"/>
+              <path d="M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 0 1 .042.52c0 2.694-3.13 4.87-7.004 4.87-3.874 0-7.004-2.176-7.004-4.87 0-.183.015-.366.043-.534A1.748 1.748 0 0 1 4.028 12c0-.968.786-1.754 1.754-1.754.463 0 .898.196 1.207.49 1.207-.883 2.878-1.43 4.744-1.487l.885-4.182a.342.342 0 0 1 .14-.197.35.35 0 0 1 .238-.042l2.906.617a1.214 1.214 0 0 1 1.108-.701zM9.25 12C8.561 12 8 12.562 8 13.25c0 .687.561 1.248 1.25 1.248.687 0 1.248-.561 1.248-1.249 0-.688-.561-1.249-1.249-1.249zm5.5 0c-.687 0-1.248.561-1.248 1.25 0 .687.561 1.248 1.249 1.248.688 0 1.249-.561 1.249-1.249 0-.687-.562-1.249-1.25-1.249zm-5.466 3.99a.327.327 0 0 0-.231.094.33.33 0 0 0 0 .463c.842.842 2.484.913 2.961.913.477 0 2.105-.056 2.961-.913a.361.361 0 0 0 .029-.463.33.33 0 0 0-.464 0c-.547.533-1.684.73-2.512.73-.828 0-1.979-.196-2.512-.73a.326.326 0 0 0-.232-.095z" />
             </svg>
             <span className="text-xs font-semibold text-white sm:text-sm">Reddit</span>
           </button>
@@ -1812,11 +1760,10 @@ export default function Recap() {
           <button
             type="button"
             onClick={handleCopyLink}
-            className={`group flex items-center justify-center gap-1.5 rounded-sm border px-3 py-2 transition-all sm:gap-2 sm:px-4 sm:py-2.5 ${
-              linkCopied
-                ? 'border-[#4caf50] bg-[#4caf50]/20'
-                : 'border-[#c89b3c]/50 bg-[#c89b3c]/10 hover:bg-[#c89b3c]/20 hover:border-[#c89b3c]'
-            }`}
+            className={`group flex items-center justify-center gap-1.5 rounded-sm border px-3 py-2 transition-all sm:gap-2 sm:px-4 sm:py-2.5 ${linkCopied
+              ? 'border-[#4caf50] bg-[#4caf50]/20'
+              : 'border-[#c89b3c]/50 bg-[#c89b3c]/10 hover:bg-[#c89b3c]/20 hover:border-[#c89b3c]'
+              }`}
           >
             {linkCopied ? (
               <>
@@ -1844,6 +1791,7 @@ export default function Recap() {
           Thanks for playing! See you on the Rift in Season {parseInt(year) + 1}
         </p>
       </div>
+
     </div>
   );
 
@@ -1943,7 +1891,7 @@ export default function Recap() {
                       <source src={slide.video} type="video/webm" />
                     </video>
                   )}
-                  
+
                   {/* Gradient overlay */}
                   <div
                     className="pointer-events-none absolute inset-0 opacity-20"
@@ -1952,7 +1900,7 @@ export default function Recap() {
                         "radial-gradient(circle at 20% 20%, rgba(200, 155, 60, 0.2), transparent 55%), radial-gradient(circle at 80% 10%, rgba(17, 28, 50, 0.6), transparent 50%)",
                     }}
                   />
-                  
+
                   <div className="relative z-[1] flex flex-col lg:h-full lg:justify-center min-h-full">{slide.content}</div>
                 </section>
               );
@@ -1969,9 +1917,8 @@ export default function Recap() {
                   type="button"
                   aria-label={`Go to ${slide.label}`}
                   aria-current={index === currentSlide ? "page" : undefined}
-                  className={`h-2 rounded-full transition-all sm:h-2.5 ${
-                    index === currentSlide ? "w-10 bg-[#c89b3c] sm:w-12" : "w-6 bg-[#2c3542] hover:bg-[#3a4658] sm:w-8"
-                  }`}
+                  className={`h-2 rounded-full transition-all sm:h-2.5 ${index === currentSlide ? "w-10 bg-[#c89b3c] sm:w-12" : "w-6 bg-[#2c3542] hover:bg-[#3a4658] sm:w-8"
+                    }`}
                   onClick={() => goToIndex(index)}
                 />
               ))}
