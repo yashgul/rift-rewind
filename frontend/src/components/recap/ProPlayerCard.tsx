@@ -16,20 +16,20 @@ export const ProPlayerCard = ({ playerName, team, reasoning }: ProPlayerCardProp
       {/* Glow effect */}
       <div className="absolute -inset-1 bg-gradient-gold opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500" />
       
-      <div className="relative p-8 space-y-6">
+      <div className="relative p-3 sm:p-4 lg:p-6 space-y-2 sm:space-y-3 lg:space-y-4">
         {/* Header */}
         <div className="flex items-start justify-between">
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <Trophy className="w-5 h-5 text-lol-gold" />
-              <p className="text-sm font-rajdhani font-semibold text-lol-gold tracking-wider uppercase">
+          <div className="space-y-0.5 sm:space-y-1">
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <Trophy className="w-3 h-3 sm:w-4 sm:h-4 text-lol-gold" />
+              <p className="text-[10px] sm:text-xs font-rajdhani font-semibold text-lol-gold tracking-wider uppercase">
                 Your Pro Doppelgänger
               </p>
             </div>
-            <h3 className="text-4xl font-bebas tracking-wide text-foreground group-hover:text-lol-gold transition-colors duration-300">
+            <h3 className="text-xl sm:text-2xl lg:text-3xl font-bebas tracking-wide text-foreground group-hover:text-lol-gold transition-colors duration-300">
               {playerName}
             </h3>
-            <p className="text-lg font-rajdhani text-muted-foreground">
+            <p className="text-xs sm:text-sm lg:text-base font-rajdhani text-muted-foreground">
               {team}
             </p>
           </div>
@@ -37,7 +37,7 @@ export const ProPlayerCard = ({ playerName, team, reasoning }: ProPlayerCardProp
           {/* Decorative icon */}
           <div className="relative">
             <div className="absolute inset-0 bg-lol-gold/20 blur-xl animate-pulse-gold" />
-            <Trophy className="relative w-12 h-12 text-lol-gold/60 group-hover:text-lol-gold group-hover:scale-110 transition-all duration-300" />
+            <Trophy className="relative w-6 h-6 sm:w-8 sm:h-8 lg:w-10 lg:h-10 text-lol-gold/60 group-hover:text-lol-gold group-hover:scale-110 transition-all duration-300" />
           </div>
         </div>
 
@@ -45,11 +45,11 @@ export const ProPlayerCard = ({ playerName, team, reasoning }: ProPlayerCardProp
         <div className="h-px bg-gradient-to-r from-transparent via-lol-gold/40 to-transparent" />
 
         {/* Reasoning */}
-        <div className="space-y-2">
-          <p className="text-sm font-rajdhani font-semibold text-muted-foreground uppercase tracking-wider">
+        <div className="space-y-0.5 sm:space-y-1">
+          <p className="text-[10px] sm:text-xs font-rajdhani font-semibold text-muted-foreground uppercase tracking-wider">
             Why You Match
           </p>
-          <p className="text-base leading-relaxed text-foreground/90 font-rajdhani">
+          <p className="text-xs sm:text-sm leading-snug text-foreground/90 font-rajdhani line-clamp-3 lg:line-clamp-4">
             {reasoning}
           </p>
         </div>

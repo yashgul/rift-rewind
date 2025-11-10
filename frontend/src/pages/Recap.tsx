@@ -810,19 +810,19 @@ export default function Recap() {
   );
 
   const personalitySlide: ReactNode = (
-    <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-3 sm:gap-4 py-4 lg:py-0">
-      {/* Top Row: Season Highlights */}
-      <div className="rounded-sm border-2 border-[#785a28] bg-[#0b1426]/90 p-4 sm:p-5">
-        <p className="text-xs uppercase tracking-[0.25em] text-[#c89b3c] sm:text-sm">Season Highlights</p>
-        <div className="mt-3 grid gap-3 sm:mt-4 sm:gap-4 lg:grid-cols-2">
-          {highlights.map((highlight, index) => (
+    <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-2 lg:gap-3">
+      {/* Top Row: Season Highlights - Show 2 on medium, 4 on large */}
+      <div className="rounded-sm border border-[#785a28] bg-[#0b1426]/90 p-2.5 sm:p-3 lg:p-4">
+        <p className="text-[10px] uppercase tracking-[0.15em] text-[#c89b3c] sm:text-xs">Season Highlights</p>
+        <div className="mt-1.5 grid gap-1.5 sm:mt-2 sm:gap-2 lg:gap-3 lg:grid-cols-2">
+          {highlights.slice(0, 2).map((highlight, index) => (
             <div
               key={index}
-              className="rounded-sm border-l-4 border-[#c89b3c] bg-[#091222]/80 p-4"
+              className="rounded-sm border-l-2 border-[#c89b3c] bg-[#091222]/80 p-2 sm:p-2.5 lg:p-3"
             >
-              <div className="flex items-start gap-3">
+              <div className="flex items-start gap-2">
                 {highlight.icon && (
-                  <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-sm bg-[#050b16]">
+                  <div className="relative h-8 w-8 sm:h-10 sm:w-10 shrink-0 overflow-hidden rounded-sm bg-[#050b16]">
                     {getChampionImage(highlight.icon) ? (
                       <img
                         src={getChampionImage(highlight.icon)}
@@ -831,36 +831,73 @@ export default function Recap() {
                       />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#1a2336] to-[#0a1428]">
-                        <span className="text-base font-bold text-[#c89b3c]">{highlight.icon.charAt(0)}</span>
+                        <span className="text-xs sm:text-sm font-bold text-[#c89b3c]">{highlight.icon.charAt(0)}</span>
                   </div>
                     )}
                 </div>
                 )}
-                <div className="flex-1">
-                  <p className="text-sm font-bold text-white sm:text-base">{highlight.title}</p>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-bold text-white sm:text-sm">{highlight.title}</p>
                   {highlight.percentile && (
-                    <p className="mt-1 text-[10px] uppercase tracking-[0.2em] text-[#c89b3c]">
+                    <p className="mt-0.5 text-[9px] uppercase tracking-[0.1em] text-[#c89b3c]">
                       {highlight.percentile}
                     </p>
                   )}
-                  <p className="mt-2 text-xs leading-relaxed text-[#d1c6ac]">{highlight.description}</p>
-                  <p className="mt-2 text-xs italic text-[#a09b8c]">"{highlight.flavor}"</p>
+                  <p className="mt-0.5 text-[10px] leading-snug text-[#d1c6ac] line-clamp-2 sm:text-xs">{highlight.description}</p>
+                  <p className="mt-0.5 text-[9px] italic text-[#a09b8c] line-clamp-1 sm:text-[10px]">"{highlight.flavor}"</p>
               </div>
           </div>
               </div>
             ))}
+          {/* Show additional 2 highlights on larger screens */}
+          <div className="hidden lg:contents">
+            {highlights.slice(2, 4).map((highlight, index) => (
+              <div
+                key={index + 2}
+                className="rounded-sm border-l-2 border-[#c89b3c] bg-[#091222]/80 p-3"
+              >
+                <div className="flex items-start gap-2">
+                  {highlight.icon && (
+                    <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-sm bg-[#050b16]">
+                      {getChampionImage(highlight.icon) ? (
+                        <img
+                          src={getChampionImage(highlight.icon)}
+                          alt={highlight.icon}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#1a2336] to-[#0a1428]">
+                          <span className="text-sm font-bold text-[#c89b3c]">{highlight.icon.charAt(0)}</span>
+                    </div>
+                      )}
+                  </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-white">{highlight.title}</p>
+                    {highlight.percentile && (
+                      <p className="mt-0.5 text-[9px] uppercase tracking-[0.1em] text-[#c89b3c]">
+                        {highlight.percentile}
+                      </p>
+                    )}
+                    <p className="mt-0.5 text-xs leading-snug text-[#d1c6ac] line-clamp-2">{highlight.description}</p>
+                    <p className="mt-0.5 text-[10px] italic text-[#a09b8c] line-clamp-1">"{highlight.flavor}"</p>
+                </div>
+            </div>
+                </div>
+              ))}
+          </div>
         </div>
       </div>
 
       {/* Bottom Row: AI Personality Radar & Fun Facts */}
-      <div className="grid gap-3 sm:gap-4 lg:grid-cols-[1.2fr,0.8fr]">
+      <div className="grid gap-2 lg:gap-3 lg:grid-cols-[1.3fr,0.7fr]">
         {/* AI Personality Radar Chart */}
-        <div className="rounded-sm border-2 border-[#785a28] bg-[#0b1426]/90 p-4">
-          <p className="text-xs uppercase tracking-[0.25em] text-[#c89b3c] sm:text-sm">Playstyle Analysis</p>
-          <p className="mt-2 text-xl font-bold text-white sm:text-2xl">{archetype}</p>
-          <p className="mt-2 text-xs leading-relaxed text-[#d1c6ac] sm:text-sm">{primaryTagline}</p>
+        <div className="rounded-sm border border-[#785a28] bg-[#0b1426]/90 p-2.5 sm:p-3 lg:p-4">
+          <p className="text-[10px] uppercase tracking-[0.15em] text-[#c89b3c] sm:text-xs">Playstyle Analysis</p>
+          <p className="mt-0.5 text-base font-bold text-white sm:text-lg lg:text-xl">{archetype}</p>
+          <p className="mt-0.5 text-[9px] leading-tight text-[#d1c6ac] line-clamp-1 sm:text-[10px] lg:text-xs">{primaryTagline}</p>
           
-          <div className="mt-3 flex items-center justify-center sm:mt-4">
+          <div className="mt-1 flex items-center justify-center sm:mt-1.5 lg:mt-2">
             <ChartContainer
               config={{
                 value: {
@@ -868,7 +905,7 @@ export default function Recap() {
                   color: "#c89b3c",
                 },
               }}
-              className="mx-auto aspect-square max-h-[250px] w-full"
+              className="mx-auto aspect-square max-h-[140px] sm:max-h-[160px] lg:max-h-[200px] w-full"
             >
               <RadarChart
                 data={traitEntries.map(([key, value]) => ({
@@ -882,19 +919,19 @@ export default function Recap() {
                 />
                 <PolarAngleAxis 
                   dataKey="trait" 
-                  tick={{ fill: "#a09b8c", fontSize: 11 }}
+                  tick={{ fill: "#a09b8c", fontSize: 9 }}
                   tickLine={false}
                 />
                 <PolarGrid 
                   stroke="#3a4658"
-                  strokeWidth={1.5}
+                  strokeWidth={1}
                 />
                 <Radar
                   dataKey="value"
                   fill="#c89b3c"
                   fillOpacity={0.6}
                   stroke="#d8ac4d"
-                  strokeWidth={3}
+                  strokeWidth={2}
                 />
               </RadarChart>
             </ChartContainer>
@@ -902,15 +939,15 @@ export default function Recap() {
         </div>
 
         {/* Fun Facts */}
-        <div className="rounded-sm border-2 border-[#785a28] bg-[#0b1426]/90 p-4">
-          <p className="text-xs uppercase tracking-[0.25em] text-[#c89b3c] sm:text-sm">Fun Facts</p>
-          <ul className="mt-3 space-y-3 text-xs text-[#f0e6d2] sm:mt-4 sm:text-sm">
+        <div className="rounded-sm border border-[#785a28] bg-[#0b1426]/90 p-2.5 sm:p-3 lg:p-4">
+          <p className="text-[10px] uppercase tracking-[0.15em] text-[#c89b3c] sm:text-xs">Fun Facts</p>
+          <ul className="mt-1.5 space-y-1.5 text-[10px] text-[#f0e6d2] sm:mt-2 sm:space-y-2 sm:text-xs lg:space-y-2.5">
             {funFacts.slice(0, 4).map((fact, index) => (
-              <li key={index} className="flex items-start gap-2">
-                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#785a28] text-[10px] font-bold text-white sm:h-6 sm:w-6 sm:text-xs">
+              <li key={index} className="flex items-start gap-1.5">
+                <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#785a28] text-[9px] font-bold text-white sm:h-5 sm:w-5 sm:text-[10px]">
                   {index + 1}
                 </span>
-                <span className="pt-0.5 leading-relaxed">{fact}</span>
+                <span className="pt-0.5 leading-tight sm:leading-snug">{fact}</span>
               </li>
             ))}
           </ul>
@@ -1104,17 +1141,7 @@ export default function Recap() {
                         </div>
 
                         {/* Win/Loss Badge */}
-                        <div className="absolute right-4 top-4 z-10">
-                          <div
-                            className={`rounded-lg px-4 py-2 text-sm font-bold uppercase shadow-lg ${
-                              match.win
-                                ? 'border-2 border-[#4caf50] bg-[#4caf50]/30 text-[#4caf50] backdrop-blur-sm'
-                                : 'border-2 border-[#f44336] bg-[#f44336]/30 text-[#f44336] backdrop-blur-sm'
-                            }`}
-                          >
-                            {match.win ? '✓ Victory' : '✗ Defeat'}
-                          </div>
-                        </div>
+                        
 
                         {/* Champion Image */}
                         <div className="relative h-[420px] overflow-hidden bg-[#050b16]">
@@ -1376,19 +1403,19 @@ export default function Recap() {
   );
 
   const insightsSlide: ReactNode = (
-    <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-4 sm:gap-6 py-4 lg:py-0">
+    <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-2 sm:gap-3 lg:gap-4">
       {/* Header */}
-      <div className="text-center mb-2">
-        <h2 className="text-3xl font-bold uppercase tracking-[0.2em] text-[#c89b3c] sm:text-4xl">
+      <div className="text-center mb-0 sm:mb-1">
+        <h2 className="text-xl font-bold uppercase tracking-[0.12em] text-[#c89b3c] sm:text-2xl lg:text-3xl lg:tracking-[0.15em]">
           Deep Insights
         </h2>
-        <p className="mt-2 text-sm text-[#d1c6ac] sm:text-base">
+        <p className="mt-0.5 text-[10px] text-[#d1c6ac] sm:text-xs lg:text-sm">
           The good, the bad, and the legendary
         </p>
       </div>
 
       {/* Two Column Layout */}
-      <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
+      <div className="grid gap-2 sm:gap-3 lg:gap-4 lg:grid-cols-2">
         {/* Pro Player Comparison */}
         <ProPlayerCard
           playerName={proPlayerComparison.playerName}
@@ -1403,76 +1430,76 @@ export default function Recap() {
   );
 
   const shareSlide: ReactNode = (
-    <div className="mx-auto flex w-full max-w-[1000px] flex-col gap-6 sm:gap-8 py-4 lg:py-0">
+    <div className="mx-auto flex w-full max-w-[1000px] flex-col gap-2 sm:gap-3 lg:gap-4">
       {/* Header */}
       <div className="text-center">
-        <h2 className="text-3xl font-bold uppercase tracking-[0.2em] text-[#c89b3c] sm:text-4xl">
+        <h2 className="text-xl font-bold uppercase tracking-[0.15em] text-[#c89b3c] sm:text-2xl lg:text-3xl">
           Share Your Journey
         </h2>
-        <p className="mt-2 text-sm text-[#d1c6ac] sm:text-base">
+        <p className="mt-0.5 text-xs text-[#d1c6ac] sm:text-sm lg:text-base">
           Show off your Season {year} achievements
         </p>
       </div>
 
       {/* Compact Stats Card */}
-      <div className="rounded-sm border-2 border-[#785a28] bg-[#0b1426]/95 p-6 shadow-2xl sm:p-8">
+      <div className="rounded-sm border border-[#785a28] bg-[#0b1426]/95 p-3 shadow-2xl sm:p-4 lg:p-6">
         {/* Player Header */}
-        <div className="mb-6 flex items-center gap-4 border-b border-[#785a28] pb-4">
+        <div className="mb-3 flex items-center gap-2 border-b border-[#785a28] pb-2 sm:mb-4 sm:gap-3 sm:pb-3 lg:gap-4 lg:pb-4">
           <div
-            className="h-16 w-16 shrink-0 rounded-sm border-2 border-[#c89b3c] bg-cover bg-center sm:h-20 sm:w-20"
+            className="h-12 w-12 shrink-0 rounded-sm border border-[#c89b3c] bg-cover bg-center sm:h-14 sm:w-14 lg:h-16 lg:w-16"
             style={{ backgroundImage: `url('${summonerIconUrl || '/rift_logo.png'}')` }}
             aria-label={summonerIconUrl ? "Summoner profile icon" : "Player avatar"}
           />
           <div>
-            <p className="text-2xl font-bold text-white sm:text-3xl">{recapData.message.wrapped.unique_id}</p>
-            <p className="text-sm uppercase tracking-[0.2em] text-[#c89b3c]">{archetype}</p>
+            <p className="text-lg font-bold text-white sm:text-xl lg:text-2xl">{recapData.message.wrapped.unique_id}</p>
+            <p className="text-xs uppercase tracking-[0.15em] text-[#c89b3c] sm:text-sm">{archetype}</p>
           </div>
         </div>
 
         {/* Stats Grid - Compact */}
-        <div className="grid gap-3 sm:grid-cols-3 sm:gap-4">
+        <div className="grid gap-2 sm:grid-cols-3 sm:gap-2.5 lg:gap-3">
           {/* Games & Winrate */}
-          <div className="rounded-sm bg-[#091222]/80 p-4">
-            <p className="text-xs uppercase tracking-[0.2em] text-[#a09b8c]">Performance</p>
-            <div className="mt-2 space-y-1">
-              <p className="text-2xl font-bold text-white">{totalGames}</p>
-              <p className="text-xs text-[#d1c6ac]">Games Played</p>
-              <p className="mt-2 text-xl font-bold text-[#c89b3c]">{winrate.toFixed(1)}%</p>
-              <p className="text-xs text-[#d1c6ac]">Win Rate</p>
+          <div className="rounded-sm bg-[#091222]/80 p-2.5 sm:p-3 lg:p-4">
+            <p className="text-[10px] uppercase tracking-[0.15em] text-[#a09b8c] sm:text-xs">Performance</p>
+            <div className="mt-1 space-y-0.5 sm:mt-1.5 lg:mt-2">
+              <p className="text-lg font-bold text-white sm:text-xl lg:text-2xl">{totalGames}</p>
+              <p className="text-[10px] text-[#d1c6ac] sm:text-xs">Games Played</p>
+              <p className="mt-1 text-base font-bold text-[#c89b3c] sm:text-lg lg:text-xl">{winrate.toFixed(1)}%</p>
+              <p className="text-[10px] text-[#d1c6ac] sm:text-xs">Win Rate</p>
             </div>
           </div>
 
           {/* Top Champions */}
-          <div className="rounded-sm bg-[#091222]/80 p-4">
-            <p className="text-xs uppercase tracking-[0.2em] text-[#a09b8c]">Top Champions</p>
-            <div className="mt-2 space-y-2">
+          <div className="rounded-sm bg-[#091222]/80 p-2.5 sm:p-3 lg:p-4">
+            <p className="text-[10px] uppercase tracking-[0.15em] text-[#a09b8c] sm:text-xs">Top Champions</p>
+            <div className="mt-1 space-y-1 sm:mt-1.5 sm:space-y-1.5 lg:mt-2">
               {topChampions.slice(0, 3).map((champ, idx) => (
-                <div key={champ.name} className="flex items-center gap-2">
-                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#785a28] text-[10px] font-bold text-white">
+                <div key={champ.name} className="flex items-center gap-1.5 sm:gap-2">
+                  <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#785a28] text-[9px] font-bold text-white sm:h-5 sm:w-5 sm:text-[10px]">
                     {idx + 1}
                   </span>
-                  <span className="text-sm font-semibold text-white">{champ.name}</span>
-                  <span className="ml-auto text-xs text-[#c89b3c]">{champ.winrate.toFixed(0)}%</span>
+                  <span className="text-xs font-semibold text-white sm:text-sm truncate">{champ.name}</span>
+                  <span className="ml-auto text-[10px] text-[#c89b3c] sm:text-xs">{champ.winrate.toFixed(0)}%</span>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Season Highlights */}
-          <div className="rounded-sm bg-[#091222]/80 p-4">
-            <p className="text-xs uppercase tracking-[0.2em] text-[#a09b8c]">Highlights</p>
-            <div className="mt-2 space-y-2">
+          <div className="rounded-sm bg-[#091222]/80 p-2.5 sm:p-3 lg:p-4">
+            <p className="text-[10px] uppercase tracking-[0.15em] text-[#a09b8c] sm:text-xs">Highlights</p>
+            <div className="mt-1 space-y-1 sm:mt-1.5 sm:space-y-1.5 lg:mt-2">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-[#d1c6ac]">Best Streak</span>
-                <span className="text-lg font-bold text-[#4caf50]">{safeGet(wrappedData, 'memorable.bestStreak', 0)}</span>
+                <span className="text-[10px] text-[#d1c6ac] sm:text-xs">Best Streak</span>
+                <span className="text-base font-bold text-[#4caf50] sm:text-lg">{safeGet(wrappedData, 'memorable.bestStreak', 0)}</span>
           </div>
               <div className="flex items-center justify-between">
-                <span className="text-xs text-[#d1c6ac]">Hours</span>
-                <span className="text-lg font-bold text-[#c89b3c]">{hours}h</span>
+                <span className="text-[10px] text-[#d1c6ac] sm:text-xs">Hours</span>
+                <span className="text-base font-bold text-[#c89b3c] sm:text-lg">{hours}h</span>
         </div>
               <div className="flex items-center justify-between">
-                <span className="text-xs text-[#d1c6ac]">Peak Time</span>
-                <span className="text-sm font-semibold text-white">{peakTime}</span>
+                <span className="text-[10px] text-[#d1c6ac] sm:text-xs">Peak Time</span>
+                <span className="text-xs font-semibold text-white sm:text-sm">{peakTime}</span>
               </div>
             </div>
           </div>
@@ -1480,9 +1507,9 @@ export default function Recap() {
 
         {/* Main Champion Showcase */}
         {mainChampion && (
-          <div className="mt-4 rounded-sm border border-[#c89b3c]/30 bg-[#0a1428]/60 p-4">
-            <div className="flex items-center gap-4">
-              <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-sm bg-[#050b16]">
+          <div className="mt-2 rounded-sm border border-[#c89b3c]/30 bg-[#0a1428]/60 p-2.5 sm:mt-3 sm:p-3 lg:mt-4 lg:p-4">
+            <div className="flex items-center gap-2 sm:gap-3 lg:gap-4">
+              <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-sm bg-[#050b16] sm:h-14 sm:w-14 lg:h-16 lg:w-16">
                 {getChampionImage(mainChampion.name) ? (
                   <img
                     src={getChampionImage(mainChampion.name)}
@@ -1491,14 +1518,14 @@ export default function Recap() {
                   />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#1a2336] to-[#0a1428]">
-                    <span className="text-xl font-bold text-[#c89b3c]">{mainChampion.name.charAt(0)}</span>
+                    <span className="text-base font-bold text-[#c89b3c] sm:text-lg lg:text-xl">{mainChampion.name.charAt(0)}</span>
                   </div>
                 )}
               </div>
-              <div className="flex-1">
-                <p className="text-xs uppercase tracking-[0.2em] text-[#c89b3c]">Main Champion</p>
-                <p className="text-xl font-bold text-white">{mainChampion.name}</p>
-                <div className="mt-1 flex items-center gap-3 text-xs text-[#a09b8c]">
+              <div className="flex-1 min-w-0">
+                <p className="text-[10px] uppercase tracking-[0.15em] text-[#c89b3c] sm:text-xs">Main Champion</p>
+                <p className="text-base font-bold text-white sm:text-lg lg:text-xl truncate">{mainChampion.name}</p>
+                <div className="mt-0.5 flex items-center gap-1.5 text-[10px] text-[#a09b8c] sm:gap-2 sm:text-xs lg:gap-3">
                   <span>{mainChampion.winrate.toFixed(1)}% WR</span>
                   <span>•</span>
                   <span>{mainChampion.games} Games</span>
@@ -1512,50 +1539,50 @@ export default function Recap() {
       </div>
 
       {/* Share Buttons */}
-      <div className="space-y-4">
-        <p className="text-center text-sm uppercase tracking-[0.2em] text-[#c89b3c]">Share On</p>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="space-y-2 sm:space-y-3">
+        <p className="text-center text-xs uppercase tracking-[0.15em] text-[#c89b3c] sm:text-sm">Share On</p>
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
           {/* X/Twitter */}
           <button
             type="button"
             onClick={() => handleShareToX(year, winrate, totalGames, archetype)}
-            className="group flex items-center justify-center gap-2 rounded-sm border border-[#1DA1F2]/50 bg-[#1DA1F2]/10 px-4 py-3 transition-all hover:bg-[#1DA1F2]/20 hover:border-[#1DA1F2]"
+            className="group flex items-center justify-center gap-1.5 rounded-sm border border-[#1DA1F2]/50 bg-[#1DA1F2]/10 px-3 py-2 transition-all hover:bg-[#1DA1F2]/20 hover:border-[#1DA1F2] sm:gap-2 sm:px-4 sm:py-2.5"
           >
-            <svg className="h-5 w-5" viewBox="0 0 24 24" fill="#1DA1F2">
+            <svg className="h-4 w-4 sm:h-5 sm:w-5" viewBox="0 0 24 24" fill="#1DA1F2">
               <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
             </svg>
-            <span className="text-sm font-semibold text-white">X</span>
+            <span className="text-xs font-semibold text-white sm:text-sm">X</span>
           </button>
 
           {/* Facebook */}
           <button
             type="button"
             onClick={handleShareToFacebook}
-            className="group flex items-center justify-center gap-2 rounded-sm border border-[#1877F2]/50 bg-[#1877F2]/10 px-4 py-3 transition-all hover:bg-[#1877F2]/20 hover:border-[#1877F2]"
+            className="group flex items-center justify-center gap-1.5 rounded-sm border border-[#1877F2]/50 bg-[#1877F2]/10 px-3 py-2 transition-all hover:bg-[#1877F2]/20 hover:border-[#1877F2] sm:gap-2 sm:px-4 sm:py-2.5"
           >
-            <svg className="h-5 w-5" viewBox="0 0 24 24" fill="#1877F2">
+            <svg className="h-4 w-4 sm:h-5 sm:w-5" viewBox="0 0 24 24" fill="#1877F2">
               <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
             </svg>
-            <span className="text-sm font-semibold text-white">Facebook</span>
+            <span className="text-xs font-semibold text-white sm:text-sm">Facebook</span>
           </button>
 
           {/* Reddit */}
           <button
             type="button"
             onClick={() => handleShareToReddit(year, archetype)}
-            className="group flex items-center justify-center gap-2 rounded-sm border border-[#FF4500]/50 bg-[#FF4500]/10 px-4 py-3 transition-all hover:bg-[#FF4500]/20 hover:border-[#FF4500]"
+            className="group flex items-center justify-center gap-1.5 rounded-sm border border-[#FF4500]/50 bg-[#FF4500]/10 px-3 py-2 transition-all hover:bg-[#FF4500]/20 hover:border-[#FF4500] sm:gap-2 sm:px-4 sm:py-2.5"
           >
-            <svg className="h-5 w-5" viewBox="0 0 24 24" fill="#FF4500">
+            <svg className="h-4 w-4 sm:h-5 sm:w-5" viewBox="0 0 24 24" fill="#FF4500">
               <path d="M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 0 1 .042.52c0 2.694-3.13 4.87-7.004 4.87-3.874 0-7.004-2.176-7.004-4.87 0-.183.015-.366.043-.534A1.748 1.748 0 0 1 4.028 12c0-.968.786-1.754 1.754-1.754.463 0 .898.196 1.207.49 1.207-.883 2.878-1.43 4.744-1.487l.885-4.182a.342.342 0 0 1 .14-.197.35.35 0 0 1 .238-.042l2.906.617a1.214 1.214 0 0 1 1.108-.701zM9.25 12C8.561 12 8 12.562 8 13.25c0 .687.561 1.248 1.25 1.248.687 0 1.248-.561 1.248-1.249 0-.688-.561-1.249-1.249-1.249zm5.5 0c-.687 0-1.248.561-1.248 1.25 0 .687.561 1.248 1.249 1.248.688 0 1.249-.561 1.249-1.249 0-.687-.562-1.249-1.25-1.249zm-5.466 3.99a.327.327 0 0 0-.231.094.33.33 0 0 0 0 .463c.842.842 2.484.913 2.961.913.477 0 2.105-.056 2.961-.913a.361.361 0 0 0 .029-.463.33.33 0 0 0-.464 0c-.547.533-1.684.73-2.512.73-.828 0-1.979-.196-2.512-.73a.326.326 0 0 0-.232-.095z"/>
             </svg>
-            <span className="text-sm font-semibold text-white">Reddit</span>
+            <span className="text-xs font-semibold text-white sm:text-sm">Reddit</span>
           </button>
 
           {/* Copy Link */}
           <button
             type="button"
             onClick={handleCopyLink}
-            className={`group flex items-center justify-center gap-2 rounded-sm border px-4 py-3 transition-all ${
+            className={`group flex items-center justify-center gap-1.5 rounded-sm border px-3 py-2 transition-all sm:gap-2 sm:px-4 sm:py-2.5 ${
               linkCopied
                 ? 'border-[#4caf50] bg-[#4caf50]/20'
                 : 'border-[#c89b3c]/50 bg-[#c89b3c]/10 hover:bg-[#c89b3c]/20 hover:border-[#c89b3c]'
@@ -1563,18 +1590,18 @@ export default function Recap() {
           >
             {linkCopied ? (
               <>
-                <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="#4caf50" strokeWidth="2">
+                <svg className="h-4 w-4 sm:h-5 sm:w-5" viewBox="0 0 24 24" fill="none" stroke="#4caf50" strokeWidth="2">
                   <polyline points="20 6 9 17 4 12"></polyline>
                 </svg>
-                <span className="text-sm font-semibold text-[#4caf50]">Copied!</span>
+                <span className="text-xs font-semibold text-[#4caf50] sm:text-sm">Copied!</span>
               </>
             ) : (
               <>
-                <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="#c89b3c" strokeWidth="2">
+                <svg className="h-4 w-4 sm:h-5 sm:w-5" viewBox="0 0 24 24" fill="none" stroke="#c89b3c" strokeWidth="2">
                   <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
                   <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
                 </svg>
-                <span className="text-sm font-semibold text-white">Copy Link</span>
+                <span className="text-xs font-semibold text-white sm:text-sm">Copy Link</span>
               </>
             )}
           </button>
@@ -1583,7 +1610,7 @@ export default function Recap() {
 
       {/* Footer Message */}
       <div className="text-center">
-        <p className="text-xs text-[#a09b8c]">
+        <p className="text-[10px] text-[#a09b8c] sm:text-xs">
           Thanks for playing! See you on the Rift in Season {parseInt(year) + 1}
         </p>
       </div>

@@ -17,18 +17,18 @@ export const RoastsCard = ({ roasts }: RoastsCardProps) => {
       {/* Glow effect */}
       <div className="absolute -inset-1 bg-gradient-to-r from-red-500/20 to-orange-500/20 opacity-0 group-hover:opacity-30 blur-xl transition-opacity duration-500" />
       
-      <div className="relative p-8 space-y-6">
+      <div className="relative p-3 sm:p-4 lg:p-6 space-y-2 sm:space-y-3 lg:space-y-4">
         {/* Header */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1.5 sm:gap-2">
           <div className="relative">
             <div className="absolute inset-0 bg-red-500/20 blur-xl animate-pulse" />
-            <Flame className="relative w-7 h-7 text-red-500" />
+            <Flame className="relative w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-red-500" />
           </div>
           <div>
-            <h3 className="text-3xl font-bebas tracking-wide text-foreground group-hover:text-red-400 transition-colors duration-300">
+            <h3 className="text-xl sm:text-2xl lg:text-3xl font-bebas tracking-wide text-foreground group-hover:text-red-400 transition-colors duration-300">
               The Harsh Truth
             </h3>
-            <p className="text-sm font-rajdhani text-muted-foreground">
+            <p className="text-[10px] sm:text-xs font-rajdhani text-muted-foreground">
               Friendly fire incoming... 🔥
             </p>
           </div>
@@ -38,19 +38,19 @@ export const RoastsCard = ({ roasts }: RoastsCardProps) => {
         <div className="h-px bg-gradient-to-r from-transparent via-red-500/40 to-transparent" />
 
         {/* Roasts */}
-        <div className="space-y-4">
+        <div className="space-y-1.5 sm:space-y-2 lg:space-y-3">
           {roasts.map((roast, index) => (
             <div
               key={index}
-              className="group/item p-4 rounded-lg bg-gradient-to-r from-red-500/5 to-orange-500/5 border border-red-500/20 hover:border-red-500/40 hover:from-red-500/10 hover:to-orange-500/10 transition-all duration-300"
+              className="group/item p-2 sm:p-2.5 lg:p-3 rounded-lg bg-gradient-to-r from-red-500/5 to-orange-500/5 border border-red-500/20 hover:border-red-500/40 hover:from-red-500/10 hover:to-orange-500/10 transition-all duration-300"
             >
-              <div className="flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5 group-hover/item:animate-pulse" />
-                <div className="space-y-1 flex-1">
-                  <h4 className="font-bebas text-lg tracking-wide text-red-400 group-hover/item:text-red-300 transition-colors">
+              <div className="flex items-start gap-1.5 sm:gap-2">
+                <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4 text-red-400 flex-shrink-0 mt-0.5 group-hover/item:animate-pulse" />
+                <div className="space-y-0.5 flex-1 min-w-0">
+                  <h4 className="font-bebas text-sm sm:text-base tracking-wide text-red-400 group-hover/item:text-red-300 transition-colors">
                     {roast.title}
                   </h4>
-                  <p className="text-sm leading-relaxed text-foreground/80 font-rajdhani">
+                  <p className="text-[10px] sm:text-xs leading-snug text-foreground/80 font-rajdhani line-clamp-2">
                     {roast.description}
                   </p>
                 </div>
@@ -60,8 +60,8 @@ export const RoastsCard = ({ roasts }: RoastsCardProps) => {
         </div>
 
         {/* Footer note */}
-        <div className="pt-2 border-t border-red-500/20">
-          <p className="text-xs text-center text-muted-foreground font-rajdhani italic">
+        <div className="pt-1 sm:pt-1.5 border-t border-red-500/20">
+          <p className="text-[9px] sm:text-[10px] text-center text-muted-foreground font-rajdhani italic">
             All in good fun! Everyone has room to improve. 😄
           </p>
         </div>
