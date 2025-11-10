@@ -365,6 +365,46 @@ export default function Recap() {
     };
   }, [handleKeyDown]);
 
+  // Scroll wheel navigation with debounce
+  useEffect(() => {
+    let isScrolling = false;
+    let scrollTimeout: NodeJS.Timeout;
+
+    const handleWheel = (event: WheelEvent) => {
+      // Prevent default scroll behavior
+      event.preventDefault();
+      
+      // Debounce scroll events to prevent too rapid navigation
+      if (isScrolling) return;
+      
+      isScrolling = true;
+      
+      // Clear any existing timeout
+      clearTimeout(scrollTimeout);
+      
+      // Determine scroll direction and navigate
+      if (event.deltaY > 0) {
+        // Scrolling down - go to next slide
+        goNext();
+      } else if (event.deltaY < 0) {
+        // Scrolling up - go to previous slide
+        goPrev();
+      }
+      
+      // Reset scrolling flag after delay
+      scrollTimeout = setTimeout(() => {
+        isScrolling = false;
+      }, 800); // 800ms debounce - adjust this value to control sensitivity
+    };
+
+    window.addEventListener("wheel", handleWheel, { passive: false });
+    
+    return () => {
+      window.removeEventListener("wheel", handleWheel);
+      clearTimeout(scrollTimeout);
+    };
+  }, [goNext, goPrev]);
+
   // Video management
   useEffect(() => {
     videoRefs.current.forEach((video, index) => {
@@ -1008,7 +1048,7 @@ export default function Recap() {
             <Crown className="h-5 w-5 text-[#c89b3c] fill-[#c89b3c]/20" />
             <p className="text-base font-bold text-white sm:text-lg lg:text-xl">{archetype}</p>
           </div>
-          <p className="relative mt-0.5 text-[9px] leading-tight text-[#d1c6ac] line-clamp-1 sm:text-[10px] lg:text-xs">{primaryTagline}</p>
+          <p className="relative mt-0.5 text-[9px] leading-tight text-[#d1c6ac] line-clamp-2 sm:text-[10px] lg:text-xs">{primaryTagline}</p>
           
           <div className="relative mt-1 flex items-center justify-center sm:mt-1.5 lg:mt-2">
             <ChartContainer

@@ -477,7 +477,7 @@ PLAYER_WRAPPED_SCHEMA = {
                                     },
                                     "reasoning": {
                                         "type": "string",
-                                        "description": "2-3 lines explaining why this player resembles the pro, referencing specific playstyle traits, champion pool, or statistics",
+                                        "description": "3-4 bullet points explaining why this player resembles the pro. Use bullet points starting with '•'. Reference specific playstyle traits, champion pool, or statistics. Keep each point concise (max 15 words).",
                                     },
                                 },
                                 "required": ["playerName", "reasoning"],
@@ -589,6 +589,10 @@ PRO PLAYER COMPARISON:
 - Use a DIVERSE pool of pro players - don't default to the same 2-3 famous names
 - Consider pro players from all regions: LCK, LPL, LEC, LCS, etc.
 - Reference specific similarities: champion preferences, aggression level, teamfight style, macro play, etc.
+- FORMAT: Provide reasoning as 3-4 bullet points starting with '•', each point being concise (max 15 words)
+- Example format:
+  - playerName: "Keria"
+  - reasoning: "• High vision control with stellar ward placement metrics\n• Exceptional teamfight timing and engage patterns\n• Selfless support playstyle prioritizing team success\n• Consistent performance across all game states"
 - Examples of diverse pro players to consider: Faker, Chovy, Caps, Jojopyun, Ruler, Gumayusi, Keria, Bin, Knight, Inspired, Impact, CoreJJ, Perkz, etc.
 
 ROASTS (Funny Constructive Criticism):
@@ -611,7 +615,9 @@ CRITICAL RULES:
 - CHAMPION NAMES MUST BE REAL: Use only actual League of Legends champion names from the provided player statistics data
 - NEVER use lane/role names (Middle Lane, Top Lane, Support, etc.) as champion names
 - If insufficient champion data exists, only populate what you can verify from the actual data
-- Both funFacts and roasts must have title + description format for uniform display"""
+- Both funFacts and roasts must have title + description format for uniform display
+- PRO PLAYER COMPARISON MUST USE BULLET POINTS: The reasoning field MUST be formatted as separate bullet points, each starting with '•' and separated by '\n'. DO NOT write a paragraph. Example: "• Point one about vision\n• Point two about teamwork\n• Point three about consistency"
+"""
     }
 ]
 
