@@ -960,11 +960,8 @@ export default function Recap() {
     <div className="relative w-full min-h-full lg:h-full lg:overflow-hidden">
       {/* Header - Compact at top */}
       <div className="relative lg:absolute left-0 right-0 top-0 lg:top-4 z-20 text-center mb-4 lg:mb-0 pt-4 lg:pt-0">
-        <h2 className="text-xl font-bold uppercase tracking-[0.2em] text-[#c89b3c] sm:text-2xl">
-          Your Greatest Moments
-        </h2>
         {timelineMatches.length > 0 ? (
-          <p className="mt-1 text-xs text-[#d1c6ac] sm:text-sm">
+          <p className=" text-xl text-[#ffffff] sm:text-sm">
             {activeMatchIndex + 1} / {timelineMatches.length}
           </p>
         ) : (
